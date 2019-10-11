@@ -4,45 +4,55 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Text;
 
-namespace OxTo10
+namespace SocketImageAnalysiser
 {
-    public static class BitmapHelper
+    public class BitmapHelper
     {
-        public static void SaveBitmap(String path, Int32 width, Int32 height, Byte[] imgbuffer)
+        Queue<Byte[]> ImgBufferQueue;
+        MessageHandle msgh;
+        private Boolean _isAnalysising = true;
+
+        public bool IsAnalysising
+        {
+            get
+            {
+                return _isAnalysising;
+            }
+
+            set
+            {
+                _isAnalysising = value;
+            }
+        }
+
+        public BitmapHelper(Queue<Byte[]> imgbuffer,MessageHandle msgh)
+        {
+            ImgBufferQueue = imgbuffer;
+            this.msgh = msgh;
+        }
+
+        public void StopAnalysising()
+        {
+            IsAnalysising = false;
+        }
+
+        public void StartAnalysising()
+        {
+            msgh("开始解析图像文件");
+            while(_isAnalysising)
+            {
+                if(ImgBufferQueue.Count > 0)
+                {
+                    Byte[] buffer = ImgBufferQueue.Dequeue();
+                    
+                }
+            }
+            msgh("结束解析图像文件");
+        }
+        public void SaveBitmap(String path, Int32 width, Int32 height, Byte[] imgbuffer)
         {
             Bitmap bmp = GetRGBBitmapFromBufferWithMemory(width, height, imgbuffer);
             bmp.Save(path,ImageFormat.Bmp);
-        }
-        /// <summary>
-        /// 指针法
-        /// </summary>
-        /// <param name="curBitmap"></param>
-        public static unsafe Bitmap GetRGBBitmapFromBuffer(Int32 width,Int32 height,Byte[] buffer)
-        {
-            Bitmap bmp = new Bitmap(width, height, PixelFormat.Format24bppRgb);
-            Rectangle rect = new Rectangle(0, 0, width, height);
-            BitmapData bmpData = bmp.LockBits(rect, System.Drawing.Imaging.ImageLockMode.WriteOnly, PixelFormat.Format24bppRgb);//curBitmap.PixelFormat
-            byte temp = 0;
-            int w = bmpData.Width;
-            int h = bmpData.Height;
-            int offset = bmpData.Stride - bmpData.Width * 3;//每行读取到最后“有用”数据时，跳过未使用空间XX
-            byte* ptr = (byte*)(bmpData.Scan0);
-            for (int i = 0; i < h; i++)
-            {
-                for (int j = 0; j < w; j++)
-                {
-                    ptr[0] = buffer[temp];
-                    ptr[1] = buffer[temp + 1];
-                    ptr[2] = buffer[temp + 2];
-                    ptr +=3;
-                    temp += 3;
-                    //ptr[temp] = buffer[temp++];
-                    //ptr[temp] = buffer[temp++];
-                }
-                ptr += offset;
-            }
-            bmp.UnlockBits(bmpData);
-            return bmp;
         }
 
         //内存拷贝法
@@ -138,7 +148,38 @@ namespace OxTo10
              bmp8.UnlockBits(data8); 
              bmp24.UnlockBits(data24);
             return bmp24;
-         } 
+         }
 
+        /// <summary>
+        /// 指针法
+        /// </summary>
+        /// <param name="curBitmap"></param>
+        //public static unsafe Bitmap GetRGBBitmapFromBuffer(Int32 width,Int32 height,Byte[] buffer)
+        //{
+        //    Bitmap bmp = new Bitmap(width, height, PixelFormat.Format24bppRgb);
+        //    Rectangle rect = new Rectangle(0, 0, width, height);
+        //    BitmapData bmpData = bmp.LockBits(rect, System.Drawing.Imaging.ImageLockMode.WriteOnly, PixelFormat.Format24bppRgb);//curBitmap.PixelFormat
+        //    byte temp = 0;
+        //    int w = bmpData.Width;
+        //    int h = bmpData.Height;
+        //    int offset = bmpData.Stride - bmpData.Width * 3;//每行读取到最后“有用”数据时，跳过未使用空间XX
+        //    byte* ptr = (byte*)(bmpData.Scan0);
+        //    for (int i = 0; i < h; i++)
+        //    {
+        //        for (int j = 0; j < w; j++)
+        //        {
+        //            ptr[0] = buffer[temp];
+        //            ptr[1] = buffer[temp + 1];
+        //            ptr[2] = buffer[temp + 2];
+        //            ptr +=3;
+        //            temp += 3;
+        //            //ptr[temp] = buffer[temp++];
+        //            //ptr[temp] = buffer[temp++];
+        //        }
+        //        ptr += offset;
+        //    }
+        //    bmp.UnlockBits(bmpData);
+        //    return bmp;
+        //}
     }
 }
