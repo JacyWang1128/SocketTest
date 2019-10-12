@@ -34,6 +34,7 @@
             this.nudPort = new System.Windows.Forms.NumericUpDown();
             this.label1 = new System.Windows.Forms.Label();
             this.btStopListening = new System.Windows.Forms.Button();
+            this.btClear = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pbImgShow)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudPort)).BeginInit();
             this.SuspendLayout();
@@ -50,9 +51,10 @@
             // 
             // rtbConsole
             // 
+            this.rtbConsole.Font = new System.Drawing.Font("黑体", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.rtbConsole.Location = new System.Drawing.Point(46, 86);
             this.rtbConsole.Name = "rtbConsole";
-            this.rtbConsole.Size = new System.Drawing.Size(602, 240);
+            this.rtbConsole.Size = new System.Drawing.Size(602, 516);
             this.rtbConsole.TabIndex = 1;
             this.rtbConsole.Text = "";
             // 
@@ -101,11 +103,23 @@
             this.btStopListening.UseVisualStyleBackColor = true;
             this.btStopListening.Click += new System.EventHandler(this.btStopListening_Click);
             // 
+            // btClear
+            // 
+            this.btClear.Location = new System.Drawing.Point(477, 28);
+            this.btClear.Name = "btClear";
+            this.btClear.Size = new System.Drawing.Size(96, 34);
+            this.btClear.TabIndex = 6;
+            this.btClear.TabStop = false;
+            this.btClear.Text = "清空";
+            this.btClear.UseVisualStyleBackColor = true;
+            this.btClear.Click += new System.EventHandler(this.btClear_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1120, 614);
+            this.Controls.Add(this.btClear);
             this.Controls.Add(this.btStopListening);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.nudPort);
@@ -130,6 +144,7 @@
         private System.Windows.Forms.NumericUpDown nudPort;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button btStopListening;
+        private System.Windows.Forms.Button btClear;
     }
 }
 

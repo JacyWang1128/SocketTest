@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 
 namespace SocketImageAnalysiser
 {
@@ -14,16 +15,15 @@ namespace SocketImageAnalysiser
 
         private UdpClient udpClient;
 
+        public VCZcamera camera;
+
         MessageHandle msgh;
 
-        public UdpHelper(MessageHandle msgh = null)
+        public UdpHelper(MessageHandle msgh,VCZcamera camera)
         {
             UdpPackageBuffer = new Queue<byte[]>();
-            if (msgh != null)
-            {
-                this.msgh = msgh;
-                msgh("创建了一个udphelper");
-            }
+            this.msgh = msgh;
+            this.camera = camera;
         }
 
         public bool IsReceive
@@ -42,7 +42,6 @@ namespace SocketImageAnalysiser
         public void StopListening()
         {
             IsReceive = false;
-            msgh("结束监听！");
         }
 
         public void ListeningPort(Object iport)
@@ -50,6 +49,7 @@ namespace SocketImageAnalysiser
             try
             {
                 Int32 port = Convert.ToInt32(iport);
+                IsReceive = true;
                 //在本机指定的端口接收
                 msgh($"正在监听端口：{port}");
                 udpClient = new UdpClient(port);
@@ -67,6 +67,7 @@ namespace SocketImageAnalysiser
                             var content = System.Text.Encoding.Default.GetBytes($"{iImgNum}_{iPackageNum}OK");
                             udpClient.Send(content, content.Length, remote.Address.ToString(), remote.Port);
                             UdpPackageBuffer.Enqueue(bytes);
+                            camera.CameraIP = remote.Address.ToString();
                             msgh($"收到：{iImgNum}_{iPackageNum},已回复");
                         }
                     }
@@ -75,6 +76,7 @@ namespace SocketImageAnalysiser
                         if (msgh != null)
                             msgh(ex.Message);
                     }
+                    Thread.Sleep(1);
                 }
                 udpClient.Close();
             }
@@ -83,6 +85,7 @@ namespace SocketImageAnalysiser
                 if (msgh != null)
                     msgh($"{ex.Message}\n监听已结束");
             }
+            msgh("结束监听！");
         }
     }
 }

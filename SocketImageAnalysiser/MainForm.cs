@@ -12,34 +12,47 @@ namespace SocketImageAnalysiser
     public partial class MainForm : Form
     {
         MessageHandle msgh;
-        UdpHelper uh;
+        VCZcamera camera;
         public MainForm()
         {
             InitializeComponent();
             CheckForIllegalCrossThreadCalls = false;
+            rtbConsole.BackColor = Color.Black;
+            rtbConsole.ForeColor = Color.LightGreen;
         }
 
         private void AppendText(String text)
         {
-            rtbConsole.AppendText($"{text}\r\n");
+            try
+            {
+                rtbConsole.AppendText($"{text}\r\n");
+            }
+            catch (Exception)
+            {
+
+               // throw;
+            }
         }
 
         private void MainForm_Load(object sender, EventArgs e)
         {
             msgh = new MessageHandle(AppendText);
+            camera = new VCZcamera(msgh);
         }
 
         private void btStartListening_Click(object sender, EventArgs e)
         {
-            //Thread t = new Thread()
-            uh = new UdpHelper(msgh);
-            Thread t = new Thread(uh.ListeningPort);
-            t.Start(nudPort.Value);
+            camera.Start(Convert.ToInt32(nudPort.Value));
         }
 
         private void btStopListening_Click(object sender, EventArgs e)
         {
-            uh.StopListening();
+            camera.Stop();
+        }
+
+        private void btClear_Click(object sender, EventArgs e)
+        {
+            rtbConsole.Clear();
         }
     }
 }
