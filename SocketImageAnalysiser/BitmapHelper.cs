@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.IO;
 using System.Text;
+using System.Threading;
 
 namespace SocketImageAnalysiser
 {
@@ -10,7 +12,15 @@ namespace SocketImageAnalysiser
     {
         Queue<Byte[]> ImgBufferQueue;
         MessageHandle msgh;
+        VCZcamera camera;
         private Boolean _isAnalysising = true;
+
+        public BitmapHelper(Queue<Byte[]> imgbuffer,MessageHandle msgh,VCZcamera camera)
+        {
+            this.msgh = msgh;
+            this.camera = camera;
+            ImgBufferQueue = imgbuffer;
+        }
 
         public bool IsAnalysising
         {
@@ -38,24 +48,93 @@ namespace SocketImageAnalysiser
 
         public void StartAnalysising()
         {
+            IsAnalysising = true;
             msgh("开始解析图像文件");
             while(_isAnalysising)
             {
                 if(ImgBufferQueue.Count > 0)
                 {
                     Byte[] buffer = ImgBufferQueue.Dequeue();
-                    
+                    ImageFormat format = GetImgbufferFormat(buffer);
+                    if(format == ImageFormat.Bmp)
+                    {
+                        switch (camera.colorDepth)
+                        {
+                            case ColorDepth.GrayScale:
+                                Image imgGrayBmp = Bit8To24(GetGrayscaleBitmapFromBuffer(camera.ImgWidth, camera.ImgHeight, buffer));
+                                Bitmap bmpGrayBmp = new Bitmap(imgGrayBmp);
+                                bmpGrayBmp.RotateFlip(camera.rotate);
+                                camera.currentImage = bmpGrayBmp;
+                                imgGrayBmp.Dispose();
+                                camera.IsNewPhoto = true;
+                                break;
+                            case ColorDepth.RGB:
+                                Image imgRGBBmp = GetRGBBitmapFromBufferWithMemory(camera.ImgWidth, camera.ImgHeight, buffer);
+                                Bitmap bmpRGBBmp = new Bitmap(imgRGBBmp);
+                                bmpRGBBmp.RotateFlip(camera.rotate);
+                                camera.currentImage = bmpRGBBmp;
+                                imgRGBBmp.Dispose();
+                                camera.IsNewPhoto = true;
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        //if(camera.currentImage != null)
+                        //{
+                        //    camera.currentImage.Dispose();
+                        //}
+                        Image img = GetImageInBuffer(buffer);
+                        Bitmap bmp = new Bitmap(img);
+                        bmp.RotateFlip(camera.rotate);
+                        camera.currentImage = bmp;
+                        img.Dispose();
+                        camera.IsNewPhoto = true;
+                    }
                 }
+                Thread.Sleep(1);
             }
             msgh("结束解析图像文件");
         }
+
+        private ImageFormat GetImgbufferFormat(Byte[] buffer)
+        {
+            Int32 len = buffer.Length;
+            if(buffer[4] == 0xff && buffer[5] == 0xd8 && buffer[6] == 0xff)
+            {
+                return ImageFormat.Jpeg;
+            }
+            else if (buffer[4] == 0x89 && buffer[5] == 0x50 && buffer[6] == 0x4e && buffer[7] == 0x47)
+            {
+                return ImageFormat.Png;
+            }
+            else
+            {
+                return ImageFormat.Bmp;
+            }
+        }
+
         public void SaveBitmap(String path, Int32 width, Int32 height, Byte[] imgbuffer)
         {
             Bitmap bmp = GetRGBBitmapFromBufferWithMemory(width, height, imgbuffer);
             bmp.Save(path,ImageFormat.Bmp);
         }
 
-        //内存拷贝法
+        //PNG、JPGE
+        public Image GetImageInBuffer(Byte[] buffer)
+        {
+            Image img;
+            using (MemoryStream ms = new MemoryStream())
+            {
+                ms.Write(buffer, 4, buffer.Length - 4);
+                img = Image.FromStream(ms);
+            }
+            return img;
+        }
+
+        //BMP RGB内存拷贝法
         public static Bitmap GetRGBBitmapFromBufferWithMemory(Int32 Width,Int32 Height,Byte[] buffer)
         {
             Bitmap bmp = new Bitmap(Width, Height, PixelFormat.Format24bppRgb);
@@ -70,24 +149,19 @@ namespace SocketImageAnalysiser
             {
                 for (int w = 0; w < Width; w++)
                 {
-                    try
-                    {
                         pixelValues[posScan++] = buffer[posReal++];
                         pixelValues[posScan++] = buffer[posReal++];
                         pixelValues[posScan++] = buffer[posReal++];
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine(ex.Message);
-                    }
                 }
-                //posScan += offset;
+                posScan += offset;
             }
             System.Runtime.InteropServices.Marshal.Copy(pixelValues, 0, iptr, scanBytes);
             bmp.UnlockBits(bmpdata);
             return bmp;
         }
 
+
+        //BMP Grayscale
         public static Bitmap GetGrayscaleBitmapFromBuffer(Int32 Width,Int32 Height,Byte[] buffer)
         {
             Bitmap bmp = new Bitmap(Width, Height, PixelFormat.Format8bppIndexed);
@@ -102,7 +176,7 @@ namespace SocketImageAnalysiser
             {
                 for (int j = 0; j < Height; j++)
                 {
-                    pixelValues[posScan++] = buffer[posReal++];
+                        pixelValues[posScan++] = buffer[posReal++];
                 }
                 posScan += offset;
             }

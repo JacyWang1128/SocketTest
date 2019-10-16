@@ -68,7 +68,7 @@ namespace SocketImageAnalysiser
                             udpClient.Send(content, content.Length, remote.Address.ToString(), remote.Port);
                             UdpPackageBuffer.Enqueue(bytes);
                             camera.CameraIP = remote.Address.ToString();
-                            msgh($"收到：{iImgNum}_{iPackageNum},已回复");
+                            //msgh($"收到：{iImgNum}_{iPackageNum},已回复");
                         }
                     }
                     catch (Exception ex)

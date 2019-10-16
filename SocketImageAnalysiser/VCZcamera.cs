@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Text;
 using System.Threading;
+using System.Windows.Forms;
 
 namespace SocketImageAnalysiser
 {
@@ -38,12 +39,14 @@ namespace SocketImageAnalysiser
         private UInt32 _goodCount;
         private UInt32 _badCount;
         private UInt32 _cycleTime;
+        public RotateFlipType rotate;
         public ImgFormat format;
         public ColorDepth colorDepth;
 
         private Boolean _isShowing = true;
         private Boolean _isNewPhoto = false;
-        
+
+        public Panel showImagePanel;
 
         //当前图像
         public Bitmap currentImage;
@@ -219,12 +222,14 @@ namespace SocketImageAnalysiser
         #endregion
         #endregion
 
-        public VCZcamera(MessageHandle msgh, Int32 imgWidth = 320, Int32 imgHeight = 256)
+        public VCZcamera(MessageHandle msgh, Panel pl,Int32 imgWidth = 320, Int32 imgHeight = 256)
         {
             InitCameraInfo();
             msg = msgh;
             uh = new UdpHelper(msgh,this);
             uph = new UdpPackageHelper(uh.UdpPackageBuffer, msgh, this);
+            bh = new BitmapHelper(uph.ImgBufferQueue,msgh, this);
+            showImagePanel = pl;
             //uph = new UdpPackageHelper(uh.UdpPackageBuffer);
             //bh = new BitmapHelper();
         }
@@ -234,9 +239,15 @@ namespace SocketImageAnalysiser
             Thread t1 = new Thread(uh.ListeningPort);
             Thread t2 = new Thread(uph.UdpPackageAnalysis);
             Thread t3 = new Thread(StartShowingInfo);
+            Thread t4 = new Thread(bh.StartAnalysising);
+            t1.IsBackground = true;
+            t2.IsBackground = true;
+            t3.IsBackground = true;
+            t3.IsBackground = true;
             t1.Start(port);
             t2.Start();
             t3.Start();
+            t4.Start();
         }
 
         public void Stop()
@@ -244,6 +255,7 @@ namespace SocketImageAnalysiser
             uh.StopListening();
             uph.StopAnalysising();
             IsShowing = false;
+            bh.StopAnalysising();
         }
 
         public void StartShowingInfo()
@@ -259,10 +271,14 @@ namespace SocketImageAnalysiser
                 Thread.Sleep(1);
             }
         }
-
+        Int32 count = 1;
         public void NewPhotoMethod()
         {
-            msg($"{DateTime.Now}当前队列中仍有：{uph.UdpPackageBuffer.Count}包未解析！图片缓冲区有：{uph.ImgBufferQueue.Count}张图片未解析！\n相机名称:{CameraName}，相机地址：{CameraIP}，相片宽度：{ImgWidth}，相片高度：{ImgHeight}，相片取景横坐标：（{Roi_x}，{Roi_y}）,相片取景宽度：{Roi_width}，相片取景高：{Roi_height}，相片Cycle Time：{CycleTime}，相片格式：{format.ToString()}，色彩模式：{colorDepth.ToString()}");
+            //msg($"{DateTime.Now}当前队列中仍有：{uph.UdpPackageBuffer.Count}包未解析！图片缓冲区有：{uph.ImgBufferQueue.Count}张图片未解析！\n相机名称:{CameraName}，相机地址：{CameraIP}，相片宽度：{ImgWidth}，相片高度：{ImgHeight}，相片取景横坐标：（{Roi_x}，{Roi_y}）,相片取景宽度：{Roi_width}，相片取景高：{Roi_height}，相片Cycle Time：{CycleTime}，相片格式：{format.ToString()}，色彩模式：{colorDepth.ToString()}");
+            msg($"当前发送{GoodCount}!");
+            msg($"当前解析{count}!");
+            count++;
+            showImagePanel.BackgroundImage = currentImage;
         }
 
         public void InitCameraInfo()
@@ -279,6 +295,7 @@ namespace SocketImageAnalysiser
             BadCount = 0;
             CycleTime = 0;
             format = (ImgFormat)1;
+            rotate = (RotateFlipType)0;
         }
 
     }

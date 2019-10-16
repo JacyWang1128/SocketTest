@@ -42,6 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Animation.cs" />
     <Compile Include="BitmapHelper.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
