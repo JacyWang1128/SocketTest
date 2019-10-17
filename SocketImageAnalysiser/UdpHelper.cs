@@ -51,7 +51,7 @@ namespace SocketImageAnalysiser
                 Int32 port = Convert.ToInt32(iport);
                 IsReceive = true;
                 //在本机指定的端口接收
-                msgh($"正在监听端口：{port}");
+                //msgh($"正在监听端口：{port}");
                 udpClient = new UdpClient(port);
                 IPEndPoint remote = null;
                 while (_isReceive)
@@ -60,7 +60,6 @@ namespace SocketImageAnalysiser
                     {
                         if (udpClient.Available > 0)
                         {
-                            //关闭udpClient时此句会产生异常
                             byte[] bytes = udpClient.Receive(ref remote);
                             Int32 iImgNum = BitConverter.ToInt32(bytes, 4);
                             Int16 iPackageNum = BitConverter.ToInt16(bytes, 0);
@@ -73,8 +72,8 @@ namespace SocketImageAnalysiser
                     }
                     catch (Exception ex)
                     {
-                        if (msgh != null)
-                            msgh(ex.Message);
+                        //if (msgh != null)
+                            //msgh(ex.Message);
                     }
                     Thread.Sleep(1);
                 }
@@ -82,10 +81,10 @@ namespace SocketImageAnalysiser
             }
             catch (Exception ex)
             {
-                if (msgh != null)
-                    msgh($"{ex.Message}\n监听已结束");
+                if (msgh != null) { }
+                    //msgh($"{ex.Message}\n监听已结束");
             }
-            msgh("结束监听！");
+            //msgh("结束监听！");
         }
     }
 }

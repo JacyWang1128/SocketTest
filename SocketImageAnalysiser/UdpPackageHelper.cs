@@ -5,17 +5,11 @@ using System.Threading;
 
 namespace SocketImageAnalysiser
 {
-    public delegate void MessageHandle(String text);
-    struct PackageHeader
-    {
-        public short packageNumber;
-        public short packageCount;
-        public Int32 imageNumber;
-        public Int32 unkonwnMeta;
-        public char proctcolNumber;
-        public Int32 packageLength;
-        public Int32 attemptCount;
-    }
+    /// <summary>
+    /// 处理信息包的方法
+    /// </summary>
+    /// <param name="dic"></param>
+    public delegate void MessageHandle(Dictionary<String, String> dic);
     public class UdpPackageHelper
     {
         readonly Byte[] SplitStringArray = new Byte[2] { 0x0a, 0x3b };
@@ -113,7 +107,7 @@ namespace SocketImageAnalysiser
         public void UdpPackageAnalysis()
         {
             IsAnalysising = true;
-            msgh("开始解析数据包");
+            //msgh("开始解析数据包");
             Int32 iLastPackageNum = 0;
             while (IsAnalysising)
             {
@@ -161,6 +155,10 @@ namespace SocketImageAnalysiser
                                             case 8:
                                                 camera.Roi_height = Convert.ToInt32(BytesToString(GetSegmentInArray(bytes, currentPos, count)));
                                                 break;
+                                            case 10:
+                                                //识别ImageSection
+                                                /********尚未嵌入代码********/
+                                                break;
                                             case 18:
                                                 camera.format = (ImgFormat)Convert.ToInt32(BytesToString(GetSegmentInArray(bytes, currentPos, count)));
                                                 break;
@@ -179,7 +177,7 @@ namespace SocketImageAnalysiser
                                     }
                                     catch (Exception ex)
                                     {
-                                        msgh(ex.Message);
+                                        //msgh(ex.Message);
                                     }
                                    
                                     currentPos += count;
@@ -227,7 +225,7 @@ namespace SocketImageAnalysiser
 
                 Thread.Sleep(1);
             }
-            msgh("数据包解析停止");
+            //msgh("数据包解析停止");
         }
     }
 }

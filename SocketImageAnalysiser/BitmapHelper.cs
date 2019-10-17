@@ -49,7 +49,7 @@ namespace SocketImageAnalysiser
         public void StartAnalysising()
         {
             IsAnalysising = true;
-            msgh("开始解析图像文件");
+            //msgh("开始解析图像文件");
             while(_isAnalysising)
             {
                 if(ImgBufferQueue.Count > 0)
@@ -96,7 +96,7 @@ namespace SocketImageAnalysiser
                 }
                 Thread.Sleep(1);
             }
-            msgh("结束解析图像文件");
+            //msgh("结束解析图像文件");
         }
 
         private ImageFormat GetImgbufferFormat(Byte[] buffer)

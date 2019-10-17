@@ -46,10 +46,15 @@ namespace SocketImageAnalysiser
         private Boolean _isShowing = true;
         private Boolean _isNewPhoto = false;
 
-        public Panel showImagePanel;
+        public PictureBox showImagePanel;
 
         //当前图像
         public Bitmap currentImage;
+
+        //当前图像信息
+        public Dictionary<String, String> VCZcameraInfo = new Dictionary<string, string>();
+
+        public Boolean isReceiving = false;
         #region 封装字段
         public string CameraName
         {
@@ -222,7 +227,7 @@ namespace SocketImageAnalysiser
         #endregion
         #endregion
 
-        public VCZcamera(MessageHandle msgh, Panel pl,Int32 imgWidth = 320, Int32 imgHeight = 256)
+        public VCZcamera(MessageHandle msgh, PictureBox pl,Int32 imgWidth = 320, Int32 imgHeight = 256)
         {
             InitCameraInfo();
             msg = msgh;
@@ -248,6 +253,7 @@ namespace SocketImageAnalysiser
             t2.Start();
             t3.Start();
             t4.Start();
+            isReceiving = true;
         }
 
         public void Stop()
@@ -256,6 +262,7 @@ namespace SocketImageAnalysiser
             uph.StopAnalysising();
             IsShowing = false;
             bh.StopAnalysising();
+            isReceiving = false;
         }
 
         public void StartShowingInfo()
@@ -275,9 +282,17 @@ namespace SocketImageAnalysiser
         public void NewPhotoMethod()
         {
             //msg($"{DateTime.Now}当前队列中仍有：{uph.UdpPackageBuffer.Count}包未解析！图片缓冲区有：{uph.ImgBufferQueue.Count}张图片未解析！\n相机名称:{CameraName}，相机地址：{CameraIP}，相片宽度：{ImgWidth}，相片高度：{ImgHeight}，相片取景横坐标：（{Roi_x}，{Roi_y}）,相片取景宽度：{Roi_width}，相片取景高：{Roi_height}，相片Cycle Time：{CycleTime}，相片格式：{format.ToString()}，色彩模式：{colorDepth.ToString()}");
-            msg($"当前发送{GoodCount}!");
-            msg($"当前解析{count}!");
-            count++;
+
+            VCZcameraInfo["CameraIP"] = CameraIP;
+            VCZcameraInfo["CameraName"] = CameraName;
+            VCZcameraInfo["Roi_x"] = Roi_x.ToString();
+            VCZcameraInfo["Roi_y"] = Roi_y.ToString();
+            VCZcameraInfo["Roi_height"] = Roi_height.ToString();
+            VCZcameraInfo["Roi_width"] = Roi_width.ToString();
+            VCZcameraInfo["GoodCount"] = GoodCount.ToString();
+            VCZcameraInfo["BadCount"] = BadCount.ToString();
+            VCZcameraInfo["CycleTime"] = (Convert.ToDouble(CycleTime)/1000).ToString();
+            msg(VCZcameraInfo);
             showImagePanel.BackgroundImage = currentImage;
         }
 
@@ -296,6 +311,15 @@ namespace SocketImageAnalysiser
             CycleTime = 0;
             format = (ImgFormat)1;
             rotate = (RotateFlipType)0;
+            VCZcameraInfo["CameraIP"] = CameraIP;
+            VCZcameraInfo["CameraName"] = CameraIP;
+            VCZcameraInfo["Roi_x"] = Roi_x.ToString();
+            VCZcameraInfo["Roi_y"] = Roi_y.ToString();
+            VCZcameraInfo["Roi_height"] = Roi_height.ToString();
+            VCZcameraInfo["Roi_width"] = Roi_width.ToString();
+            VCZcameraInfo["GoodCount"] = GoodCount.ToString();
+            VCZcameraInfo["BadCount"] = BadCount.ToString();
+            VCZcameraInfo["CycleTime"] = BadCount.ToString();
         }
 
     }

@@ -17,9 +17,7 @@ namespace SocketImageAnalysiser
         {
             InitializeComponent();
             CheckForIllegalCrossThreadCalls = false;
-            rtbConsole.BackColor = Color.Black;
-            rtbConsole.ForeColor = Color.LightGreen;
-            
+            this.StartPosition = FormStartPosition.CenterScreen;
         }
 
         protected override CreateParams CreateParams
@@ -32,38 +30,52 @@ namespace SocketImageAnalysiser
             }
         }
 
-        private void AppendText(String text)
+        private void ShowInfo(Dictionary<String, String> Info)
         {
-            try
-            {
-                rtbConsole.AppendText($"{text}\r\n");
-            }
-            catch (Exception)
-            {
-
-               // throw;
-            }
+            lbBadCount.Text = Info["BadCount"];
+            lbGoodCount.Text = Info["GoodCount"];
+            lbCycleTime.Text = Info["CycleTime"];
+            lbCameraIP.Text = Info["CameraIP"];
+            lbCameraName.Text = Info["CameraName"];
+            lbRoiheight.Text = Info["Roi_height"];
+            lbRoiwidth.Text = Info["Roi_width"];
+            lbRoix.Text = Info["Roi_x"];
+            lbRoiy.Text = Info["Roi_y"];
         }
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            msgh = new MessageHandle(AppendText);
-            camera = new VCZcamera(msgh,panel1);
+            msgh = new MessageHandle(ShowInfo);
+            camera = new VCZcamera(msgh,pictureBox1);
         }
 
         private void btStartListening_Click(object sender, EventArgs e)
         {
-            camera.Start(Convert.ToInt32(nudPort.Value));
+            if (camera.isReceiving)
+            {
+                MessageBox.Show("监听正在进行！");
+            }
+            else
+            {
+                camera.Start(Convert.ToInt32(nudPort.Value));
+            }
         }
 
         private void btStopListening_Click(object sender, EventArgs e)
         {
-            camera.Stop();
+            if (camera.isReceiving)
+            {
+                camera.Stop();
+            }
+            else
+            {
+                MessageBox.Show("监听已经停止！");
+            }
         }
 
         private void btClear_Click(object sender, EventArgs e)
         {
-            rtbConsole.Clear();
+
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -93,10 +105,10 @@ namespace SocketImageAnalysiser
 
         private void button1_Click(object sender, EventArgs e)
         {
-            if (panel2.Visible)
-                panel2.Visible = false;
-            else
-                Animation.ShowControl(panel2, true, AnchorStyles.Top);
+            //if (panel2.Visible)
+            //    panel2.Visible = false;
+            //else
+            //    Animation.ShowControl(panel2, true, AnchorStyles.Top);
         }
     }
 }
