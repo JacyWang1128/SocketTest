@@ -157,7 +157,11 @@ namespace SocketImageAnalysiser
                                                 break;
                                             case 10:
                                                 //识别ImageSection
-                                                /********尚未嵌入代码********/
+                                                camera.ImgSection = Convert.ToInt32(BytesToString(GetSegmentInArray(bytes, currentPos, count)));
+                                                break;
+                                            case 11:
+                                                //识别ImageResolution
+                                                camera.ImgResolution = Convert.ToInt32(BytesToString(GetSegmentInArray(bytes, currentPos, count)));
                                                 break;
                                             case 18:
                                                 camera.format = (ImgFormat)Convert.ToInt32(BytesToString(GetSegmentInArray(bytes, currentPos, count)));

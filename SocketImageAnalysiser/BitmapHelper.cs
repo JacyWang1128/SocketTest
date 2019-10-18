@@ -63,7 +63,6 @@ namespace SocketImageAnalysiser
                             case ColorDepth.GrayScale:
                                 Image imgGrayBmp = Bit8To24(GetGrayscaleBitmapFromBuffer(camera.ImgWidth, camera.ImgHeight, buffer));
                                 Bitmap bmpGrayBmp = new Bitmap(imgGrayBmp);
-                                bmpGrayBmp.RotateFlip(camera.rotate);
                                 camera.currentImage = bmpGrayBmp;
                                 imgGrayBmp.Dispose();
                                 camera.IsNewPhoto = true;
@@ -71,7 +70,6 @@ namespace SocketImageAnalysiser
                             case ColorDepth.RGB:
                                 Image imgRGBBmp = GetRGBBitmapFromBufferWithMemory(camera.ImgWidth, camera.ImgHeight, buffer);
                                 Bitmap bmpRGBBmp = new Bitmap(imgRGBBmp);
-                                bmpRGBBmp.RotateFlip(camera.rotate);
                                 camera.currentImage = bmpRGBBmp;
                                 imgRGBBmp.Dispose();
                                 camera.IsNewPhoto = true;
@@ -88,7 +86,6 @@ namespace SocketImageAnalysiser
                         //}
                         Image img = GetImageInBuffer(buffer);
                         Bitmap bmp = new Bitmap(img);
-                        bmp.RotateFlip(camera.rotate);
                         camera.currentImage = bmp;
                         img.Dispose();
                         camera.IsNewPhoto = true;

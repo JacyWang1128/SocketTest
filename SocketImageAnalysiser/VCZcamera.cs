@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
@@ -9,9 +10,9 @@ namespace SocketImageAnalysiser
 {
     public enum ImgFormat
     {
-        BMP = 1,
-        JPEG = 2,
-        PNG = 3
+        bmp = 1,
+        jpg = 2,
+        png = 3
     }
     public enum ColorDepth
     {
@@ -39,15 +40,22 @@ namespace SocketImageAnalysiser
         private UInt32 _goodCount;
         private UInt32 _badCount;
         private UInt32 _cycleTime;
+        private Int32 _imgSection;
+        private Int32 _imgResolution;
         public RotateFlipType rotate;
         public ImgFormat format;
         public ColorDepth colorDepth;
+        public ImageFormat SaveImageFormat;
+        public Boolean IsSaveing;
+        public Boolean IsRestore;
+        private Int32 _cmosWidth;
+        private Int32 _cmosHeight;
 
         private Boolean _isShowing = true;
         private Boolean _isNewPhoto = false;
 
         public PictureBox showImagePanel;
-
+        public String FilePrefix;
         //当前图像
         public Bitmap currentImage;
 
@@ -224,10 +232,62 @@ namespace SocketImageAnalysiser
                 _isNewPhoto = value;
             }
         }
+
+        public int ImgSection
+        {
+            get
+            {
+                return _imgSection;
+            }
+
+            set
+            {
+                _imgSection = value;
+            }
+        }
+
+        public int ImgResolution
+        {
+            get
+            {
+                return _imgResolution;
+            }
+
+            set
+            {
+                _imgResolution = value;
+            }
+        }
+
+        public int CmosWidth
+        {
+            get
+            {
+                return _cmosWidth;
+            }
+
+            set
+            {
+                _cmosWidth = value;
+            }
+        }
+
+        public int CmosHeight
+        {
+            get
+            {
+                return _cmosHeight;
+            }
+
+            set
+            {
+                _cmosHeight = value;
+            }
+        }
         #endregion
         #endregion
 
-        public VCZcamera(MessageHandle msgh, PictureBox pl,Int32 imgWidth = 320, Int32 imgHeight = 256)
+        public VCZcamera(MessageHandle msgh, PictureBox pl)
         {
             InitCameraInfo();
             msg = msgh;
@@ -237,6 +297,12 @@ namespace SocketImageAnalysiser
             showImagePanel = pl;
             //uph = new UdpPackageHelper(uh.UdpPackageBuffer);
             //bh = new BitmapHelper();
+        }
+
+        public void SetCMOS(Int32 width,Int32 height)
+        {
+            CmosWidth = width;
+            CmosHeight = height;
         }
 
         public void Start(Int32 port)
@@ -292,16 +358,40 @@ namespace SocketImageAnalysiser
             VCZcameraInfo["GoodCount"] = GoodCount.ToString();
             VCZcameraInfo["BadCount"] = BadCount.ToString();
             VCZcameraInfo["CycleTime"] = (Convert.ToDouble(CycleTime)/1000).ToString();
+            VCZcameraInfo["ImgWidth"] = ImgWidth.ToString();
+            VCZcameraInfo["ImgHeight"] = ImgHeight.ToString();
+            VCZcameraInfo["ImgSection"] = ImgSection.ToString();
+            VCZcameraInfo["format"] = format.ToString();
             msg(VCZcameraInfo);
-            showImagePanel.BackgroundImage = currentImage;
+            Bitmap showImage = new Bitmap(currentImage);
+            showImage.RotateFlip(rotate);
+            showImagePanel.Image = showImage;
+            if (IsSaveing)
+            {
+                if (IsRestore)
+                {
+                    Image img = GetSourceImg();
+                    img.Save(FilePrefix + count++.ToString() + "." + format);
+                    img.Dispose();
+                }
+                else
+                {
+                    Bitmap bmp = new Bitmap(currentImage);
+                    bmp.Save(FilePrefix + count++.ToString() + "." + format);
+                    bmp.Dispose();
+                }
+            }
+            //showImagePanel.Image = GetSourceImg();
         }
 
         public void InitCameraInfo()
         {
+            FilePrefix = "";
             CameraIP = "0.0.0.0";
             CameraName = "";
             ImgWidth = -1;
             ImgHeight = -1;
+            ImgSection = -1;
             Roi_height = -1;
             Roi_width = -1;
             Roi_x = -1;
@@ -311,15 +401,68 @@ namespace SocketImageAnalysiser
             CycleTime = 0;
             format = (ImgFormat)1;
             rotate = (RotateFlipType)0;
+            CmosWidth = -1;
+            CmosHeight = -1;
+            IsSaveing = false;
+            IsRestore = false;
             VCZcameraInfo["CameraIP"] = CameraIP;
-            VCZcameraInfo["CameraName"] = CameraIP;
+            VCZcameraInfo["CameraName"] = CameraName;
             VCZcameraInfo["Roi_x"] = Roi_x.ToString();
             VCZcameraInfo["Roi_y"] = Roi_y.ToString();
             VCZcameraInfo["Roi_height"] = Roi_height.ToString();
             VCZcameraInfo["Roi_width"] = Roi_width.ToString();
             VCZcameraInfo["GoodCount"] = GoodCount.ToString();
             VCZcameraInfo["BadCount"] = BadCount.ToString();
-            VCZcameraInfo["CycleTime"] = BadCount.ToString();
+            VCZcameraInfo["CycleTime"] = CycleTime.ToString();
+            VCZcameraInfo["ImgWidth"] = ImgWidth.ToString();
+            VCZcameraInfo["ImgHeight"] = ImgHeight.ToString();
+            VCZcameraInfo["ImgSection"] = ImgSection.ToString();
+            VCZcameraInfo["format"] = format.ToString();
+        }
+
+        public Image GetSourceImg()
+        {
+            if(CmosHeight < 1 || CmosWidth < 1)
+            {
+                return new Bitmap(currentImage);
+            }
+            Bitmap bmp;
+            Bitmap now = new Bitmap(currentImage);
+            switch (ImgResolution)
+            {
+                case 1:
+                    bmp = new Bitmap(CmosWidth, CmosHeight);
+                    break;
+                case 2:
+                    bmp = new Bitmap(CmosWidth / 2, CmosHeight / 2);
+                    break;
+                case 3:
+                    bmp = new Bitmap(CmosWidth / 4, CmosHeight / 4);
+                    break;
+                default:
+                    bmp = new Bitmap(CmosWidth, CmosHeight);
+                    break;
+            }
+            
+            using(Graphics g = Graphics.FromImage(bmp))
+            {
+                switch (ImgResolution)
+                {
+                    case 1:
+                        g.DrawImage(now, Roi_x, Roi_y);
+                        break;
+                    case 2:
+                        g.DrawImage(now, Roi_x/2, Roi_y/2);
+                        break;
+                    case 3:
+                        g.DrawImage(now, Roi_x/4, Roi_y/4);
+                        break;
+                    default:
+                        g.DrawImage(now, Roi_x, Roi_y);
+                        break;
+                }
+            }
+            return bmp;
         }
 
     }
