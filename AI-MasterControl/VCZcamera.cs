@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 
-namespace SocketImageAnalysiser
+namespace AI_MasterControl
 {
     public enum ImgFormat
     {
@@ -23,14 +23,15 @@ namespace SocketImageAnalysiser
     {
         #region 声明
         //子类声明
-        public MessageHandle msg;
-        public UdpHelper uh;
-        public UdpPackageHelper uph;
-        public BitmapHelper bh;
+        private MessageHandle msg;
+        private UdpHelper uh;
+        private UdpPackageHelper uph;
+        private BitmapHelper bh;
 
         //属性声明
         private String _cameraName;
         private String _cameraIP;
+        private Int32 _port;
         private Int32 _imgWidth;
         private Int32 _imgHeight;
         private Int32 _roi_x;
@@ -284,6 +285,19 @@ namespace SocketImageAnalysiser
                 _cmosHeight = value;
             }
         }
+
+        public int Port
+        {
+            get
+            {
+                return _port;
+            }
+
+            set
+            {
+                _port = value;
+            }
+        }
         #endregion
         #endregion
 
@@ -291,21 +305,21 @@ namespace SocketImageAnalysiser
         {
             InitCameraInfo();
             msg = msgh;
-            uh = new UdpHelper(msgh, this);
+            uh = new UdpHelper(msgh,this);
             uph = new UdpPackageHelper(uh.UdpPackageBuffer, msgh, this);
-            bh = new BitmapHelper(uph.ImgBufferQueue, msgh, this);
+            bh = new BitmapHelper(uph.ImgBufferQueue,msgh, this);
             showImagePanel = pl;
             //uph = new UdpPackageHelper(uh.UdpPackageBuffer);
             //bh = new BitmapHelper();
         }
 
-        public void SetCMOS(Int32 width, Int32 height)
+        public void SetCMOS(Int32 width,Int32 height)
         {
             CmosWidth = width;
             CmosHeight = height;
         }
 
-        public void Start(Int32 port)
+        public void Start()
         {
             Thread t1 = new Thread(uh.ListeningPort);
             Thread t2 = new Thread(uph.UdpPackageAnalysis);
@@ -315,7 +329,7 @@ namespace SocketImageAnalysiser
             t2.IsBackground = true;
             t3.IsBackground = true;
             t3.IsBackground = true;
-            t1.Start(port);
+            t1.Start(Port);
             t2.Start();
             t3.Start();
             t4.Start();
@@ -408,6 +422,7 @@ namespace SocketImageAnalysiser
             FilePrefix = "";
             CameraIP = "0.0.0.0";
             CameraName = "";
+            Port = 0;
             ImgWidth = -1;
             ImgHeight = -1;
             ImgSection = -1;
@@ -441,7 +456,7 @@ namespace SocketImageAnalysiser
 
         public Image GetSourceImg()
         {
-            if (CmosHeight < 1 || CmosWidth < 1)
+            if(CmosHeight < 1 || CmosWidth < 1)
             {
                 return new Bitmap(currentImage);
             }
@@ -450,7 +465,7 @@ namespace SocketImageAnalysiser
             switch (ImgResolution)
             {
                 case 1:
-                    bmp = new Bitmap(CmosWidth, CmosHeight,PixelFormat.Format24bppRgb);
+                    bmp = new Bitmap(CmosWidth, CmosHeight, PixelFormat.Format24bppRgb);
                     break;
                 case 2:
                     bmp = new Bitmap(CmosWidth / 2, CmosHeight / 2, PixelFormat.Format24bppRgb);
@@ -462,20 +477,19 @@ namespace SocketImageAnalysiser
                     bmp = new Bitmap(CmosWidth, CmosHeight, PixelFormat.Format24bppRgb);
                     break;
             }
-
-            using (Graphics g = Graphics.FromImage(bmp))
+            
+            using(Graphics g = Graphics.FromImage(bmp))
             {
-                g.Clear(Color.Transparent);
                 switch (ImgResolution)
                 {
                     case 1:
                         g.DrawImage(now, Roi_x, Roi_y);
                         break;
                     case 2:
-                        g.DrawImage(now, Roi_x / 2, Roi_y / 2);
+                        g.DrawImage(now, Roi_x/2, Roi_y/2);
                         break;
                     case 3:
-                        g.DrawImage(now, Roi_x / 4, Roi_y / 4);
+                        g.DrawImage(now, Roi_x/4, Roi_y/4);
                         break;
                     default:
                         g.DrawImage(now, Roi_x, Roi_y);

@@ -6,7 +6,7 @@ using System.IO;
 using System.Text;
 using System.Threading;
 
-namespace SocketImageAnalysiser
+namespace AI_MasterControl
 {
     public class BitmapHelper
     {

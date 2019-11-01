@@ -189,47 +189,59 @@ namespace OxTo10
 
     class Program
     {
+        static Int32 fun(int x)
+        {
+            Int32 count = 0;
+            while(x > 0)
+            {
+                count++;
+                x = x & (x - 1);
+            }
+            return count;
+        }
         static void Main(string[] args)
         {
-            Console.ForegroundColor = ConsoleColor.DarkGreen;
-            String strasdasd = "01000100d50600000000000006455654414350000e0100000500000052756e74696d650a3b2f726f6f742f52756e74696d652f446576696365732f50435f4c6f63616c2f50726f6772616d732f4f4b4e472e636b700a3b456d7074790a3b323031395f31305f31325f30385f35345f34305f3235323037380a3b302e302e302e300a3b313734393b3332303b3235363b313b303b303b313238303b313032343b313b313b333b313b313b313b303b303b313b323b333b353b313b313b303b303b303b33303030303b353935323b3332303b303b303b00430d0000ffd8ffe000104a46494600010100000100010000ffdb004300000000010000000c00000004000000ff000000ff00ff00ffffff00";
-            var tempCharArr = strasdasd.ToCharArray();
-            String[] strarray = strasdasd.Split(' ');
-            List<Byte> bytes = new List<byte>();
-            for (int i = 0; i < tempCharArr.Length / 2; i++)
-            {
-                var temparr = new Char[2] { tempCharArr[i * 2], tempCharArr[i * 2 + 1] };
-                Int32 tempint = Convert.ToInt32(new String(temparr), 16);
-                bytes.Add((byte)tempint);
-            }
-            Byte[] buffer = bytes.ToArray();
-            Test t = new Test();
-            t.UdpPackageAnalysis(buffer);
+            Console.WriteLine(fun(9999));
             Console.ReadKey();
-
-            #region 之前代码
-            //Stopwatch sw1 = new Stopwatch();
-            //sw1.Start();
-            //Bitmap target1 = BitmapHelper.GetRGBBitmapFromBuffer(320, 256, buffer);
-            //sw1.Stop();
-            //target1.Save(@"C:\Users\Administrator\Desktop\CAMERA\RGB1.bmp", ImageFormat.Bmp);
-            //Console.WriteLine($"指针法解码总共花费：{sw1.Elapsed}秒\n按任意键结束！");
-            //Stopwatch sw2 = new Stopwatch();
-            //sw2.Start();
-            //Bitmap target = BitmapHelper.GetRGBBitmapFromBufferWithMemory(320, 256, buffer);
-            //sw2.Stop();
-            //target.Save(@"C:\Users\Administrator\Desktop\CAMERA\RGB2.bmp", ImageFormat.Bmp);
-            //Console.WriteLine($"内存法解码总共花费：{sw2.Elapsed}秒\n按任意键结束！");
-            //Console.ReadKey();
-            //using (FileStream fs = new FileStream(@"C:\Users\Administrator\Desktop\CAMERA\14.jpg", FileMode.Create, FileAccess.ReadWrite))
+            //Console.ForegroundColor = ConsoleColor.DarkGreen;
+            //String strasdasd = "01000100d50600000000000006455654414350000e0100000500000052756e74696d650a3b2f726f6f742f52756e74696d652f446576696365732f50435f4c6f63616c2f50726f6772616d732f4f4b4e472e636b700a3b456d7074790a3b323031395f31305f31325f30385f35345f34305f3235323037380a3b302e302e302e300a3b313734393b3332303b3235363b313b303b303b313238303b313032343b313b313b333b313b313b313b303b303b313b323b333b353b313b313b303b303b303b33303030303b353935323b3332303b303b303b00430d0000ffd8ffe000104a46494600010100000100010000ffdb004300000000010000000c00000004000000ff000000ff00ff00ffffff00";
+            //var tempCharArr = strasdasd.ToCharArray();
+            //String[] strarray = strasdasd.Split(' ');
+            //List<Byte> bytes = new List<byte>();
+            //for (int i = 0; i < tempCharArr.Length / 2; i++)
             //{
-            //    fs.Write(buffer, 0, buffer.Length);
+            //    var temparr = new Char[2] { tempCharArr[i * 2], tempCharArr[i * 2 + 1] };
+            //    Int32 tempint = Convert.ToInt32(new String(temparr), 16);
+            //    bytes.Add((byte)tempint);
             //}
-            //Bitmap target8 = BitmapHelper.GetBitmapFromBuffer(320, 256, buffer);
-            //Bitmap target = BitmapHelper.Bit8To24(target8);
-            //target.Save(@"C:\Users\Administrator\Desktop\CAMERA\13.bmp",ImageFormat.Bmp);
-            //byte[] byteArray = System.Text.Encoding.Default.GetBytes(strsource);
-            #endregion
+            //Byte[] buffer = bytes.ToArray();
+            //Test t = new Test();
+            //t.UdpPackageAnalysis(buffer);
+            //Console.ReadKey();
+
+            //#region 之前代码
+            ////Stopwatch sw1 = new Stopwatch();
+            ////sw1.Start();
+            ////Bitmap target1 = BitmapHelper.GetRGBBitmapFromBuffer(320, 256, buffer);
+            ////sw1.Stop();
+            ////target1.Save(@"C:\Users\Administrator\Desktop\CAMERA\RGB1.bmp", ImageFormat.Bmp);
+            ////Console.WriteLine($"指针法解码总共花费：{sw1.Elapsed}秒\n按任意键结束！");
+            ////Stopwatch sw2 = new Stopwatch();
+            ////sw2.Start();
+            ////Bitmap target = BitmapHelper.GetRGBBitmapFromBufferWithMemory(320, 256, buffer);
+            ////sw2.Stop();
+            ////target.Save(@"C:\Users\Administrator\Desktop\CAMERA\RGB2.bmp", ImageFormat.Bmp);
+            ////Console.WriteLine($"内存法解码总共花费：{sw2.Elapsed}秒\n按任意键结束！");
+            ////Console.ReadKey();
+            ////using (FileStream fs = new FileStream(@"C:\Users\Administrator\Desktop\CAMERA\14.jpg", FileMode.Create, FileAccess.ReadWrite))
+            ////{
+            ////    fs.Write(buffer, 0, buffer.Length);
+            ////}
+            ////Bitmap target8 = BitmapHelper.GetBitmapFromBuffer(320, 256, buffer);
+            ////Bitmap target = BitmapHelper.Bit8To24(target8);
+            ////target.Save(@"C:\Users\Administrator\Desktop\CAMERA\13.bmp",ImageFormat.Bmp);
+            ////byte[] byteArray = System.Text.Encoding.Default.GetBytes(strsource);
+            //#endregion
         }
 
         public static String ShowBuffer(byte[] buffer)

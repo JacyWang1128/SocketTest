@@ -11,6 +11,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StructTest", "StructTest\St
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocketImageAnalysiser", "SocketImageAnalysiser\SocketImageAnalysiser.csproj", "{457EA4A4-5127-4BF1-8A24-151CABDDDC65}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AI-MasterControl", "AI-MasterControl\AI-MasterControl.csproj", "{F40F2F4F-4914-4BB0-AEF7-5572BA787963}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AI-Master", "AI-Master\AI-Master.csproj", "{D62518BB-D5BD-4509-AE67-3ED7E9867D54}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +37,14 @@ Global
 		{457EA4A4-5127-4BF1-8A24-151CABDDDC65}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{457EA4A4-5127-4BF1-8A24-151CABDDDC65}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{457EA4A4-5127-4BF1-8A24-151CABDDDC65}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F40F2F4F-4914-4BB0-AEF7-5572BA787963}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F40F2F4F-4914-4BB0-AEF7-5572BA787963}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F40F2F4F-4914-4BB0-AEF7-5572BA787963}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F40F2F4F-4914-4BB0-AEF7-5572BA787963}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D62518BB-D5BD-4509-AE67-3ED7E9867D54}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D62518BB-D5BD-4509-AE67-3ED7E9867D54}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D62518BB-D5BD-4509-AE67-3ED7E9867D54}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D62518BB-D5BD-4509-AE67-3ED7E9867D54}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -5,7 +5,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 
-namespace SocketImageAnalysiser
+namespace AI_MasterControl
 {
     public class UdpHelper
     {
@@ -52,8 +52,13 @@ namespace SocketImageAnalysiser
                 IsReceive = true;
                 //在本机指定的端口接收
                 //msgh($"正在监听端口：{port}");
-                udpClient = new UdpClient(port);
+                udpClient = new UdpClient();
+                //udpClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+                udpClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+                udpClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Broadcast, true);
                 IPEndPoint remote = null;
+                IPEndPoint test = new IPEndPoint(IPAddress.Any, port);
+                udpClient.Client.Bind(test);
                 while (_isReceive)
                 {
                     try

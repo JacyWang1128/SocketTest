@@ -79,6 +79,8 @@
             this.groupBox7 = new System.Windows.Forms.GroupBox();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.textBox2 = new System.Windows.Forms.TextBox();
+            this.label11 = new System.Windows.Forms.Label();
+            this.tbIPaddress = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.nudPort)).BeginInit();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -91,7 +93,7 @@
             // 
             // btStartListening
             // 
-            this.btStartListening.Location = new System.Drawing.Point(155, 14);
+            this.btStartListening.Location = new System.Drawing.Point(386, 14);
             this.btStartListening.Name = "btStartListening";
             this.btStartListening.Size = new System.Drawing.Size(81, 25);
             this.btStartListening.TabIndex = 0;
@@ -102,7 +104,7 @@
             // nudPort
             // 
             this.nudPort.Font = new System.Drawing.Font("宋体", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.nudPort.Location = new System.Drawing.Point(93, 15);
+            this.nudPort.Location = new System.Drawing.Point(323, 15);
             this.nudPort.Maximum = new decimal(new int[] {
             65536,
             0,
@@ -120,7 +122,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(13, 20);
+            this.label1.Location = new System.Drawing.Point(243, 20);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(77, 12);
             this.label1.TabIndex = 4;
@@ -365,9 +367,9 @@
             // 
             this.pictureBox1.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.pictureBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.pictureBox1.Location = new System.Drawing.Point(243, 14);
+            this.pictureBox1.Location = new System.Drawing.Point(243, 44);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(722, 583);
+            this.pictureBox1.Size = new System.Drawing.Size(722, 553);
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.pictureBox1.TabIndex = 10;
             this.pictureBox1.TabStop = false;
@@ -532,11 +534,28 @@
             this.textBox2.Tag = "高";
             this.textBox2.Text = "1024";
             // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(13, 20);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(77, 12);
+            this.label11.TabIndex = 4;
+            this.label11.Text = "接收IP地址：";
+            // 
+            // tbIPaddress
+            // 
+            this.tbIPaddress.Location = new System.Drawing.Point(91, 17);
+            this.tbIPaddress.Name = "tbIPaddress";
+            this.tbIPaddress.Size = new System.Drawing.Size(145, 21);
+            this.tbIPaddress.TabIndex = 18;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(977, 603);
+            this.Controls.Add(this.tbIPaddress);
             this.Controls.Add(this.groupBox7);
             this.Controls.Add(this.groupBox6);
             this.Controls.Add(this.groupBox5);
@@ -544,13 +563,14 @@
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
+            this.Controls.Add(this.label11);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.nudPort);
             this.Controls.Add(this.btStartListening);
             this.DoubleBuffered = true;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "MainForm";
-            this.Text = "EyeView C# V1.0.1";
+            this.Text = "AI-Master";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.Shown += new System.EventHandler(this.MainForm_Shown);
@@ -618,6 +638,8 @@
         private System.Windows.Forms.GroupBox groupBox7;
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.TextBox textBox2;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.TextBox tbIPaddress;
     }
 }
 

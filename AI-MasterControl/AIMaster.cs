@@ -1,26 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.IO;
-using System.Net;
+using System.Data;
 using System.Text;
-using System.Threading;
 using System.Windows.Forms;
+using System.Net;
 
-namespace SocketImageAnalysiser
+namespace AI_MasterControl
 {
-    public partial class MainForm : Form
+    public delegate void MessageHandle(Dictionary<String, String> dic);
+    public partial class AIMaster : UserControl
     {
         MessageHandle msgh;
         VCZcamera camera;
         String configPath;
-        public MainForm()
+        private Int32 Original_Width;
+        private Int32 Original_Height;
+        public AIMaster()
         {
             InitializeComponent();
             CheckForIllegalCrossThreadCalls = false;
-            this.StartPosition = FormStartPosition.CenterScreen;
         }
 
         protected override CreateParams CreateParams
@@ -44,16 +44,18 @@ namespace SocketImageAnalysiser
             lbRoiwidth.Text = Info["Roi_width"];
             lbRoix.Text = Info["Roi_x"];
             lbRoiy.Text = Info["Roi_y"];
-            //lbImgFormat.Text = Info["format"];
-            //lbImgHeight.Text = Info["ImgHeight"];
-            //lbImgWidth.Text = Info["ImgWidth"];
-            //lbImgSection.Text = Info["ImgSection"];
         }
 
         private void MainForm_Load(object sender, EventArgs e)
         {
             msgh = new MessageHandle(ShowInfo);
             camera = new VCZcamera(msgh, pictureBox1);
+            panel1.Visible = false;
+            panel2.Visible = false;
+            panel1.BackColor = Color.FromArgb(8, Color.LightGreen);
+            panel2.BackColor = Color.FromArgb(8, Color.LightGreen);
+            Original_Height = this.Height;
+            Original_Width = this.Width;
         }
 
         private void btStartListening_Click(object sender, EventArgs e)
@@ -69,7 +71,8 @@ namespace SocketImageAnalysiser
                 if (IPAddress.TryParse(tbIPaddress.Text, out addr))
                 {
                     camera.CameraIP = addr.ToString();
-                    camera.Start(Convert.ToInt32(nudPort.Value));
+                    camera.Port = Convert.ToInt32(nudPort.Value);
+                    camera.Start();
                     btStartListening.Text = "结束监听";
                 }
                 else
@@ -124,15 +127,15 @@ namespace SocketImageAnalysiser
             sb.Append(textBox3.Text);
             if (cbIPaddress.Checked)
             {
-                sb.Append(lbCameraIP.Text.Replace(".", "_") + "_");
+                sb.Append(lbCameraIP.Text.Replace(".", "_"));
             }
             if (cbCameraName.Checked)
             {
-                sb.Append(lbCameraName.Text.Replace(".", "_") + "_");
+                sb.Append(lbCameraName.Text.Replace(".", "_"));
             }
             if (cbDate.Checked)
             {
-                sb.Append(DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss_ffff"));
+                sb.Append(DateTime.Now.ToString("yyyy-MM-dd"));
             }
             camera.FilePrefix = sb.ToString();
         }
@@ -178,46 +181,105 @@ namespace SocketImageAnalysiser
         private void MainForm_Shown(object sender, EventArgs e)
         {
             tbFolder.Text = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            //configPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\EyeView\";
-            //if (Directory.Exists(configPath))
-            //{
-            //    if (File.Exists(configPath + @"Application.config"))
-            //    {
-            //        using(FileStream fs = new FileStream(configPath + @"Application.config", FileMode.Open, FileAccess.Read))
-            //        {
-            //            using(StreamReader sw = new StreamReader(fs))
-            //            {
-            //                String res = sw.ReadToEnd();
-            //                if (res.Contains("SaveFolder="))
-            //                {
-            //                    Int32 offset = res.IndexOf("SaveFolder=") + "SaveFolder=".Length;
-            //                    String temp = res.Substring(offset);
-            //                    Int32 targetIndex = temp.IndexOf(";");
-            //                    String path = temp.Substring(0, targetIndex + 1);
-            //                    tbFolder.Text = path;
-            //                }
-            //                else
-            //                {
-            //                    tbFolder.Text = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            //                }
-            //            }
-            //        }
-            //    }
-            //    else
-            //    {
-            //        File.Create(configPath + @"Application.config");
-            //        tbFolder.Text = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            //    }
-            //}
-            //else
-            //{
-            //    Directory.CreateDirectory(configPath);
-            //}
         }
 
         private void textBox3_TextChanged(object sender, EventArgs e)
         {
             cbAutoSaving.Checked = false;
+        }
+
+        Point mousePoint;
+        private void pictureBox1_Click(object sender, EventArgs e)
+        {
+            MouseButtons whichButton = (e as MouseEventArgs).Button;
+            switch (whichButton)
+            {
+                case MouseButtons.Left:
+                    isSelected = !isSelected;
+                    pictureBox1.Refresh();
+                    break;
+                case MouseButtons.None:
+                    break;
+                case MouseButtons.Right:
+                    //mousePoint = (e as MouseEventArgs).Location;
+                    mousePoint = new Point((e as MouseEventArgs).X + this.Parent.Location.X, (e as MouseEventArgs).Y + this.Parent.Location.Y);
+                    contextMenuStrip1.Show(mousePoint);
+                    break;
+                case MouseButtons.Middle:
+                    break;
+                case MouseButtons.XButton1:
+                    break;
+                case MouseButtons.XButton2:
+                    break;
+                default:
+                    break;
+            }
+            panel2.Visible = false;
+        }
+
+        public Boolean IsOverShow(Rectangle controlClientRectangle, Point location)
+        {
+            return controlClientRectangle.Contains(location);
+        }
+
+        private void 相机设置ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (IsOverShow(this.ClientRectangle, new Point(mousePoint.X + panel2.Width, mousePoint.Y + panel2.Height)))
+            {
+                panel2.Location = mousePoint;
+            }
+            else
+            {
+                panel2.Location = new Point(this.Width / 3, this.Height / 3);
+            }
+            Animation.ShowControl(panel2, true, AnchorStyles.Bottom);
+        }
+
+        private void 相机信息ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (panel1.Visible)
+            {
+                Animation.ShowControl(panel1, false, AnchorStyles.Top);
+            }
+            else
+            {
+                if (IsOverShow(this.ClientRectangle, new Point(mousePoint.X + panel1.Width, mousePoint.Y + panel1.Height)))
+                {
+                    panel1.Location = mousePoint;
+                }
+                else
+                {
+                    panel1.Location = new Point(this.Width / 3, this.Height / 3);
+                }
+                Animation.ShowControl(panel1, true, AnchorStyles.Top);
+            }
+        }
+        private void AIMaster_Resize(object sender, EventArgs e)
+        {
+            if (Original_Width > 0 || Original_Height > 0)
+            {
+                Int32 Original_X = panel2.Location.X;
+                Int32 Original_Y = panel2.Location.Y;
+                Int32 Current_Width = this.Width;
+                double Proportion = (double)Current_Width / (double)Original_Width;
+                panel2.Location = new Point(Convert.ToInt32(Original_X * Proportion), Convert.ToInt32(Original_Y * Proportion));
+                Original_X = panel1.Location.X;
+                Original_Y = panel1.Location.Y;
+                panel1.Location = new Point(Convert.ToInt32(Original_X * Proportion), Convert.ToInt32(Original_Y * Proportion));
+            }
+        }
+        Boolean isSelected = false;
+        private void pictureBox1_Paint(object sender, PaintEventArgs e)
+        {
+            if (isSelected)
+            {
+                PictureBox p = (PictureBox)sender;
+                Pen pp = new Pen(Color.Red);
+                e.Graphics.DrawRectangle(pp, e.ClipRectangle.X,
+                e.ClipRectangle.Y,
+                e.ClipRectangle.X + e.ClipRectangle.Width - 1,
+                e.ClipRectangle.Y + e.ClipRectangle.Height - 1);
+            }
         }
     }
 }
