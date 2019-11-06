@@ -29,7 +29,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
             this.tbIPaddress = new System.Windows.Forms.TextBox();
             this.groupBox7 = new System.Windows.Forms.GroupBox();
             this.textBox1 = new System.Windows.Forms.TextBox();
@@ -52,9 +51,13 @@
             this.radioButton3 = new System.Windows.Forms.RadioButton();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.lbCameraIP = new System.Windows.Forms.Label();
             this.lbBadCount = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
+            this.lbCameraName = new System.Windows.Forms.Label();
             this.lbCycleTime = new System.Windows.Forms.Label();
             this.lbRoiheight = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
             this.lbRoiy = new System.Windows.Forms.Label();
             this.lbGoodCount = new System.Windows.Forms.Label();
             this.lbRoiwidth = new System.Windows.Forms.Label();
@@ -66,10 +69,6 @@
             this.label7 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
-            this.lbCameraIP = new System.Windows.Forms.Label();
-            this.label3 = new System.Windows.Forms.Label();
-            this.lbCameraName = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
             this.label11 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.nudPort = new System.Windows.Forms.NumericUpDown();
@@ -77,9 +76,8 @@
             this.panel1 = new System.Windows.Forms.Panel();
             this.panel2 = new System.Windows.Forms.Panel();
             this.gbConnection = new System.Windows.Forms.GroupBox();
-            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip();
             this.相机设置ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.相机信息ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.groupBox7.SuspendLayout();
             this.groupBox6.SuspendLayout();
             this.groupBox5.SuspendLayout();
@@ -320,25 +318,26 @@
             // pictureBox1
             // 
             this.pictureBox1.BackColor = System.Drawing.Color.Transparent;
-            this.pictureBox1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.pictureBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pictureBox1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pictureBox1.Location = new System.Drawing.Point(0, 0);
             this.pictureBox1.Margin = new System.Windows.Forms.Padding(10);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(640, 512);
-            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.pictureBox1.Size = new System.Drawing.Size(960, 768);
+            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pictureBox1.TabIndex = 25;
             this.pictureBox1.TabStop = false;
-            this.pictureBox1.Click += new System.EventHandler(this.pictureBox1_Click);
             this.pictureBox1.Paint += new System.Windows.Forms.PaintEventHandler(this.pictureBox1_Paint);
+            this.pictureBox1.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseDoubleClick);
+            this.pictureBox1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseDown);
             // 
             // groupBox2
             // 
             this.groupBox2.Controls.Add(this.lbCameraIP);
             this.groupBox2.Controls.Add(this.lbBadCount);
             this.groupBox2.Controls.Add(this.label3);
-            this.groupBox2.Controls.Add(this.lbCycleTime);
             this.groupBox2.Controls.Add(this.lbCameraName);
+            this.groupBox2.Controls.Add(this.lbCycleTime);
             this.groupBox2.Controls.Add(this.lbRoiheight);
             this.groupBox2.Controls.Add(this.label2);
             this.groupBox2.Controls.Add(this.lbRoiy);
@@ -360,6 +359,16 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "图片信息";
             // 
+            // lbCameraIP
+            // 
+            this.lbCameraIP.AutoSize = true;
+            this.lbCameraIP.ForeColor = System.Drawing.SystemColors.Control;
+            this.lbCameraIP.Location = new System.Drawing.Point(94, 42);
+            this.lbCameraIP.Name = "lbCameraIP";
+            this.lbCameraIP.Size = new System.Drawing.Size(41, 12);
+            this.lbCameraIP.TabIndex = 0;
+            this.lbCameraIP.Text = "相机IP";
+            // 
             // lbBadCount
             // 
             this.lbBadCount.AutoSize = true;
@@ -367,6 +376,25 @@
             this.lbBadCount.Name = "lbBadCount";
             this.lbBadCount.Size = new System.Drawing.Size(0, 12);
             this.lbBadCount.TabIndex = 1;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(10, 42);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(53, 12);
+            this.label3.TabIndex = 0;
+            this.label3.Text = "相机IP：";
+            // 
+            // lbCameraName
+            // 
+            this.lbCameraName.AutoSize = true;
+            this.lbCameraName.ForeColor = System.Drawing.SystemColors.Control;
+            this.lbCameraName.Location = new System.Drawing.Point(94, 21);
+            this.lbCameraName.Name = "lbCameraName";
+            this.lbCameraName.Size = new System.Drawing.Size(53, 12);
+            this.lbCameraName.TabIndex = 0;
+            this.lbCameraName.Text = "相机名称";
             // 
             // lbCycleTime
             // 
@@ -383,6 +411,15 @@
             this.lbRoiheight.Name = "lbRoiheight";
             this.lbRoiheight.Size = new System.Drawing.Size(0, 12);
             this.lbRoiheight.TabIndex = 1;
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(10, 21);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(65, 12);
+            this.label2.TabIndex = 0;
+            this.label2.Text = "相机名称：";
             // 
             // lbRoiy
             // 
@@ -479,40 +516,6 @@
             this.label4.TabIndex = 0;
             this.label4.Text = "ROI_X：";
             // 
-            // lbCameraIP
-            // 
-            this.lbCameraIP.AutoSize = true;
-            this.lbCameraIP.Location = new System.Drawing.Point(94, 38);
-            this.lbCameraIP.Name = "lbCameraIP";
-            this.lbCameraIP.Size = new System.Drawing.Size(0, 12);
-            this.lbCameraIP.TabIndex = 0;
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(10, 42);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(53, 12);
-            this.label3.TabIndex = 0;
-            this.label3.Text = "相机IP：";
-            // 
-            // lbCameraName
-            // 
-            this.lbCameraName.AutoSize = true;
-            this.lbCameraName.Location = new System.Drawing.Point(94, 21);
-            this.lbCameraName.Name = "lbCameraName";
-            this.lbCameraName.Size = new System.Drawing.Size(0, 12);
-            this.lbCameraName.TabIndex = 0;
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(10, 21);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(65, 12);
-            this.label2.TabIndex = 0;
-            this.label2.Text = "相机名称：";
-            // 
             // label11
             // 
             this.label11.AutoSize = true;
@@ -578,7 +581,7 @@
             this.panel2.Controls.Add(this.groupBox7);
             this.panel2.Controls.Add(this.groupBox5);
             this.panel2.Controls.Add(this.groupBox6);
-            this.panel2.Location = new System.Drawing.Point(364, 41);
+            this.panel2.Location = new System.Drawing.Point(638, 102);
             this.panel2.Name = "panel2";
             this.panel2.Size = new System.Drawing.Size(229, 385);
             this.panel2.TabIndex = 32;
@@ -603,37 +606,29 @@
             // contextMenuStrip1
             // 
             this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.相机设置ToolStripMenuItem,
-            this.相机信息ToolStripMenuItem});
+            this.相机设置ToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(125, 48);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(125, 26);
             // 
             // 相机设置ToolStripMenuItem
             // 
             this.相机设置ToolStripMenuItem.Name = "相机设置ToolStripMenuItem";
-            this.相机设置ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.相机设置ToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
             this.相机设置ToolStripMenuItem.Text = "相机设置";
             this.相机设置ToolStripMenuItem.Click += new System.EventHandler(this.相机设置ToolStripMenuItem_Click);
-            // 
-            // 相机信息ToolStripMenuItem
-            // 
-            this.相机信息ToolStripMenuItem.Name = "相机信息ToolStripMenuItem";
-            this.相机信息ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.相机信息ToolStripMenuItem.Text = "相机信息";
-            this.相机信息ToolStripMenuItem.Click += new System.EventHandler(this.相机信息ToolStripMenuItem_Click);
             // 
             // AIMaster
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.AutoSize = true;
             this.BackColor = System.Drawing.Color.Transparent;
+            this.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.pictureBox1);
             this.DoubleBuffered = true;
             this.Name = "AIMaster";
-            this.Size = new System.Drawing.Size(640, 512);
+            this.Size = new System.Drawing.Size(960, 768);
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.Resize += new System.EventHandler(this.AIMaster_Resize);
             this.groupBox7.ResumeLayout(false);
@@ -710,6 +705,5 @@
         private System.Windows.Forms.GroupBox gbConnection;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
         private System.Windows.Forms.ToolStripMenuItem 相机设置ToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem 相机信息ToolStripMenuItem;
     }
 }

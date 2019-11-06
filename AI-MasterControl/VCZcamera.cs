@@ -49,6 +49,7 @@ namespace AI_MasterControl
         public ImageFormat SaveImageFormat;
         public Boolean IsSaveing;
         public Boolean IsRestore;
+        public CameraInfo camInfo;
         private Int32 _cmosWidth;
         private Int32 _cmosHeight;
 
@@ -376,6 +377,18 @@ namespace AI_MasterControl
             VCZcameraInfo["ImgHeight"] = ImgHeight.ToString();
             VCZcameraInfo["ImgSection"] = ImgSection.ToString();
             VCZcameraInfo["format"] = format.ToString();
+
+
+            camInfo.CameraIp = CameraIP;
+            camInfo.CameraName = CameraName;
+            camInfo.RoiX = Roi_x.ToString();
+            camInfo.RoiY = Roi_y.ToString();
+            camInfo.RoiHeight = Roi_height.ToString();
+            camInfo.RoiWidth = Roi_width.ToString();
+            camInfo.GoodCount = GoodCount.ToString();
+            camInfo.BadCount = BadCount.ToString();
+            camInfo.CycleTime = (Convert.ToDouble(CycleTime) / 1000).ToString();
+
             msg(VCZcameraInfo);
             if (currentImage != null)
             {
@@ -439,6 +452,18 @@ namespace AI_MasterControl
             CmosHeight = -1;
             IsSaveing = false;
             IsRestore = false;
+
+            camInfo = new CameraInfo();
+            camInfo.CameraIp = CameraIP;
+            camInfo.CameraName = CameraName;
+            camInfo.RoiX = Roi_x.ToString();
+            camInfo.RoiY = Roi_y.ToString();
+            camInfo.RoiHeight = Roi_height.ToString();
+            camInfo.RoiWidth = Roi_width.ToString();
+            camInfo.GoodCount = GoodCount.ToString();
+            camInfo.BadCount = BadCount.ToString();
+            camInfo.CycleTime = CycleTime.ToString();
+
             VCZcameraInfo["CameraIP"] = CameraIP;
             VCZcameraInfo["CameraName"] = CameraName;
             VCZcameraInfo["Roi_x"] = Roi_x.ToString();
@@ -480,6 +505,7 @@ namespace AI_MasterControl
             
             using(Graphics g = Graphics.FromImage(bmp))
             {
+                g.Clear(Color.White);
                 switch (ImgResolution)
                 {
                     case 1:

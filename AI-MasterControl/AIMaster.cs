@@ -13,10 +13,16 @@ namespace AI_MasterControl
     public partial class AIMaster : UserControl
     {
         MessageHandle msgh;
-        VCZcamera camera;
+        public VCZcamera camera;
         String configPath;
         private Int32 Original_Width;
         private Int32 Original_Height;
+        Point mousePoint;
+        Boolean isAllScreen = false;
+        Control originControl;
+        Panel p;
+        Color infoColor = Color.White;
+        public CameraSettings cameraSetting;
         public AIMaster()
         {
             InitializeComponent();
@@ -35,27 +41,32 @@ namespace AI_MasterControl
 
         private void ShowInfo(Dictionary<String, String> Info)
         {
-            lbBadCount.Text = Info["BadCount"];
-            lbGoodCount.Text = Info["GoodCount"];
-            lbCycleTime.Text = Info["CycleTime"];
-            lbCameraIP.Text = Info["CameraIP"];
-            lbCameraName.Text = Info["CameraName"];
-            lbRoiheight.Text = Info["Roi_height"];
-            lbRoiwidth.Text = Info["Roi_width"];
-            lbRoix.Text = Info["Roi_x"];
-            lbRoiy.Text = Info["Roi_y"];
+            //lbBadCount.Text = Info["BadCount"];
+            //lbGoodCount.Text = Info["GoodCount"];
+            //lbCycleTime.Text = Info["CycleTime"];
+            //lbCameraIP.Text = Info["CameraIP"];
+            //lbCameraName.Text = Info["CameraName"];
+            //lbRoiheight.Text = Info["Roi_height"];
+            //lbRoiwidth.Text = Info["Roi_width"];
+            //lbRoix.Text = Info["Roi_x"];
+            //lbRoiy.Text = Info["Roi_y"];
         }
 
         private void MainForm_Load(object sender, EventArgs e)
         {
             msgh = new MessageHandle(ShowInfo);
             camera = new VCZcamera(msgh, pictureBox1);
+            cameraSetting = new CameraSettings();
             panel1.Visible = false;
             panel2.Visible = false;
-            panel1.BackColor = Color.FromArgb(8, Color.LightGreen);
-            panel2.BackColor = Color.FromArgb(8, Color.LightGreen);
+            //panel1.BackColor = Color.FromArgb(8, Color.LightGreen);
+            //panel2.BackColor = Color.FromArgb(8, Color.LightGreen);
+            panel1.BackColor = Color.Transparent;
+            panel2.BackColor = Color.Transparent;
             Original_Height = this.Height;
             Original_Width = this.Width;
+            lbCameraIP.BringToFront();
+            lbCameraName.BringToFront();
         }
 
         private void btStartListening_Click(object sender, EventArgs e)
@@ -123,19 +134,18 @@ namespace AI_MasterControl
         public void SetFilePreFile()
         {
             StringBuilder sb = new StringBuilder();
-            sb.Append(tbFolder.Text + @"\");
-            sb.Append(textBox3.Text);
-            if (cbIPaddress.Checked)
+            sb.Append(cameraSetting.PreString);
+            if (cameraSetting.IsIpAddress)
             {
-                sb.Append(lbCameraIP.Text.Replace(".", "_"));
+                sb.Append(camera.CameraIP.Replace(".", "_") + "_");
             }
-            if (cbCameraName.Checked)
+            if (cameraSetting.IsCameraName)
             {
-                sb.Append(lbCameraName.Text.Replace(".", "_"));
+                sb.Append(camera.CameraName.Replace(".", "_") + "_");
             }
-            if (cbDate.Checked)
+            if (cameraSetting.IsDate)
             {
-                sb.Append(DateTime.Now.ToString("yyyy-MM-dd"));
+                sb.Append(DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss_ffff"));
             }
             camera.FilePrefix = sb.ToString();
         }
@@ -188,34 +198,6 @@ namespace AI_MasterControl
             cbAutoSaving.Checked = false;
         }
 
-        Point mousePoint;
-        private void pictureBox1_Click(object sender, EventArgs e)
-        {
-            MouseButtons whichButton = (e as MouseEventArgs).Button;
-            switch (whichButton)
-            {
-                case MouseButtons.Left:
-                    isSelected = !isSelected;
-                    pictureBox1.Refresh();
-                    break;
-                case MouseButtons.None:
-                    break;
-                case MouseButtons.Right:
-                    //mousePoint = (e as MouseEventArgs).Location;
-                    mousePoint = new Point((e as MouseEventArgs).X + this.Parent.Location.X, (e as MouseEventArgs).Y + this.Parent.Location.Y);
-                    contextMenuStrip1.Show(mousePoint);
-                    break;
-                case MouseButtons.Middle:
-                    break;
-                case MouseButtons.XButton1:
-                    break;
-                case MouseButtons.XButton2:
-                    break;
-                default:
-                    break;
-            }
-            panel2.Visible = false;
-        }
 
         public Boolean IsOverShow(Rectangle controlClientRectangle, Point location)
         {
@@ -230,30 +212,35 @@ namespace AI_MasterControl
             }
             else
             {
-                panel2.Location = new Point(this.Width / 3, this.Height / 3);
+                panel2.Location = new Point(this.Width / 20, this.Height / 20);
             }
-            Animation.ShowControl(panel2, true, AnchorStyles.Bottom);
+            panel2.Visible = true;
         }
 
-        private void 相机信息ToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (panel1.Visible)
-            {
-                Animation.ShowControl(panel1, false, AnchorStyles.Top);
-            }
-            else
-            {
-                if (IsOverShow(this.ClientRectangle, new Point(mousePoint.X + panel1.Width, mousePoint.Y + panel1.Height)))
-                {
-                    panel1.Location = mousePoint;
-                }
-                else
-                {
-                    panel1.Location = new Point(this.Width / 3, this.Height / 3);
-                }
-                Animation.ShowControl(panel1, true, AnchorStyles.Top);
-            }
-        }
+        //private void 相机信息ToolStripMenuItem_Click(object sender, EventArgs e)
+        //{
+        //    if (panel1.Visible)
+        //    {
+        //        //Animation.ShowControl(panel1, false, AnchorStyles.Top);
+        //        panel1.Visible = false;
+        //        相机信息ToolStripMenuItem.Text = "相机信息";
+        //    }
+        //    else
+        //    {
+        //        if (IsOverShow(this.ClientRectangle, new Point(mousePoint.X + panel1.Width, mousePoint.Y + panel1.Height)))
+        //        {
+        //            panel1.Location = mousePoint;
+        //        }
+        //        else
+        //        {
+        //            panel1.Location = new Point(this.Width /20, this.Height /20);
+        //        }
+        //        //Animation.ShowControl(panel1, true, AnchorStyles.Top);
+        //        panel1.Visible = true;
+        //        相机信息ToolStripMenuItem.Text = "相机信息 √";
+        //    }
+        //}
+
         private void AIMaster_Resize(object sender, EventArgs e)
         {
             if (Original_Width > 0 || Original_Height > 0)
@@ -275,11 +262,82 @@ namespace AI_MasterControl
             {
                 PictureBox p = (PictureBox)sender;
                 Pen pp = new Pen(Color.Red);
-                e.Graphics.DrawRectangle(pp, e.ClipRectangle.X,
-                e.ClipRectangle.Y,
-                e.ClipRectangle.X + e.ClipRectangle.Width - 1,
-                e.ClipRectangle.Y + e.ClipRectangle.Height - 1);
+                e.Graphics.DrawRectangle(pp, p.ClientRectangle.X,
+                p.ClientRectangle.Y,
+                p.ClientRectangle.X + p.ClientRectangle.Width - 1,
+                p.ClientRectangle.Y + p.ClientRectangle.Height - 1);
             }
+            if (isAllScreen)
+            {
+                if (pictureBox1.Image != null)
+                    e.Graphics.DrawString($"{camera.camInfo.CameraIp}  {camera.camInfo.CameraName}\r\nCycleTime:{camera.camInfo.CycleTime}ms \r\nGoodCount:{camera.camInfo.GoodCount} \r\nBadCount:{camera.camInfo.BadCount} \r\nRoi_Width:{camera.camInfo.RoiWidth}\r\nRoi_Height:{camera.camInfo.RoiHeight}\r\nRoi_X:{camera.camInfo.RoiX}\r\nRoi_Y:{camera.camInfo.RoiY}", Font, new SolidBrush(infoColor), new PointF(10, 10));
+            }
+        }
+
+        private void pictureBox1_MouseDown(object sender, MouseEventArgs e)
+        {
+            MouseButtons whichButton = e.Button;
+            switch (whichButton)
+            {
+                case MouseButtons.Left:
+                    isSelected = !isSelected;
+                    pictureBox1.Refresh();
+                    break;
+                case MouseButtons.None:
+                    break;
+                case MouseButtons.Right:
+                    mousePoint = this.PointToScreen((e as MouseEventArgs).Location);
+                    //mousePoint = new Point((e as MouseEventArgs).X + this.Location.X, (e as MouseEventArgs).Y + this.Location.Y);
+                    contextMenuStrip1.Show(mousePoint);
+                    break;
+                case MouseButtons.Middle:
+                    break;
+                case MouseButtons.XButton1:
+                    break;
+                case MouseButtons.XButton2:
+                    break;
+                default:
+                    break;
+            }
+            panel2.Visible = false;
+        }
+
+        private void pictureBox1_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            if (!isAllScreen)
+            {
+                isAllScreen = true;
+                p = new Panel();
+                p.Dock = DockStyle.Fill;
+                this.ParentForm.Controls.Add(p);
+                p.BringToFront();
+                originControl = this.Parent;
+                this.Parent = p;
+                this.Dock = DockStyle.Fill;
+            }
+            else
+            {
+                isAllScreen = false;
+                this.Dock = DockStyle.None;
+                this.Parent = originControl;
+                p.Dispose();
+            }
+        }
+
+        public void SetCamera(CameraSettings setting)
+        {
+            this.Width = setting.ControlWidth;
+            this.Height = setting.ControlHeight;
+            this.Location = new Point(setting.ControlX, setting.ControlY);
+            this.camera.CameraIP = setting.CameraIP;
+            this.camera.Port = setting.Port;
+            this.camera.FilePrefix = setting.PreString;
+            this.camera.CmosHeight = setting.Cmos_Heigt;
+            this.camera.CmosWidth = setting.Cmos_Width;
+            this.camera.IsRestore = setting.IsRestore;
+            this.camera.IsSaveing = setting.IsAutoSaving;
+            this.camera.rotate = setting.RotateType;
+            this.infoColor = setting.InfoColor;
         }
     }
 }
