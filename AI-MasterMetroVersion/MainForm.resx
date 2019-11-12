@@ -117,63 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <metadata name="button2.GenerateMember" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>False</value>
-  </metadata>
-  <metadata name="clCamIp.UserAddedColumn" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>True</value>
-  </metadata>
-  <metadata name="clCamName.UserAddedColumn" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>True</value>
-  </metadata>
-  <metadata name="clRoiWidth.UserAddedColumn" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>True</value>
-  </metadata>
-  <metadata name="clRoiHeight.UserAddedColumn" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>True</value>
-  </metadata>
-  <metadata name="clRoiX.UserAddedColumn" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>True</value>
-  </metadata>
-  <metadata name="clRoiY.UserAddedColumn" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>True</value>
-  </metadata>
-  <metadata name="clGoodCount.UserAddedColumn" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>True</value>
-  </metadata>
-  <metadata name="clBadCount.UserAddedColumn" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>True</value>
-  </metadata>
-  <metadata name="clCycleTime.UserAddedColumn" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>True</value>
-  </metadata>
-  <metadata name="clCamIp.UserAddedColumn" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>True</value>
-  </metadata>
-  <metadata name="clCamName.UserAddedColumn" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>True</value>
-  </metadata>
-  <metadata name="clRoiWidth.UserAddedColumn" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>True</value>
-  </metadata>
-  <metadata name="clRoiHeight.UserAddedColumn" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>True</value>
-  </metadata>
-  <metadata name="clRoiX.UserAddedColumn" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>True</value>
-  </metadata>
-  <metadata name="clRoiY.UserAddedColumn" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>True</value>
-  </metadata>
-  <metadata name="clGoodCount.UserAddedColumn" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>True</value>
-  </metadata>
-  <metadata name="clBadCount.UserAddedColumn" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>True</value>
-  </metadata>
-  <metadata name="clCycleTime.UserAddedColumn" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>True</value>
-  </metadata>
   <metadata name="ilTreeViewIconList.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>
@@ -182,33 +125,27 @@
         AAEAAAD/////AQAAAAAAAAAMAgAAAFdTeXN0ZW0uV2luZG93cy5Gb3JtcywgVmVyc2lvbj0yLjAuMC4w
         LCBDdWx0dXJlPW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPWI3N2E1YzU2MTkzNGUwODkFAQAAACZTeXN0
         ZW0uV2luZG93cy5Gb3Jtcy5JbWFnZUxpc3RTdHJlYW1lcgEAAAAERGF0YQcCAgAAAAkDAAAADwMAAABa
-        BAAAAk1TRnQBSQFMAwEBAAGwAQABsAEAARABAAEQAQAE/wEhAQAI/wFCAU0BNgcAATYDAAEoAwABQAMA
-        ARADAAEBAQABIAYAARBOAAMqAUDsAAFkAQwBAAH/AWQBDAEAAf8BZAEMAQAB/wFkAQwBAAH/AUcCRgGA
-        7AABZAEMAQAB/wFkAQwBAAH/AWQBDAEAAf8BZAEMAQAB/wFHAkYBgMQAAWQBDAEAAf8BZAEMAQAB/wFk
-        AQwBAAH/AWQBDAEAAf8BZAEMAQAB/wFkAQwBAAH/AWQBDAEAAf8BTAJLAZAIAAFkAQwBAAH/AWQBDAEA
-        Af8EAAMqAUABRwJGAYDEAAFkAQwBAAH/FAABZAEMAQAB/wFkAQwBAAH/AWQBDAEAAf8EAAFkAQwBAAH/
-        AWQBDAEAAf/QAAFkAQwBAAH/BAADNQFXBAABZAEMAQAB/wQAAWQBDAEAAf8BZAEMAQAB/wFkAQwBAAH/
-        AWQBDAEAAf8EAAFkAQwBAAH/0AABZAEMAQAB/wQAAWQBDAEAAf8BZAEMAQAB/wgAAWQBDAEAAf8BZAEM
-        AQAB/wFkAQwBAAH/AWQBDAEAAf8BZAEMAQAB/9QAAWQBDAEAAf8EAAMNAREDQAFwAWQBDAEAAf8EAAFk
-        AQwBAAH/AWQBDAEAAf8BZAEMAQAB/wFkAQwBAAH/AWQBDAEAAf8BZAEMAQAB/wFbAlgBxswAAWQBDAEA
-        Af8UAAFkAQwBAAH/AWQBDAEAAf8BZAEMAQAB/wFkAQwBAAH/AWQBDAEAAf8BZAEMAQAB/wFkAQwBAAH/
-        AWQBDAEAAf/IAAFkAQwBAAH/AWQBDAEAAf8BZAEMAQAB/wFkAQwBAAH/AWQBDAEAAf8BZAEMAQAB/wFk
-        AQwBAAH/AWQBDAEAAf8BZAEMAQAB/wFkAQwBAAH/AWQBDAEAAf8BZAEMAQAB/wFkAQwBAAH/AWQBDAEA
-        Af8DUQGgzAABXgJbAdkBZAEMAQAB/wFkAQwBAAH/AWQBDAEAAf8BZAEMAQAB/wFkAQwBAAH/AWQBDAEA
-        Af8BZAEMAQAB/wFkAQwBAAH/AWQBDAEAAf8BZAEMAQAB/wFkAQwBAAH/A1EBoNgAAWQBDAEAAf8BZAEM
-        AQAB/wFkAQwBAAH/AWQBDAEAAf8BZAEMAQAB/wFkAQwBAAH/AWQBDAEAAf8BZAEMAQAB/wFkAQwBAAH/
-        A1EBoOAAAyMBNAFkAQwBAAH/AWQBDAEAAf8BZAEMAQAB/wFkAQwBAAH/AWQBDAEAAf8BZAEMAQAB/wNR
+        BAAAAk1TRnQBSQFMAwEBAAGgAQABoAEAARABAAEQAQAE/wEhAQAI/wFCAU0BNgcAATYDAAEoAwABQAMA
+        ARADAAEBAQABIAYAARBOAAMqAUDsAAFmAQ4BAAH/AWYBDgEAAf8BZgEOAQAB/wFmAQ4BAAH/AUcCRgGA
+        7AABZgEOAQAB/wFmAQ4BAAH/AWYBDgEAAf8BZgEOAQAB/wFHAkYBgMQAAWYBDgEAAf8BZgEOAQAB/wFm
+        AQ4BAAH/AWYBDgEAAf8BZgEOAQAB/wFmAQ4BAAH/AWYBDgEAAf8BTAJLAZAIAAFmAQ4BAAH/AWYBDgEA
+        Af8EAAMqAUABRwJGAYDEAAFmAQ4BAAH/FAABZgEOAQAB/wFmAQ4BAAH/AWYBDgEAAf8EAAFmAQ4BAAH/
+        AWYBDgEAAf/QAAFmAQ4BAAH/BAADNQFXBAABZgEOAQAB/wQAAWYBDgEAAf8BZgEOAQAB/wFmAQ4BAAH/
+        AWYBDgEAAf8EAAFmAQ4BAAH/0AABZgEOAQAB/wQAAWYBDgEAAf8BZgEOAQAB/wgAAWYBDgEAAf8BZgEO
+        AQAB/wFmAQ4BAAH/AWYBDgEAAf8BZgEOAQAB/9QAAWYBDgEAAf8EAAMNAREDQAFwAWYBDgEAAf8EAAFm
+        AQ4BAAH/AWYBDgEAAf8BZgEOAQAB/wFmAQ4BAAH/AWYBDgEAAf8BZgEOAQAB/wFbAlgBxswAAWYBDgEA
+        Af8UAAFmAQ4BAAH/AWYBDgEAAf8BZgEOAQAB/wFmAQ4BAAH/AWYBDgEAAf8BZgEOAQAB/wFmAQ4BAAH/
+        AWYBDgEAAf/IAAFmAQ4BAAH/AWYBDgEAAf8BZgEOAQAB/wFmAQ4BAAH/AWYBDgEAAf8BZgEOAQAB/wFm
+        AQ4BAAH/AWYBDgEAAf8BZgEOAQAB/wFmAQ4BAAH/AWYBDgEAAf8BZgEOAQAB/wFmAQ4BAAH/AWYBDgEA
+        Af8DUQGgzAABXgJbAdkBZgEOAQAB/wFmAQ4BAAH/AWYBDgEAAf8BZgEOAQAB/wFmAQ4BAAH/AWYBDgEA
+        Af8BZgEOAQAB/wFmAQ4BAAH/AWYBDgEAAf8BZgEOAQAB/wFmAQ4BAAH/A1EBoNgAAWYBDgEAAf8BZgEO
+        AQAB/wFmAQ4BAAH/AWYBDgEAAf8BZgEOAQAB/wFmAQ4BAAH/AWYBDgEAAf8BZgEOAQAB/wFmAQ4BAAH/
+        A1EBoOAAAyMBNAFmAQ4BAAH/AWYBDgEAAf8BZgEOAQAB/wFmAQ4BAAH/AWYBDgEAAf8BZgEOAQAB/wNR
         AaDsAAFHAkYBgAFHAkYBgAFGAkUBfwFGAkUBf/8A/wDGAAFCAU0BPgcAAT4DAAEoAwABQAMAARADAAEB
         AQABAQUAAYAXAAP/AQAB/wH+BgAB/wHgBgAB/wHgBgABgAFkBgABvgEnBgABqgEXBgABpgEPBgABogED
         BgABvgEBBgABgAcAAeAHAAH8BwAB/wcAAf8B4QYAAv8GAAL/BgAL
 </value>
   </data>
-  <metadata name="timer1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>379, 17</value>
-  </metadata>
-  <metadata name="cameraInfoBindingSource.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>265, 17</value>
-  </metadata>
   <assembly alias="System.Drawing" name="System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
   <data name="$this.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>

@@ -10,6 +10,8 @@ using System.Net;
 namespace AI_MasterControl
 {
     public delegate void MessageHandle(Dictionary<String, String> dic);
+    public delegate void FilePreEventHandler();
+    public delegate void AddControlEventHandler(CameraSettings setting);
     public partial class AIMaster : UserControl
     {
         MessageHandle msgh;
@@ -23,10 +25,16 @@ namespace AI_MasterControl
         Panel p;
         Color infoColor = Color.White;
         public CameraSettings cameraSetting;
+        public AddControlEventHandler aceh;
         public AIMaster()
         {
             InitializeComponent();
             CheckForIllegalCrossThreadCalls = false;
+            aceh = new AddControlEventHandler(SetCamera);
+            cameraSetting = new CameraSettings();
+            msgh = new MessageHandle(ShowInfo);
+            FilePreEventHandler fpeh = new FilePreEventHandler(SetFilePreFile);
+            camera = new VCZcamera(msgh, pictureBox1, fpeh);
         }
 
         protected override CreateParams CreateParams
@@ -54,9 +62,6 @@ namespace AI_MasterControl
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            msgh = new MessageHandle(ShowInfo);
-            camera = new VCZcamera(msgh, pictureBox1);
-            cameraSetting = new CameraSettings();
             panel1.Visible = false;
             panel2.Visible = false;
             //panel1.BackColor = Color.FromArgb(8, Color.LightGreen);
@@ -133,8 +138,21 @@ namespace AI_MasterControl
 
         public void SetFilePreFile()
         {
+            if (camera.IsDistinguish)
+            {
+                camera.PathNG = GetFilePreString(cameraSetting.PreStringNG);
+                camera.PathOK = GetFilePreString(cameraSetting.PreStringOK);
+            }
+            else
+            {
+                camera.FilePrefix = GetFilePreString(cameraSetting.PreString);
+            }
+        }
+
+        public String GetFilePreString(String preString)
+        {
             StringBuilder sb = new StringBuilder();
-            sb.Append(cameraSetting.PreString);
+            sb.Append(preString);
             if (cameraSetting.IsIpAddress)
             {
                 sb.Append(camera.CameraIP.Replace(".", "_") + "_");
@@ -147,7 +165,7 @@ namespace AI_MasterControl
             {
                 sb.Append(DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss_ffff"));
             }
-            camera.FilePrefix = sb.ToString();
+            return sb.ToString();
         }
 
         private void SaveInfoChecked(object sender, EventArgs e)
@@ -206,17 +224,23 @@ namespace AI_MasterControl
 
         private void 相机设置ToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (IsOverShow(this.ClientRectangle, new Point(mousePoint.X + panel2.Width, mousePoint.Y + panel2.Height)))
-            {
-                panel2.Location = mousePoint;
-            }
-            else
-            {
-                panel2.Location = new Point(this.Width / 20, this.Height / 20);
-            }
-            panel2.Visible = true;
+            SetCamera();
+            //if (IsOverShow(this.ClientRectangle, new Point(mousePoint.X + panel2.Width, mousePoint.Y + panel2.Height)))
+            //{
+            //    panel2.Location = mousePoint;
+            //}
+            //else
+            //{
+            //    panel2.Location = new Point(this.Width / 20, this.Height / 20);
+            //}
+            //panel2.Visible = true;
         }
 
+        public void SetCamera()
+        {
+            AddCamera ac = new AddCamera(cameraSetting, aceh);
+            ac.Show();
+        }
         //private void 相机信息ToolStripMenuItem_Click(object sender, EventArgs e)
         //{
         //    if (panel1.Visible)
@@ -288,6 +312,7 @@ namespace AI_MasterControl
                 case MouseButtons.Right:
                     mousePoint = this.PointToScreen((e as MouseEventArgs).Location);
                     //mousePoint = new Point((e as MouseEventArgs).X + this.Location.X, (e as MouseEventArgs).Y + this.Location.Y);
+                    开始监听ToolStripMenuItem.Text = camera.isReceiving ? "结束监听" : "开始监听";
                     contextMenuStrip1.Show(mousePoint);
                     break;
                 case MouseButtons.Middle:
@@ -335,9 +360,55 @@ namespace AI_MasterControl
             this.camera.CmosHeight = setting.Cmos_Heigt;
             this.camera.CmosWidth = setting.Cmos_Width;
             this.camera.IsRestore = setting.IsRestore;
+            SetFilePreFile();
             this.camera.IsSaveing = setting.IsAutoSaving;
             this.camera.rotate = setting.RotateType;
             this.infoColor = setting.InfoColor;
+            this.camera.IsDistinguish = setting.IsDistinguished;
+            this.camera.IsSaveNG = setting.IsSaveNG;
+            this.camera.IsSaveOK = setting.IsSaveOK;
+            if (!camera.isReceiving)
+                camera.Start();
+        }
+
+        private void 开始监听ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (camera.isReceiving)
+            {
+                camera.Stop();
+            }
+            else
+            {
+                camera.Start();
+            }
+        }
+
+        private void Rotate_Button(object sender, EventArgs e)
+        {
+            不旋转ToolStripMenuItem.Text = "不旋转";
+            旋转90ToolStripMenuItem.Text = "旋转90°";
+            旋转180ToolStripMenuItem.Text = "旋转180°";
+            旋转270ToolStripMenuItem.Text = "旋转270°";
+            if(sender == 不旋转ToolStripMenuItem)
+            {
+                camera.rotate = RotateFlipType.RotateNoneFlipNone;
+                (sender as ToolStripMenuItem).Text = "不旋转 √";
+            }
+            else if(sender == 旋转90ToolStripMenuItem)
+            {
+                camera.rotate = RotateFlipType.Rotate90FlipNone;
+                (sender as ToolStripMenuItem).Text = "旋转90 √";
+            }
+            else if (sender == 旋转180ToolStripMenuItem)
+            {
+                camera.rotate = RotateFlipType.Rotate180FlipNone;
+                (sender as ToolStripMenuItem).Text = "旋转180 √";
+            }
+            else if (sender == 旋转270ToolStripMenuItem)
+            {
+                camera.rotate = RotateFlipType.Rotate270FlipNone;
+                (sender as ToolStripMenuItem).Text = "旋转270 √";
+            }
         }
     }
 }

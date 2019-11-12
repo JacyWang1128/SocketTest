@@ -166,10 +166,20 @@ namespace AI_MasterControl
                                                 camera.format = (ImgFormat)Convert.ToInt32(BytesToString(GetSegmentInArray(bytes, currentPos, count)));
                                                 break;
                                             case 23:
-                                                camera.GoodCount = Convert.ToUInt32(BytesToString(GetSegmentInArray(bytes, currentPos, count)));
+                                                UInt32 tempGC = Convert.ToUInt32(BytesToString(GetSegmentInArray(bytes, currentPos, count)));
+                                                if (tempGC != camera.GoodCount)
+                                                {
+                                                    camera.IsOK = true;
+                                                }
+                                                camera.GoodCount = tempGC;
                                                 break;
                                             case 24:
-                                                camera.BadCount = Convert.ToUInt32(BytesToString(GetSegmentInArray(bytes, currentPos, count)));
+                                                UInt32 tempBC = Convert.ToUInt32(BytesToString(GetSegmentInArray(bytes, currentPos, count)));
+                                                if (tempBC != camera.BadCount)
+                                                {
+                                                    camera.IsOK = false;
+                                                }
+                                                camera.BadCount = tempBC;
                                                 break;
                                             case 25:
                                                 camera.CycleTime = Convert.ToUInt32(BytesToString(GetSegmentInArray(bytes, currentPos, count)));
@@ -206,7 +216,6 @@ namespace AI_MasterControl
                             ImgBuffer.Clear();
                             //装入图形缓存list
                             ImgBuffer.AddRange(GetSegmentInArray(bytes, len - 56, 28));
-                            camera.IsNewPhoto = true;
                         }
                         else if (iPackageCount < iPackageNum)
                         {

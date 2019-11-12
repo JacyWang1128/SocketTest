@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Text;
 using System.Windows.Forms;
 
@@ -11,18 +12,245 @@ namespace AI_Master
 {
     public partial class MainForm : Form
     {
+        Dictionary<TreeNode, AIMaster> dicTreeNode;
         public MainForm()
         {
             InitializeComponent();
-            this.WindowState = FormWindowState.Maximized;
+            //this.WindowState = FormWindowState.Maximized;
+            //this.FormBorderStyle = FormBorderStyle.None;
+            treeView1.ImageList = ilTreeViewIconList;
+            dicTreeNode = new Dictionary<TreeNode, AIMaster>();
+            timer1.Start();
+        }
+
+        //丝滑般流畅
+        protected override CreateParams CreateParams
+        {
+            get
+            {
+                CreateParams cp = base.CreateParams;
+                cp.ExStyle |= 0x02000000;
+                return cp;
+            }
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
             AIMaster ai = new AIMaster();
-            plMiddle.Controls.Add(ai);
-            ai.camera.camInfo.BadCount = ai.Width.ToString();
-            dataGridView1.DataSource = ai.camera.camInfo;
+            AI_MasterControl.AddCamera adc = new AI_MasterControl.AddCamera(ai.cameraSetting, ai.aceh);
+            if (DialogResult.OK == adc.ShowDialog())
+            {
+                plMiddle.Controls.Add(ai);
+                TreeNode tn = new TreeNode(ai.camera.CameraIP, 0, 0);
+                //treeView1.Nodes[ai.camera.CameraIP]
+                treeView1.Nodes.Add(tn);
+                dicTreeNode[tn] = ai;
+            }
+            else
+                ai.Dispose();
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            if (treeView1.SelectedNode != null)
+            {
+                dicTreeNode[treeView1.SelectedNode].Dispose();
+                dicTreeNode.Remove(treeView1.SelectedNode);
+                treeView1.SelectedNode.Remove();
+            }
+        }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            dataGridView1.Rows.Clear();
+            foreach (var item in dicTreeNode)
+            {
+                SetCameraInfo(item.Value.camera.camInfo);
+                item.Key.Text = String.IsNullOrEmpty(item.Value.camera.CameraName) ? item.Value.camera.CameraIP : item.Value.camera.CameraName + "  " + item.Value.camera.CameraIP;
+            }
+            dataGridView1.ClearSelection();
+        }
+
+        private void SetCameraInfo(CameraInfo caminfo)
+        {
+            if (caminfo.CameraIp == "0.0.0.0")
+            {
+                return;
+            }
+            //foreach (DataGridViewRow item in dataGridView1.Rows)
+            //{
+            //    if (item.Cells[0].Value != null)
+            //    {
+            //        if (item.Cells[0].Value.ToString() == caminfo.CameraIp)
+            //        {
+            //            item.Cells[0].Value = caminfo.CameraIp;
+            //            item.Cells[1].Value = caminfo.CameraName;
+            //            item.Cells[2].Value = caminfo.RoiWidth;
+            //            item.Cells[3].Value = caminfo.RoiHeight;
+            //            item.Cells[4].Value = caminfo.RoiX;
+            //            item.Cells[5].Value = caminfo.RoiY;
+            //            item.Cells[6].Value = caminfo.GoodCount;
+            //            item.Cells[7].Value = caminfo.BadCount;
+            //            item.Cells[8].Value = caminfo.CycleTime;
+            //            return;
+            //        }
+            //    }
+            //}
+            Int32 Index = dataGridView1.Rows.Add();
+            dataGridView1.Rows[Index].Cells[0].Value = caminfo.CameraIp;
+            dataGridView1.Rows[Index].Cells[1].Value = caminfo.CameraName;
+            dataGridView1.Rows[Index].Cells[2].Value = caminfo.RoiWidth;
+            dataGridView1.Rows[Index].Cells[3].Value = caminfo.RoiHeight;
+            dataGridView1.Rows[Index].Cells[4].Value = caminfo.RoiX;
+            dataGridView1.Rows[Index].Cells[5].Value = caminfo.RoiY;
+            dataGridView1.Rows[Index].Cells[6].Value = caminfo.GoodCount;
+            dataGridView1.Rows[Index].Cells[7].Value = caminfo.BadCount;
+            dataGridView1.Rows[Index].Cells[8].Value = caminfo.CycleTime;
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            if (treeView1.SelectedNode != null)
+            {
+                dicTreeNode[treeView1.SelectedNode].SetCamera();
+                //treeView1.SelectedNode.Text = dicTreeNode[treeView1.SelectedNode].camera.CameraIP;
+                treeView1.SelectedNode = treeView1.SelectedNode;
+            }
+        }
+
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            List<CameraSettings> lst = new List<CameraSettings>();
+            foreach (var item in dicTreeNode)
+            {
+                lst.Add(item.Value.cameraSetting);
+            }
+            ReadConfig.SaveConfig(lst.ToArray());
+        }
+
+        private void MainForm_Load(object sender, EventArgs e)
+        {
+            ReplaceButton();
+            button7.BackgroundImage.RotateFlip(RotateFlipType.Rotate180FlipNone);
+            button8.BackgroundImage.RotateFlip(RotateFlipType.Rotate180FlipNone);
+        }
+
+        private void MainForm_Shown(object sender, EventArgs e)
+        {
+            splitContainer2.SplitterDistance = splitContainer1.Width;
+            if (ReadConfig.ExistConfigFile())
+            {
+                try
+                {
+                    var Settings = ReadConfig.GetConfig();
+                    foreach (var item in Settings)
+                    {
+                        AIMaster ai = new AIMaster();
+                        ai.cameraSetting = item;
+                        ai.SetCamera(item);
+                        Directory.CreateDirectory(item.PreString.Substring(0, item.PreString.LastIndexOf(@"\") + 1));
+                        if (item.PreStringNG != null)
+                            Directory.CreateDirectory(item.PreStringNG.Substring(0, item.PreStringNG.LastIndexOf(@"\") + 1));
+                        if (item.PreStringOK != null)
+                            Directory.CreateDirectory(item.PreStringOK.Substring(0, item.PreStringOK.LastIndexOf(@"\") + 1));
+                        TreeNode tn = new TreeNode(ai.camera.CameraIP, 0, 0);
+                        treeView1.Nodes.Add(tn);
+                        dicTreeNode[tn] = ai;
+                        plMiddle.Controls.Add(ai);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("读取配置文件失败");
+                }
+            }
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            if (this.WindowState != FormWindowState.Maximized)
+            {
+                this.WindowState = FormWindowState.Maximized;
+            }
+            else
+            {
+                this.WindowState = FormWindowState.Normal;
+                splitContainer2.SplitterDistance = splitContainer1.Width;
+            }
+        }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+            this.WindowState = FormWindowState.Minimized;
+        }
+
+        private void splitContainer2_Click(object sender, EventArgs e)
+        {
+            //MessageBox.Show("测试到啦！");
+        }
+
+        Int32 originalSplitContainer1Width;
+        Int32 originalplBottomHeight;
+
+        private void MainForm_SizeChanged(object sender, EventArgs e)
+        {
+            ReplaceButton();
+        }
+
+        private void ReplaceButton()
+        {
+            splitContainer2.SplitterDistance = splitContainer1.Width;
+            button7.BringToFront();
+            button7.Location = new Point(button7.Parent.Width - button7.Width, (button7.Parent.Height - button7.Height) / 2);
+            button8.Location = new Point((plBottom.Width - button8.Width) / 2, 0);
+            dataGridView1.Height = plBottom.Height - button8.Height;
+        }
+
+        private void button7_Click(object sender, EventArgs e)
+        {
+            if (plLeft.Width != button7.Width)
+            {
+                originalSplitContainer1Width = plLeft.Width;
+            }
+            plLeft.Width = plLeft.Width == button7.Width ? originalSplitContainer1Width : button7.Width;
+            if(button7.Parent.Width == button7.Width)
+            {
+                treeView1.Scrollable = false;
+                splitContainer1.Panel1Collapsed = true;
+                splitContainer2.Panel1Collapsed = true;
+            }
+            else
+            {
+                treeView1.Scrollable = true;
+                splitContainer1.Panel1Collapsed = false;
+                splitContainer2.Panel1Collapsed = false;
+            }
+            button7.BackgroundImage.RotateFlip(RotateFlipType.Rotate180FlipNone);
+            ReplaceButton();
+        }
+
+        private void button8_Click(object sender, EventArgs e)
+        {
+            if (plBottom.Height != button8.Height)
+            {
+                originalplBottomHeight = plBottom.Height;
+            }
+            plBottom.Height = plBottom.Height == button8.Height ? originalplBottomHeight : button8.Height;
+            if (plBottom.Height == button8.Height)
+            {
+                plBottom.AutoScroll = false;
+            }
+            else
+            {
+                plBottom.AutoScroll = true;
+            }
+            button8.BackgroundImage.RotateFlip(RotateFlipType.Rotate180FlipNone);
+            ReplaceButton();
         }
     }
 }

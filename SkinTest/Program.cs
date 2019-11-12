@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Forms;
 
-namespace AI_Master
+namespace SkinTest
 {
     static class Program
     {
@@ -14,8 +15,7 @@ namespace AI_Master
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MainForm());
-            //Application.Run(new AddCamera(new AI_MasterControl.CameraSettings()));
+            Application.Run(new Form1());
         }
     }
 }

@@ -39,6 +39,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AddCamera.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AddCamera.Designer.cs">
+      <DependentUpon>AddCamera.cs</DependentUpon>
+    </Compile>
     <Compile Include="AIMaster.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -61,6 +67,9 @@
     <Service Include="{94E38DFF-614B-4cbd-B67C-F211BB35CE8B}" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="AddCamera.resx">
+      <DependentUpon>AddCamera.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="AIMaster.resx">
       <DependentUpon>AIMaster.cs</DependentUpon>
     </EmbeddedResource>

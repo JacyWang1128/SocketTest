@@ -4,20 +4,24 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Net;
 using System.Text;
 using System.Windows.Forms;
 
-namespace AI_Master
+namespace AI_MasterControl
 {
     public partial class AddCamera : Form
     {
         CameraSettings camset;
         RotateFlipType rotate;
-        public AddCamera(CameraSettings cameraSet)
+        AddControlEventHandler add;
+        public AddCamera(CameraSettings cameraSet,AddControlEventHandler AddControl)
         {
             InitializeComponent();
             this.camset = cameraSet;
+            add = AddControl;
+            this.StartPosition = FormStartPosition.CenterScreen;
         }
 
         private void btSelectFolder_Click(object sender, EventArgs e)
@@ -39,6 +43,17 @@ namespace AI_Master
             {
                 camset.CameraIP = tbIPaddress.Text;
                 camset.PreString = tbFolder.Text + @"\" + tbPreStr.Text;
+                camset.IsDistinguished = cbDistinguish.Checked;
+                if (cbDistinguish.Checked)
+                {
+                    if(!(Directory.Exists(tbFolder.Text + @"\" + @"OK\") && Directory.Exists(tbFolder.Text + @"\" + @"NG\")))
+                    {
+                        Directory.CreateDirectory(tbFolder.Text + @"\" + @"OK\");
+                        Directory.CreateDirectory(tbFolder.Text + @"\" + @"NG\");
+                    }
+                    camset.PreStringOK = tbFolder.Text + @"\" + @"OK\" + tbPreStr.Text;
+                    camset.PreStringNG = tbFolder.Text + @"\" + @"NG\" + tbPreStr.Text;
+                }
                 try
                 {
                     camset.Cmos_Width = Convert.ToInt32(tbCmosWidth.Text);
@@ -59,9 +74,15 @@ namespace AI_Master
                 camset.IsDate = cbDate.Checked;
                 camset.IsIpAddress = cbIPaddress.Checked;
                 camset.IsRestore = cbRestorSize.Checked;
+                camset.IsSaveNG = cbDistinguishNG.Checked;
+                camset.IsSaveOK = cbDistinguishOK.Checked;
                 camset.InfoColor = pictureBox1.BackColor;
                 camset.RotateType = rotate;
                 this.DialogResult = DialogResult.OK;
+                if (add != null)
+                {
+                    add.Invoke(camset);
+                }
                 this.Close();
             }
             else
@@ -78,7 +99,7 @@ namespace AI_Master
         private void InitControl()
         {
             tbIPaddress.Text = camset.CameraIP;
-            tbPreStr.Text = String.IsNullOrEmpty(camset.PreString) ? "" : camset.PreString.Substring(camset.PreString.LastIndexOf(@"\"));
+            tbPreStr.Text = String.IsNullOrEmpty(camset.PreString) ? "" : camset.PreString.Substring(camset.PreString.LastIndexOf(@"\") + 1);
             tbFolder.Text = String.IsNullOrEmpty(camset.PreString) ? "" : camset.PreString.Substring(0, camset.PreString.LastIndexOf(@"\"));
             tbCmosWidth.Text = camset.Cmos_Width.ToString();
             tbCmosHeight.Text = camset.Cmos_Heigt.ToString();
@@ -92,6 +113,9 @@ namespace AI_Master
             cbDate.Checked = camset.IsDate;
             cbIPaddress.Checked = camset.IsIpAddress;
             cbRestorSize.Checked = camset.IsRestore;
+            cbDistinguish.Checked = camset.IsDistinguished;
+            cbDistinguishNG.Checked = camset.IsSaveNG;
+            cbDistinguishOK.Checked = camset.IsSaveOK;
             nudPort.Value = camset.Port;
             pictureBox1.BackColor = camset.InfoColor;
             switch (camset.RotateType)
@@ -130,6 +154,21 @@ namespace AI_Master
             if (radioButton3.Checked)
             {
                 rotate = RotateFlipType.Rotate270FlipNone;
+            }
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            this.DialogResult = DialogResult.Cancel;
+            this.Close();
+        }
+
+        private void btSelectColor_Click(object sender, EventArgs e)
+        {
+            ColorDialog cld = new ColorDialog();
+            if(DialogResult.OK == cld.ShowDialog())
+            {
+                pictureBox1.BackColor = cld.Color;
             }
         }
     }

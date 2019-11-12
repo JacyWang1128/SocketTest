@@ -21,9 +21,13 @@ namespace AI_MasterControl
         private Boolean _isDate;
         private Boolean _isRestore;
         private Boolean _isAutoSaving;
+        private Boolean _isDistinguished;
+        private Boolean _isSaveNG;
+        private Boolean _isSaveOK;
         private RotateFlipType _rotateType;
         private Color _infoColor;
-        private String _savePath;
+        private String _preStringOK;
+        private String _preStringNG;
 
         #region 封装字段
         public int ControlX
@@ -195,19 +199,6 @@ namespace AI_MasterControl
             }
         }
 
-        public string SavePath
-        {
-            get
-            {
-                return _savePath;
-            }
-
-            set
-            {
-                _savePath = value;
-            }
-        }
-
         public bool IsIpAddress
         {
             get
@@ -246,18 +237,83 @@ namespace AI_MasterControl
                 _isDate = value;
             }
         }
+
+        public bool IsDistinguished
+        {
+            get
+            {
+                return _isDistinguished;
+            }
+
+            set
+            {
+                _isDistinguished = value;
+            }
+        }
+
+        public string PreStringOK
+        {
+            get
+            {
+                return _preStringOK;
+            }
+
+            set
+            {
+                _preStringOK = value;
+            }
+        }
+
+        public string PreStringNG
+        {
+            get
+            {
+                return _preStringNG;
+            }
+
+            set
+            {
+                _preStringNG = value;
+            }
+        }
+
+        public bool IsSaveNG
+        {
+            get
+            {
+                return _isSaveNG;
+            }
+
+            set
+            {
+                _isSaveNG = value;
+            }
+        }
+
+        public bool IsSaveOK
+        {
+            get
+            {
+                return _isSaveOK;
+            }
+
+            set
+            {
+                _isSaveOK = value;
+            }
+        }
         #endregion
 
         public CameraSettings()
         {
             ControlX = 0;
             ControlY = 0;
-            ControlWidth = 0;
-            ControlHeight = 0;
-            Port = 0;
-            Cmos_Width = 0;
-            Cmos_Heigt = 0;
-            CameraIP = "0.0.0.0";
+            ControlWidth = 320;
+            ControlHeight = 256;
+            Port = 4557;
+            Cmos_Width = 1280;
+            Cmos_Heigt = 1024;
+            CameraIP = "192.168.3.15";
             PreString = "";
             IsRestore = false;
             IsAutoSaving = false; ;
@@ -266,9 +322,10 @@ namespace AI_MasterControl
             IsIpAddress = false;
             IsCameraName = true;
             IsDate = false;
+            IsDistinguished = false;
         }
 
-        public CameraSettings(Int32 x, Int32 y, Int32 width, Int32 height, Int32 cmos_width, Int32 cmos_height, String ip, Int32 port, String preStr, Boolean isIpaddress,Boolean isCameraname,Boolean isDatetime, Boolean isRestor, Boolean isAutoSave, RotateFlipType rft, Color infoColor)
+        public CameraSettings(Int32 x, Int32 y, Int32 width, Int32 height, Int32 cmos_width, Int32 cmos_height, String ip, Int32 port, String preStr, Boolean isIpaddress,Boolean isCameraname,Boolean isDatetime, Boolean isRestor, Boolean isAutoSave, Boolean isDistinguish,RotateFlipType rft, Color infoColor)
         {
             ControlX = x;
             ControlY = y;
@@ -286,6 +343,7 @@ namespace AI_MasterControl
             IsIpAddress = isIpaddress;
             IsCameraName = isCameraname;
             IsDate = isDatetime;
+            IsDistinguished = IsDistinguished;
         }
     }
 }

@@ -43,19 +43,25 @@ namespace AI_MasterControl
         private UInt32 _cycleTime;
         private Int32 _imgSection;
         private Int32 _imgResolution;
+        private Boolean _isOK;
+        private String _pathOK;
+        private String _pathNG;
         public RotateFlipType rotate;
         public ImgFormat format;
         public ColorDepth colorDepth;
         public ImageFormat SaveImageFormat;
         public Boolean IsSaveing;
         public Boolean IsRestore;
+        public Boolean IsDistinguish;
+        public Boolean IsSaveOK;
+        public Boolean IsSaveNG;
         public CameraInfo camInfo;
         private Int32 _cmosWidth;
         private Int32 _cmosHeight;
 
         private Boolean _isShowing = true;
         private Boolean _isNewPhoto = false;
-
+        private FilePreEventHandler getFilePre;
         public PictureBox showImagePanel;
         public String FilePrefix;
         //当前图像
@@ -299,22 +305,62 @@ namespace AI_MasterControl
                 _port = value;
             }
         }
+
+        public bool IsOK
+        {
+            get
+            {
+                return _isOK;
+            }
+
+            set
+            {
+                _isOK = value;
+            }
+        }
+
+        public string PathOK
+        {
+            get
+            {
+                return _pathOK;
+            }
+
+            set
+            {
+                _pathOK = value;
+            }
+        }
+
+        public string PathNG
+        {
+            get
+            {
+                return _pathNG;
+            }
+
+            set
+            {
+                _pathNG = value;
+            }
+        }
         #endregion
         #endregion
 
-        public VCZcamera(MessageHandle msgh, PictureBox pl)
+        public VCZcamera(MessageHandle msgh, PictureBox pl, FilePreEventHandler fpeh)
         {
             InitCameraInfo();
             msg = msgh;
-            uh = new UdpHelper(msgh,this);
+            uh = new UdpHelper(msgh, this);
             uph = new UdpPackageHelper(uh.UdpPackageBuffer, msgh, this);
-            bh = new BitmapHelper(uph.ImgBufferQueue,msgh, this);
+            bh = new BitmapHelper(uph.ImgBufferQueue, msgh, this);
+            getFilePre = fpeh;
             showImagePanel = pl;
             //uph = new UdpPackageHelper(uh.UdpPackageBuffer);
             //bh = new BitmapHelper();
         }
 
-        public void SetCMOS(Int32 width,Int32 height)
+        public void SetCMOS(Int32 width, Int32 height)
         {
             CmosWidth = width;
             CmosHeight = height;
@@ -413,18 +459,120 @@ namespace AI_MasterControl
                             saveformat = ImageFormat.Png;
                             break;
                     }
-                    if (IsRestore)
+                    getFilePre();
+                    try
                     {
-                        Image img = GetSourceImg();
-                        img.Save(FilePrefix + count++.ToString() + "." + format, saveformat);
-                        img.Dispose();
+                        if (IsRestore)
+                        {
+                            Image img = GetSourceImg();
+                            if (IsDistinguish)
+                            {
+                                if (IsOK)
+                                {
+                                    if (!(IsSaveOK || IsSaveNG))
+                                    {
+                                        img.Save(PathOK.ToString() + "." + format, saveformat);
+                                    }
+                                    else
+                                    {
+                                        if (IsSaveOK)
+                                            img.Save(PathOK.ToString() + "." + format, saveformat);
+                                    }
+                                }
+                                else
+                                {
+                                    if (!(IsSaveOK || IsSaveNG))
+                                    {
+                                        img.Save(PathNG.ToString() + "." + format, saveformat);
+                                    }
+                                    else
+                                    {
+                                        if (IsSaveNG)
+                                            img.Save(PathNG.ToString() + "." + format, saveformat);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                if (!(IsSaveOK || IsSaveNG))
+                                {
+                                    img.Save(FilePrefix.ToString() + "." + format, saveformat);
+                                }
+                                else
+                                {
+                                    if (IsOK)
+                                    {
+                                        if (IsSaveOK)
+                                            img.Save(FilePrefix.ToString() + "." + format, saveformat);
+                                    }
+                                    else
+                                    {
+                                        if (IsSaveNG)
+                                            img.Save(FilePrefix.ToString() + "." + format, saveformat);
+                                    }
+                                }
+                            }
+                            img.Dispose();
+                        }
+                        else
+                        {
+                            //Bitmap bmp = new Bitmap(currentImage);if (IsDistinguish)
+                            if (IsDistinguish)
+                            {
+                                if (IsOK)
+                                {
+                                    if (!(IsSaveOK || IsSaveNG))
+                                    {
+                                        currentImage.Save(PathOK.ToString() + "." + format, saveformat);
+                                    }
+                                    else
+                                    {
+                                        if (IsSaveOK)
+                                            currentImage.Save(PathOK.ToString() + "." + format, saveformat);
+                                    }
+                                }
+                                else
+                                {
+                                    if (!(IsSaveOK || IsSaveNG))
+                                    {
+                                        currentImage.Save(PathNG.ToString() + "." + format, saveformat);
+                                    }
+                                    else
+                                    {
+                                        if (IsSaveOK)
+                                            currentImage.Save(PathNG.ToString() + "." + format, saveformat);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                if (!(IsSaveOK || IsSaveNG))
+                                {
+                                    currentImage.Save(FilePrefix.ToString() + "." + format, saveformat);
+                                }
+                                else
+                                {
+                                    if (IsOK)
+                                    {
+                                        if (IsSaveOK)
+                                            currentImage.Save(FilePrefix.ToString() + "." + format, saveformat);
+                                    }
+                                    else
+                                    {
+                                        if (IsSaveNG)
+                                            currentImage.Save(FilePrefix.ToString() + "." + format, saveformat);
+                                    }
+                                }
+                            }
+                            //currentImage.Save(FilePrefix + "_" + count++.ToString() + "." + format, saveformat);
+                            //bmp.Dispose();
+                        }
                     }
-                    else
+                    catch (Exception)
                     {
-                        //Bitmap bmp = new Bitmap(currentImage);
-                        currentImage.Save(FilePrefix + "_" + count++.ToString() + "." + format, saveformat);
-                        //bmp.Dispose();
+
                     }
+
                 }
                 //showImagePanel.Image = GetSourceImg();
             }
@@ -481,7 +629,7 @@ namespace AI_MasterControl
 
         public Image GetSourceImg()
         {
-            if(CmosHeight < 1 || CmosWidth < 1)
+            if (CmosHeight < 1 || CmosWidth < 1)
             {
                 return new Bitmap(currentImage);
             }
@@ -502,8 +650,8 @@ namespace AI_MasterControl
                     bmp = new Bitmap(CmosWidth, CmosHeight, PixelFormat.Format24bppRgb);
                     break;
             }
-            
-            using(Graphics g = Graphics.FromImage(bmp))
+
+            using (Graphics g = Graphics.FromImage(bmp))
             {
                 g.Clear(Color.White);
                 switch (ImgResolution)
@@ -512,10 +660,10 @@ namespace AI_MasterControl
                         g.DrawImage(now, Roi_x, Roi_y);
                         break;
                     case 2:
-                        g.DrawImage(now, Roi_x/2, Roi_y/2);
+                        g.DrawImage(now, Roi_x / 2, Roi_y / 2);
                         break;
                     case 3:
-                        g.DrawImage(now, Roi_x/4, Roi_y/4);
+                        g.DrawImage(now, Roi_x / 4, Roi_y / 4);
                         break;
                     default:
                         g.DrawImage(now, Roi_x, Roi_y);

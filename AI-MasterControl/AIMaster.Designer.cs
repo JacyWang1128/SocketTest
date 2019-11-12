@@ -29,6 +29,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.tbIPaddress = new System.Windows.Forms.TextBox();
             this.groupBox7 = new System.Windows.Forms.GroupBox();
             this.textBox1 = new System.Windows.Forms.TextBox();
@@ -76,8 +77,14 @@
             this.panel1 = new System.Windows.Forms.Panel();
             this.panel2 = new System.Windows.Forms.Panel();
             this.gbConnection = new System.Windows.Forms.GroupBox();
-            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip();
+            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.相机设置ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.图像旋转ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.不旋转ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.旋转90ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.旋转180ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.旋转270ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.开始监听ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.groupBox7.SuspendLayout();
             this.groupBox6.SuspendLayout();
             this.groupBox5.SuspendLayout();
@@ -317,13 +324,13 @@
             // 
             // pictureBox1
             // 
-            this.pictureBox1.BackColor = System.Drawing.Color.Transparent;
+            this.pictureBox1.BackColor = System.Drawing.Color.Gray;
             this.pictureBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pictureBox1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pictureBox1.Location = new System.Drawing.Point(0, 0);
             this.pictureBox1.Margin = new System.Windows.Forms.Padding(10);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(960, 768);
+            this.pictureBox1.Size = new System.Drawing.Size(962, 770);
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pictureBox1.TabIndex = 25;
             this.pictureBox1.TabStop = false;
@@ -606,29 +613,76 @@
             // contextMenuStrip1
             // 
             this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.相机设置ToolStripMenuItem});
+            this.相机设置ToolStripMenuItem,
+            this.图像旋转ToolStripMenuItem,
+            this.开始监听ToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(125, 26);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(153, 92);
             // 
             // 相机设置ToolStripMenuItem
             // 
             this.相机设置ToolStripMenuItem.Name = "相机设置ToolStripMenuItem";
-            this.相机设置ToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
+            this.相机设置ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.相机设置ToolStripMenuItem.Text = "相机设置";
             this.相机设置ToolStripMenuItem.Click += new System.EventHandler(this.相机设置ToolStripMenuItem_Click);
+            // 
+            // 图像旋转ToolStripMenuItem
+            // 
+            this.图像旋转ToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.不旋转ToolStripMenuItem,
+            this.旋转90ToolStripMenuItem,
+            this.旋转180ToolStripMenuItem,
+            this.旋转270ToolStripMenuItem});
+            this.图像旋转ToolStripMenuItem.Name = "图像旋转ToolStripMenuItem";
+            this.图像旋转ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.图像旋转ToolStripMenuItem.Text = "图像旋转";
+            // 
+            // 不旋转ToolStripMenuItem
+            // 
+            this.不旋转ToolStripMenuItem.Name = "不旋转ToolStripMenuItem";
+            this.不旋转ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.不旋转ToolStripMenuItem.Text = "不旋转 √";
+            this.不旋转ToolStripMenuItem.Click += new System.EventHandler(this.Rotate_Button);
+            // 
+            // 旋转90ToolStripMenuItem
+            // 
+            this.旋转90ToolStripMenuItem.Name = "旋转90ToolStripMenuItem";
+            this.旋转90ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.旋转90ToolStripMenuItem.Text = "旋转90°";
+            this.旋转90ToolStripMenuItem.Click += new System.EventHandler(this.Rotate_Button);
+            // 
+            // 旋转180ToolStripMenuItem
+            // 
+            this.旋转180ToolStripMenuItem.Name = "旋转180ToolStripMenuItem";
+            this.旋转180ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.旋转180ToolStripMenuItem.Text = "旋转180°";
+            this.旋转180ToolStripMenuItem.Click += new System.EventHandler(this.Rotate_Button);
+            // 
+            // 旋转270ToolStripMenuItem
+            // 
+            this.旋转270ToolStripMenuItem.Name = "旋转270ToolStripMenuItem";
+            this.旋转270ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.旋转270ToolStripMenuItem.Text = "旋转270°";
+            this.旋转270ToolStripMenuItem.Click += new System.EventHandler(this.Rotate_Button);
+            // 
+            // 开始监听ToolStripMenuItem
+            // 
+            this.开始监听ToolStripMenuItem.Name = "开始监听ToolStripMenuItem";
+            this.开始监听ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.开始监听ToolStripMenuItem.Text = "开始监听";
+            this.开始监听ToolStripMenuItem.Click += new System.EventHandler(this.开始监听ToolStripMenuItem_Click);
             // 
             // AIMaster
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Transparent;
-            this.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.pictureBox1);
             this.DoubleBuffered = true;
             this.Name = "AIMaster";
-            this.Size = new System.Drawing.Size(960, 768);
+            this.Size = new System.Drawing.Size(962, 770);
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.Resize += new System.EventHandler(this.AIMaster_Resize);
             this.groupBox7.ResumeLayout(false);
@@ -705,5 +759,11 @@
         private System.Windows.Forms.GroupBox gbConnection;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
         private System.Windows.Forms.ToolStripMenuItem 相机设置ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 开始监听ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 图像旋转ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 不旋转ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 旋转90ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 旋转180ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 旋转270ToolStripMenuItem;
     }
 }
