@@ -410,19 +410,19 @@ namespace AI_MasterControl
         {
             //msg($"{DateTime.Now}当前队列中仍有：{uph.UdpPackageBuffer.Count}包未解析！图片缓冲区有：{uph.ImgBufferQueue.Count}张图片未解析！\n相机名称:{CameraName}，相机地址：{CameraIP}，相片宽度：{ImgWidth}，相片高度：{ImgHeight}，相片取景横坐标：（{Roi_x}，{Roi_y}）,相片取景宽度：{Roi_width}，相片取景高：{Roi_height}，相片Cycle Time：{CycleTime}，相片格式：{format.ToString()}，色彩模式：{colorDepth.ToString()}");
 
-            VCZcameraInfo["CameraIP"] = CameraIP;
-            VCZcameraInfo["CameraName"] = CameraName;
-            VCZcameraInfo["Roi_x"] = Roi_x.ToString();
-            VCZcameraInfo["Roi_y"] = Roi_y.ToString();
-            VCZcameraInfo["Roi_height"] = Roi_height.ToString();
-            VCZcameraInfo["Roi_width"] = Roi_width.ToString();
-            VCZcameraInfo["GoodCount"] = GoodCount.ToString();
-            VCZcameraInfo["BadCount"] = BadCount.ToString();
-            VCZcameraInfo["CycleTime"] = (Convert.ToDouble(CycleTime) / 1000).ToString();
-            VCZcameraInfo["ImgWidth"] = ImgWidth.ToString();
-            VCZcameraInfo["ImgHeight"] = ImgHeight.ToString();
-            VCZcameraInfo["ImgSection"] = ImgSection.ToString();
-            VCZcameraInfo["format"] = format.ToString();
+            //VCZcameraInfo["CameraIP"] = CameraIP;
+            //VCZcameraInfo["CameraName"] = CameraName;
+            //VCZcameraInfo["Roi_x"] = Roi_x.ToString();
+            //VCZcameraInfo["Roi_y"] = Roi_y.ToString();
+            //VCZcameraInfo["Roi_height"] = Roi_height.ToString();
+            //VCZcameraInfo["Roi_width"] = Roi_width.ToString();
+            //VCZcameraInfo["GoodCount"] = GoodCount.ToString();
+            //VCZcameraInfo["BadCount"] = BadCount.ToString();
+            //VCZcameraInfo["CycleTime"] = (Convert.ToDouble(CycleTime) / 1000).ToString();
+            //VCZcameraInfo["ImgWidth"] = ImgWidth.ToString();
+            //VCZcameraInfo["ImgHeight"] = ImgHeight.ToString();
+            //VCZcameraInfo["ImgSection"] = ImgSection.ToString();
+            //VCZcameraInfo["format"] = format.ToString();
 
 
             camInfo.CameraIp = CameraIP;
@@ -435,7 +435,7 @@ namespace AI_MasterControl
             camInfo.BadCount = BadCount.ToString();
             camInfo.CycleTime = (Convert.ToDouble(CycleTime) / 1000).ToString();
 
-            msg(VCZcameraInfo);
+            //msg(VCZcameraInfo);
             if (currentImage != null)
             {
                 Bitmap showImage = new Bitmap(currentImage);
@@ -568,9 +568,9 @@ namespace AI_MasterControl
                             //bmp.Dispose();
                         }
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
-
+                        LoggHelper.WriteLog("图像显示异常", ex);
                     }
 
                 }

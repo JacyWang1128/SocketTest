@@ -15,7 +15,7 @@ namespace AI_MasterControl
         VCZcamera camera;
         private Boolean _isAnalysising = true;
 
-        public BitmapHelper(Queue<Byte[]> imgbuffer,MessageHandle msgh,VCZcamera camera)
+        public BitmapHelper(Queue<Byte[]> imgbuffer, MessageHandle msgh, VCZcamera camera)
         {
             this.msgh = msgh;
             this.camera = camera;
@@ -35,7 +35,7 @@ namespace AI_MasterControl
             }
         }
 
-        public BitmapHelper(Queue<Byte[]> imgbuffer,MessageHandle msgh)
+        public BitmapHelper(Queue<Byte[]> imgbuffer, MessageHandle msgh)
         {
             ImgBufferQueue = imgbuffer;
             this.msgh = msgh;
@@ -50,46 +50,56 @@ namespace AI_MasterControl
         {
             IsAnalysising = true;
             //msgh("开始解析图像文件");
-            while(_isAnalysising)
+            while (_isAnalysising)
             {
-                if(ImgBufferQueue.Count > 0)
+                try
                 {
-                    Byte[] buffer = ImgBufferQueue.Dequeue();
-                    ImageFormat format = GetImgbufferFormat(buffer);
-                    if(format == ImageFormat.Bmp)
+
+
+                    if (ImgBufferQueue.Count > 0)
                     {
-                        switch (camera.colorDepth)
+                        Byte[] buffer = ImgBufferQueue.Dequeue();
+                        ImageFormat format = GetImgbufferFormat(buffer);
+                        if (format == ImageFormat.Bmp)
                         {
-                            case ColorDepth.GrayScale:
-                                Image imgGrayBmp = Bit8To24(GetGrayscaleBitmapFromBuffer(camera.ImgWidth, camera.ImgHeight, buffer));
-                                //Bitmap bmpGrayBmp = new Bitmap(imgGrayBmp);
-                                camera.currentImage = imgGrayBmp;
-                                //imgGrayBmp.Dispose();
-                                camera.IsNewPhoto = true;
-                                break;
-                            case ColorDepth.RGB:
-                                Image imgRGBBmp = GetRGBBitmapFromBufferWithMemory(camera.ImgWidth, camera.ImgHeight, buffer);
-                                //Bitmap bmpRGBBmp = new Bitmap(imgRGBBmp);
-                                camera.currentImage = imgRGBBmp;
-                                //imgRGBBmp.Dispose();
-                                camera.IsNewPhoto = true;
-                                break;
-                            default:
-                                break;
+                            switch (camera.colorDepth)
+                            {
+                                case ColorDepth.GrayScale:
+                                    Image imgGrayBmp = Bit8To24(GetGrayscaleBitmapFromBuffer(camera.ImgWidth, camera.ImgHeight, buffer));
+                                    Bitmap bmpGrayBmp = new Bitmap(imgGrayBmp);
+                                    camera.currentImage = bmpGrayBmp;
+                                    imgGrayBmp.Dispose();
+                                    camera.IsNewPhoto = true;
+                                    break;
+                                case ColorDepth.RGB:
+                                    Image imgRGBBmp = GetRGBBitmapFromBufferWithMemory(camera.ImgWidth, camera.ImgHeight, buffer);
+                                    Bitmap bmpRGBBmp = new Bitmap(imgRGBBmp);
+                                    camera.currentImage = bmpRGBBmp;
+                                    imgRGBBmp.Dispose();
+                                    camera.IsNewPhoto = true;
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                        else
+                        {
+                            //if(camera.currentImage != null)
+                            //{
+                            //    camera.currentImage.Dispose();
+                            //}
+                            Image img = GetImageInBuffer(buffer);
+                            Bitmap bmp = new Bitmap(img);
+                            camera.currentImage = bmp;
+                            //img.Dispose();
+                            camera.IsNewPhoto = true;
                         }
                     }
-                    else
-                    {
-                        //if(camera.currentImage != null)
-                        //{
-                        //    camera.currentImage.Dispose();
-                        //}
-                        Image img = GetImageInBuffer(buffer);
-                        Bitmap bmp = new Bitmap(img);
-                        camera.currentImage = bmp;
-                        img.Dispose();
-                        camera.IsNewPhoto = true;
-                    }
+                }
+                catch (Exception ex)
+                {
+                    LoggHelper.WriteLog("图片解析错误", ex);
+                    //camera.IsNewPhoto = false;
                 }
                 Thread.Sleep(1);
             }
@@ -99,7 +109,7 @@ namespace AI_MasterControl
         private ImageFormat GetImgbufferFormat(Byte[] buffer)
         {
             Int32 len = buffer.Length;
-            if(buffer[4] == 0xff && buffer[5] == 0xd8 && buffer[6] == 0xff)
+            if (buffer[4] == 0xff && buffer[5] == 0xd8 && buffer[6] == 0xff)
             {
                 return ImageFormat.Jpeg;
             }
@@ -116,7 +126,7 @@ namespace AI_MasterControl
         public void SaveBitmap(String path, Int32 width, Int32 height, Byte[] imgbuffer)
         {
             Bitmap bmp = GetRGBBitmapFromBufferWithMemory(width, height, imgbuffer);
-            bmp.Save(path,ImageFormat.Bmp);
+            bmp.Save(path, ImageFormat.Bmp);
         }
 
         //PNG、JPGE
@@ -132,12 +142,12 @@ namespace AI_MasterControl
         }
 
         //BMP RGB内存拷贝法
-        public static Bitmap GetRGBBitmapFromBufferWithMemory(Int32 Width,Int32 Height,Byte[] buffer)
+        public static Bitmap GetRGBBitmapFromBufferWithMemory(Int32 Width, Int32 Height, Byte[] buffer)
         {
             Bitmap bmp = new Bitmap(Width, Height, PixelFormat.Format24bppRgb);
             BitmapData bmpdata = bmp.LockBits(new Rectangle(0, 0, Width, Height), ImageLockMode.WriteOnly, PixelFormat.Format24bppRgb);
             Int32 stride = bmpdata.Stride;
-            Int32 offset = stride - (Width*3);
+            Int32 offset = stride - (Width * 3);
             Int32 scanBytes = stride * Height;
             IntPtr iptr = bmpdata.Scan0;
             Int32 posScan = 0, posReal = 0;
@@ -146,9 +156,9 @@ namespace AI_MasterControl
             {
                 for (int w = 0; w < Width; w++)
                 {
-                        pixelValues[posScan++] = buffer[posReal++];
-                        pixelValues[posScan++] = buffer[posReal++];
-                        pixelValues[posScan++] = buffer[posReal++];
+                    pixelValues[posScan++] = buffer[posReal++];
+                    pixelValues[posScan++] = buffer[posReal++];
+                    pixelValues[posScan++] = buffer[posReal++];
                 }
                 posScan += offset;
             }
@@ -159,7 +169,7 @@ namespace AI_MasterControl
 
 
         //BMP Grayscale
-        public static Bitmap GetGrayscaleBitmapFromBuffer(Int32 Width,Int32 Height,Byte[] buffer)
+        public static Bitmap GetGrayscaleBitmapFromBuffer(Int32 Width, Int32 Height, Byte[] buffer)
         {
             Bitmap bmp = new Bitmap(Width, Height, PixelFormat.Format8bppIndexed);
             BitmapData bmpdata = bmp.LockBits(new Rectangle(0, 0, Width, Height), ImageLockMode.WriteOnly, PixelFormat.Format8bppIndexed);
@@ -173,7 +183,7 @@ namespace AI_MasterControl
             {
                 for (int j = 0; j < Height; j++)
                 {
-                        pixelValues[posScan++] = buffer[posReal++];
+                    pixelValues[posScan++] = buffer[posReal++];
                 }
                 posScan += offset;
             }
@@ -194,33 +204,33 @@ namespace AI_MasterControl
         }
 
         public static Bitmap Bit8To24(Bitmap bmp8)
-         { 
-             //Bitmap bmp8 = new Bitmap(filepath);
-             BitmapData data8 = bmp8.LockBits(new Rectangle(0, 0, bmp8.Width, bmp8.Height), ImageLockMode.ReadOnly, PixelFormat.Format8bppIndexed);
-             Bitmap bmp24 = new Bitmap(bmp8.Width, bmp8.Height, PixelFormat.Format24bppRgb); 
-             BitmapData data24 = bmp24.LockBits(new Rectangle(0, 0, bmp24.Width, bmp24.Height), ImageLockMode.WriteOnly, PixelFormat.Format24bppRgb);
-             unsafe 
-             { 
-                 byte* ptr8 = (byte*)data8.Scan0.ToPointer(); 
-                 byte* ptr24 = (byte*)data24.Scan0.ToPointer(); 
-                 for (int i = 0; i<bmp8.Height; i++) 
-                 { 
-                     for (int j = 0; j<bmp8.Width; j++)
-                     {
-                         //用8位位图的灰度值填充24位位图的R、G、B值 
-                         *ptr24++ = *ptr8; 
-                         *ptr24++ = *ptr8; 
-                         *ptr24++ = *ptr8++; 
-                     } 
-                     ptr8 += data8.Stride - bmp8.Width;                    //跳过对齐字节 
-                     ptr24 += data24.Stride - bmp8.Width* 3; //跳过对齐字节 
-                 } 
-             } 
-             bmp8.UnlockBits(data8); 
-             bmp24.UnlockBits(data24);
+        {
+            //Bitmap bmp8 = new Bitmap(filepath);
+            BitmapData data8 = bmp8.LockBits(new Rectangle(0, 0, bmp8.Width, bmp8.Height), ImageLockMode.ReadOnly, PixelFormat.Format8bppIndexed);
+            Bitmap bmp24 = new Bitmap(bmp8.Width, bmp8.Height, PixelFormat.Format24bppRgb);
+            BitmapData data24 = bmp24.LockBits(new Rectangle(0, 0, bmp24.Width, bmp24.Height), ImageLockMode.WriteOnly, PixelFormat.Format24bppRgb);
+            unsafe
+            {
+                byte* ptr8 = (byte*)data8.Scan0.ToPointer();
+                byte* ptr24 = (byte*)data24.Scan0.ToPointer();
+                for (int i = 0; i < bmp8.Height; i++)
+                {
+                    for (int j = 0; j < bmp8.Width; j++)
+                    {
+                        //用8位位图的灰度值填充24位位图的R、G、B值 
+                        *ptr24++ = *ptr8;
+                        *ptr24++ = *ptr8;
+                        *ptr24++ = *ptr8++;
+                    }
+                    ptr8 += data8.Stride - bmp8.Width;                    //跳过对齐字节 
+                    ptr24 += data24.Stride - bmp8.Width * 3; //跳过对齐字节 
+                }
+            }
+            bmp8.UnlockBits(data8);
+            bmp24.UnlockBits(data24);
             return bmp24;
-         }
-        
+        }
+
         /// <summary>
         /// 指针法
         /// </summary>

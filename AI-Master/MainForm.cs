@@ -37,7 +37,7 @@ namespace AI_Master
         private void button2_Click(object sender, EventArgs e)
         {
             AIMaster ai = new AIMaster();
-            AI_MasterControl.AddCamera adc = new AI_MasterControl.AddCamera(ai.cameraSetting, ai.aceh);
+            AI_MasterControl.AddCamera adc = new AI_MasterControl.AddCamera(ai.cameraSetting, ai.aceh,"添加相机");
             if (DialogResult.OK == adc.ShowDialog())
             {
                 plMiddle.Controls.Add(ai);
@@ -45,9 +45,13 @@ namespace AI_Master
                 //treeView1.Nodes[ai.camera.CameraIP]
                 treeView1.Nodes.Add(tn);
                 dicTreeNode[tn] = ai;
+                treeView1.SelectedNode = treeView1.Nodes[treeView1.Nodes.Count - 1];
             }
             else
+            {
                 ai.Dispose();
+            }
+            treeView1.Select();
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -57,16 +61,29 @@ namespace AI_Master
                 dicTreeNode[treeView1.SelectedNode].Dispose();
                 dicTreeNode.Remove(treeView1.SelectedNode);
                 treeView1.SelectedNode.Remove();
+                treeView1.Select();
             }
         }
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            dataGridView1.Rows.Clear();
+            //dataGridView1.Rows.Clear();
+            Int32 rowsCount = dataGridView1.Rows.Count;
             foreach (var item in dicTreeNode)
             {
                 SetCameraInfo(item.Value.camera.camInfo);
                 item.Key.Text = String.IsNullOrEmpty(item.Value.camera.CameraName) ? item.Value.camera.CameraIP : item.Value.camera.CameraName + "  " + item.Value.camera.CameraIP;
+            }
+            for (int i = 0; i < rowsCount - 1; i++)
+            {
+                try
+                {
+                    dataGridView1.Rows.RemoveAt(0);
+                }
+                catch (Exception)
+                {
+                    
+                }
             }
             dataGridView1.ClearSelection();
         }
@@ -115,10 +132,12 @@ namespace AI_Master
                 dicTreeNode[treeView1.SelectedNode].SetCamera();
                 //treeView1.SelectedNode.Text = dicTreeNode[treeView1.SelectedNode].camera.CameraIP;
                 treeView1.SelectedNode = treeView1.SelectedNode;
+                treeView1.Select();
+                Write_Config();
             }
         }
 
-        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        private void Write_Config()
         {
             List<CameraSettings> lst = new List<CameraSettings>();
             foreach (var item in dicTreeNode)
@@ -126,6 +145,12 @@ namespace AI_Master
                 lst.Add(item.Value.cameraSetting);
             }
             ReadConfig.SaveConfig(lst.ToArray());
+        }
+
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Write_Config();
+            LoggHelper.WriteLog("配置信息保存完毕，程序正常退出！");
         }
 
         private void MainForm_Load(object sender, EventArgs e)
@@ -204,52 +229,52 @@ namespace AI_Master
 
         private void ReplaceButton()
         {
-            splitContainer2.SplitterDistance = splitContainer1.Width;
+            plMiddle.AutoScroll = false;
             button7.BringToFront();
-            button7.Location = new Point(button7.Parent.Width - button7.Width, (button7.Parent.Height - button7.Height) / 2);
-            button8.Location = new Point((plBottom.Width - button8.Width) / 2, 0);
-            dataGridView1.Height = plBottom.Height - button8.Height;
+            splitContainer2.SplitterDistance = splitContainer3.SplitterDistance;
+            button8.Location = new Point((button8.Parent.Width - button8.Width) / 2, /*splitContainer4.SplitterDistance*/button8.Parent.Height - button8.Height);
+            button7.Location = new Point(0, (splitContainer4.SplitterDistance - button7.Height) / 2);
+            //dataGridView1.Height = plBottom.Height - button8.Height;
+            plMiddle.AutoScroll = true;
         }
 
         private void button7_Click(object sender, EventArgs e)
         {
-            if (plLeft.Width != button7.Width)
-            {
-                originalSplitContainer1Width = plLeft.Width;
-            }
-            plLeft.Width = plLeft.Width == button7.Width ? originalSplitContainer1Width : button7.Width;
-            if(button7.Parent.Width == button7.Width)
-            {
-                treeView1.Scrollable = false;
-                splitContainer1.Panel1Collapsed = true;
-                splitContainer2.Panel1Collapsed = true;
-            }
-            else
-            {
-                treeView1.Scrollable = true;
-                splitContainer1.Panel1Collapsed = false;
-                splitContainer2.Panel1Collapsed = false;
-            }
+            splitContainer3.Panel1Collapsed = !splitContainer3.Panel1Collapsed;
+            splitContainer2.Panel1Collapsed = !splitContainer2.Panel1Collapsed;
             button7.BackgroundImage.RotateFlip(RotateFlipType.Rotate180FlipNone);
             ReplaceButton();
         }
 
         private void button8_Click(object sender, EventArgs e)
         {
-            if (plBottom.Height != button8.Height)
-            {
-                originalplBottomHeight = plBottom.Height;
-            }
-            plBottom.Height = plBottom.Height == button8.Height ? originalplBottomHeight : button8.Height;
-            if (plBottom.Height == button8.Height)
-            {
-                plBottom.AutoScroll = false;
-            }
-            else
-            {
-                plBottom.AutoScroll = true;
-            }
+            splitContainer4.Panel2Collapsed = !splitContainer4.Panel2Collapsed;
             button8.BackgroundImage.RotateFlip(RotateFlipType.Rotate180FlipNone);
+            ReplaceButton();
+        }
+
+        private void label2_Click(object sender, EventArgs e)
+        {
+            button2_Click(null, e);
+        }
+
+        private void label3_Click(object sender, EventArgs e)
+        {
+            button1.PerformClick();
+        }
+
+        private void label4_Click(object sender, EventArgs e)
+        {
+            button3.PerformClick();
+        }
+
+        private void splitContainer3_SplitterMoved(object sender, SplitterEventArgs e)
+        {
+            ReplaceButton();
+        }
+
+        private void splitContainer4_SplitterMoved(object sender, SplitterEventArgs e)
+        {
             ReplaceButton();
         }
     }

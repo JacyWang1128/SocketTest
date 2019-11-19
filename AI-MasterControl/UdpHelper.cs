@@ -52,13 +52,13 @@ namespace AI_MasterControl
                 IsReceive = true;
                 //在本机指定的端口接收
                 //msgh($"正在监听端口：{port}");
-                udpClient = new UdpClient();
+                udpClient = new UdpClient(port);
                 //udpClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
-                udpClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
-                udpClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Broadcast, true);
+                //udpClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+                //udpClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Broadcast, true);
                 IPEndPoint remote = null;
-                IPEndPoint test = new IPEndPoint(IPAddress.Any, port);
-                udpClient.Client.Bind(test);
+                //IPEndPoint test = new IPEndPoint(IPAddress.Any, port);
+                //udpClient.Client.Bind(test);
                 while (_isReceive)
                 {
                     try
@@ -79,8 +79,7 @@ namespace AI_MasterControl
                     }
                     catch (Exception ex)
                     {
-                        //if (msgh != null)
-                            //msgh(ex.Message);
+                        //LoggHelper.WriteLog("UDP接收错误", ex);
                     }
                     Thread.Sleep(1);
                 }
@@ -88,8 +87,7 @@ namespace AI_MasterControl
             }
             catch (Exception ex)
             {
-                if (msgh != null) { }
-                    //msgh($"{ex.Message}\n监听已结束");
+                
             }
             //msgh("结束监听！");
         }

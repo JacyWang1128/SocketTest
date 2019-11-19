@@ -16,12 +16,14 @@ namespace AI_MasterControl
         CameraSettings camset;
         RotateFlipType rotate;
         AddControlEventHandler add;
-        public AddCamera(CameraSettings cameraSet,AddControlEventHandler AddControl)
+        TreeNode tn;
+        public AddCamera(CameraSettings cameraSet,AddControlEventHandler AddControl,String captain)
         {
             InitializeComponent();
             this.camset = cameraSet;
             add = AddControl;
             this.StartPosition = FormStartPosition.CenterScreen;
+            this.Text = captain;
         }
 
         private void btSelectFolder_Click(object sender, EventArgs e)

@@ -217,7 +217,7 @@ namespace AI_MasterControl
         }
 
 
-        public Boolean IsOverShow(Rectangle controlClientRectangle, Point location)
+        private Boolean IsOverShow(Rectangle controlClientRectangle, Point location)
         {
             return controlClientRectangle.Contains(location);
         }
@@ -238,32 +238,31 @@ namespace AI_MasterControl
 
         public void SetCamera()
         {
-            AddCamera ac = new AddCamera(cameraSetting, aceh);
-            ac.Show();
+            AddCamera ac = new AddCamera(cameraSetting, aceh,"相机设置");
+            ac.ShowDialog();
         }
-        //private void 相机信息ToolStripMenuItem_Click(object sender, EventArgs e)
-        //{
-        //    if (panel1.Visible)
-        //    {
-        //        //Animation.ShowControl(panel1, false, AnchorStyles.Top);
-        //        panel1.Visible = false;
-        //        相机信息ToolStripMenuItem.Text = "相机信息";
-        //    }
-        //    else
-        //    {
-        //        if (IsOverShow(this.ClientRectangle, new Point(mousePoint.X + panel1.Width, mousePoint.Y + panel1.Height)))
-        //        {
-        //            panel1.Location = mousePoint;
-        //        }
-        //        else
-        //        {
-        //            panel1.Location = new Point(this.Width /20, this.Height /20);
-        //        }
-        //        //Animation.ShowControl(panel1, true, AnchorStyles.Top);
-        //        panel1.Visible = true;
-        //        相机信息ToolStripMenuItem.Text = "相机信息 √";
-        //    }
-        //}
+
+        public void SetCamera(CameraSettings setting)
+        {
+            this.Width = setting.ControlWidth;
+            this.Height = setting.ControlHeight;
+            this.Location = new Point(setting.ControlX, setting.ControlY);
+            this.camera.CameraIP = setting.CameraIP;
+            this.camera.Port = setting.Port;
+            this.camera.FilePrefix = setting.PreString;
+            this.camera.CmosHeight = setting.Cmos_Heigt;
+            this.camera.CmosWidth = setting.Cmos_Width;
+            this.camera.IsRestore = setting.IsRestore;
+            SetFilePreFile();
+            this.camera.IsSaveing = setting.IsAutoSaving;
+            this.camera.rotate = setting.RotateType;
+            this.infoColor = setting.InfoColor;
+            this.camera.IsDistinguish = setting.IsDistinguished;
+            this.camera.IsSaveNG = setting.IsSaveNG;
+            this.camera.IsSaveOK = setting.IsSaveOK;
+            if (!camera.isReceiving)
+                camera.Start();
+        }
 
         private void AIMaster_Resize(object sender, EventArgs e)
         {
@@ -348,29 +347,7 @@ namespace AI_MasterControl
                 p.Dispose();
             }
         }
-
-        public void SetCamera(CameraSettings setting)
-        {
-            this.Width = setting.ControlWidth;
-            this.Height = setting.ControlHeight;
-            this.Location = new Point(setting.ControlX, setting.ControlY);
-            this.camera.CameraIP = setting.CameraIP;
-            this.camera.Port = setting.Port;
-            this.camera.FilePrefix = setting.PreString;
-            this.camera.CmosHeight = setting.Cmos_Heigt;
-            this.camera.CmosWidth = setting.Cmos_Width;
-            this.camera.IsRestore = setting.IsRestore;
-            SetFilePreFile();
-            this.camera.IsSaveing = setting.IsAutoSaving;
-            this.camera.rotate = setting.RotateType;
-            this.infoColor = setting.InfoColor;
-            this.camera.IsDistinguish = setting.IsDistinguished;
-            this.camera.IsSaveNG = setting.IsSaveNG;
-            this.camera.IsSaveOK = setting.IsSaveOK;
-            if (!camera.isReceiving)
-                camera.Start();
-        }
-
+        
         private void 开始监听ToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (camera.isReceiving)
