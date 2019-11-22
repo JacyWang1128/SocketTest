@@ -138,15 +138,9 @@ namespace AI_MasterControl
 
         public void SetFilePreFile()
         {
-            if (camera.IsDistinguish)
-            {
-                camera.PathNG = GetFilePreString(cameraSetting.PreStringNG);
-                camera.PathOK = GetFilePreString(cameraSetting.PreStringOK);
-            }
-            else
-            {
-                camera.FilePrefix = GetFilePreString(cameraSetting.PreString);
-            }
+            camera.PathNG = GetFilePreString(cameraSetting.PreStringNG);
+            camera.PathOK = GetFilePreString(cameraSetting.PreStringOK);
+            camera.FilePrefix = GetFilePreString(cameraSetting.PreString);
         }
 
         public String GetFilePreString(String preString)
@@ -238,7 +232,7 @@ namespace AI_MasterControl
 
         public void SetCamera()
         {
-            AddCamera ac = new AddCamera(cameraSetting, aceh,"相机设置");
+            AddCamera ac = new AddCamera(cameraSetting, aceh, "相机设置");
             ac.ShowDialog();
         }
 
@@ -347,7 +341,7 @@ namespace AI_MasterControl
                 p.Dispose();
             }
         }
-        
+
         private void 开始监听ToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (camera.isReceiving)
@@ -366,12 +360,12 @@ namespace AI_MasterControl
             旋转90ToolStripMenuItem.Text = "旋转90°";
             旋转180ToolStripMenuItem.Text = "旋转180°";
             旋转270ToolStripMenuItem.Text = "旋转270°";
-            if(sender == 不旋转ToolStripMenuItem)
+            if (sender == 不旋转ToolStripMenuItem)
             {
                 camera.rotate = RotateFlipType.RotateNoneFlipNone;
                 (sender as ToolStripMenuItem).Text = "不旋转 √";
             }
-            else if(sender == 旋转90ToolStripMenuItem)
+            else if (sender == 旋转90ToolStripMenuItem)
             {
                 camera.rotate = RotateFlipType.Rotate90FlipNone;
                 (sender as ToolStripMenuItem).Text = "旋转90 √";

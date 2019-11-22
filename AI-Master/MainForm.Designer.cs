@@ -507,10 +507,6 @@
             this.splitContainer4.TabIndex = 1;
             this.splitContainer4.SplitterMoved += new System.Windows.Forms.SplitterEventHandler(this.splitContainer4_SplitterMoved);
             // 
-            // cameraInfoBindingSource
-            // 
-            this.cameraInfoBindingSource.DataSource = typeof(AI_MasterControl.CameraInfo);
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);

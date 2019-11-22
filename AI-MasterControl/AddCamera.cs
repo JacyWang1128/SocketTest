@@ -17,7 +17,7 @@ namespace AI_MasterControl
         RotateFlipType rotate;
         AddControlEventHandler add;
         TreeNode tn;
-        public AddCamera(CameraSettings cameraSet,AddControlEventHandler AddControl,String captain)
+        public AddCamera(CameraSettings cameraSet, AddControlEventHandler AddControl, String captain)
         {
             InitializeComponent();
             this.camset = cameraSet;
@@ -41,21 +41,20 @@ namespace AI_MasterControl
         private void button1_Click(object sender, EventArgs e)
         {
             IPAddress ip;
-            if(IPAddress.TryParse(tbIPaddress.Text,out ip))
+            if (IPAddress.TryParse(tbIPaddress.Text, out ip))
             {
                 camset.CameraIP = tbIPaddress.Text;
                 camset.PreString = tbFolder.Text + @"\" + tbPreStr.Text;
                 camset.IsDistinguished = cbDistinguish.Checked;
-                if (cbDistinguish.Checked)
+                if (!(Directory.Exists(tbFolder.Text + @"\" + @"OK\") && Directory.Exists(tbFolder.Text + @"\" + @"NG\")))
                 {
-                    if(!(Directory.Exists(tbFolder.Text + @"\" + @"OK\") && Directory.Exists(tbFolder.Text + @"\" + @"NG\")))
-                    {
+                    if (cbDistinguishOK.Checked)
                         Directory.CreateDirectory(tbFolder.Text + @"\" + @"OK\");
+                    if (cbDistinguishNG.Checked)
                         Directory.CreateDirectory(tbFolder.Text + @"\" + @"NG\");
-                    }
-                    camset.PreStringOK = tbFolder.Text + @"\" + @"OK\" + tbPreStr.Text;
-                    camset.PreStringNG = tbFolder.Text + @"\" + @"NG\" + tbPreStr.Text;
                 }
+                camset.PreStringOK = tbFolder.Text + @"\" + @"OK\" + tbPreStr.Text;
+                camset.PreStringNG = tbFolder.Text + @"\" + @"NG\" + tbPreStr.Text;
                 try
                 {
                     camset.Cmos_Width = Convert.ToInt32(tbCmosWidth.Text);
@@ -138,7 +137,7 @@ namespace AI_MasterControl
                     break;
             }
         }
-        
+
         private void SetRotate(object sender, EventArgs e)
         {
             if (radioButton4.Checked)
@@ -168,7 +167,7 @@ namespace AI_MasterControl
         private void btSelectColor_Click(object sender, EventArgs e)
         {
             ColorDialog cld = new ColorDialog();
-            if(DialogResult.OK == cld.ShowDialog())
+            if (DialogResult.OK == cld.ShowDialog())
             {
                 pictureBox1.BackColor = cld.Color;
             }

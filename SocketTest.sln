@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AI-MasterMetroVersion", "AI
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AI-MasterDevExpressVersion", "AI-MasterDevExpressVersion\AI-MasterDevExpressVersion.csproj", "{C3635AB1-4007-4D46-A6A2-70D88ED31752}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OverlayPackage", "OverlayPackage\OverlayPackage.csproj", "{B15281B6-8A74-494B-9914-B9CDEFBBA5DF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,6 +65,10 @@ Global
 		{C3635AB1-4007-4D46-A6A2-70D88ED31752}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C3635AB1-4007-4D46-A6A2-70D88ED31752}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C3635AB1-4007-4D46-A6A2-70D88ED31752}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B15281B6-8A74-494B-9914-B9CDEFBBA5DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B15281B6-8A74-494B-9914-B9CDEFBBA5DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B15281B6-8A74-494B-9914-B9CDEFBBA5DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B15281B6-8A74-494B-9914-B9CDEFBBA5DF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

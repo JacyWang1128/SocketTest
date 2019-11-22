@@ -19,6 +19,9 @@ namespace AI_MasterControl
         private String _roiX;
         private String _roiY;
 
+        /// <summary>
+        /// bad计数
+        /// </summary>
         public string BadCount
         {
             get
@@ -31,7 +34,9 @@ namespace AI_MasterControl
                 _badCount = value;
             }
         }
-
+        /// <summary>
+        /// good计数
+        /// </summary>
         public string GoodCount
         {
             get
@@ -44,7 +49,9 @@ namespace AI_MasterControl
                 _goodCount = value;
             }
         }
-
+        /// <summary>
+        /// 循环时间
+        /// </summary>
         public string CycleTime
         {
             get
@@ -57,7 +64,9 @@ namespace AI_MasterControl
                 _cycleTime = value;
             }
         }
-
+        /// <summary>
+        /// 相机IP
+        /// </summary>
         public string CameraIp
         {
             get
@@ -70,7 +79,9 @@ namespace AI_MasterControl
                 _cameraIp = value;
             }
         }
-
+        /// <summary>
+        /// 相机名称
+        /// </summary>
         public string CameraName
         {
             get
@@ -83,7 +94,9 @@ namespace AI_MasterControl
                 _cameraName = value;
             }
         }
-
+        /// <summary>
+        /// ROI高度
+        /// </summary>
         public string RoiHeight
         {
             get
@@ -96,7 +109,9 @@ namespace AI_MasterControl
                 _roiHeight = value;
             }
         }
-
+        /// <summary>
+        /// ROI宽度
+        /// </summary>
         public string RoiWidth
         {
             get
@@ -109,7 +124,9 @@ namespace AI_MasterControl
                 _roiWidth = value;
             }
         }
-
+        /// <summary>
+        /// ROI横坐标
+        /// </summary>
         public string RoiX
         {
             get
@@ -122,7 +139,9 @@ namespace AI_MasterControl
                 _roiX = value;
             }
         }
-
+        /// <summary>
+        /// ROI纵坐标
+        /// </summary>
         public string RoiY
         {
             get

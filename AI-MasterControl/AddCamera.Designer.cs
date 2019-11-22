@@ -48,6 +48,9 @@
             this.btSelectFolder = new System.Windows.Forms.Button();
             this.tbFolder = new System.Windows.Forms.TextBox();
             this.cbRestorSize = new System.Windows.Forms.CheckBox();
+            this.cbDistinguishNG = new System.Windows.Forms.CheckBox();
+            this.cbDistinguish = new System.Windows.Forms.CheckBox();
+            this.cbDistinguishOK = new System.Windows.Forms.CheckBox();
             this.cbAutoSaving = new System.Windows.Forms.CheckBox();
             this.gbConnection = new System.Windows.Forms.GroupBox();
             this.label11 = new System.Windows.Forms.Label();
@@ -70,9 +73,6 @@
             this.label4 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
-            this.cbDistinguishOK = new System.Windows.Forms.CheckBox();
-            this.cbDistinguishNG = new System.Windows.Forms.CheckBox();
-            this.cbDistinguish = new System.Windows.Forms.CheckBox();
             this.panel2.SuspendLayout();
             this.groupBox4.SuspendLayout();
             this.groupBox7.SuspendLayout();
@@ -304,6 +304,39 @@
             this.cbRestorSize.Text = "还原大小";
             this.cbRestorSize.UseVisualStyleBackColor = true;
             // 
+            // cbDistinguishNG
+            // 
+            this.cbDistinguishNG.AutoSize = true;
+            this.cbDistinguishNG.Location = new System.Drawing.Point(83, 77);
+            this.cbDistinguishNG.Name = "cbDistinguishNG";
+            this.cbDistinguishNG.Size = new System.Drawing.Size(48, 16);
+            this.cbDistinguishNG.TabIndex = 1;
+            this.cbDistinguishNG.Text = "存NG";
+            this.cbDistinguishNG.UseVisualStyleBackColor = true;
+            // 
+            // cbDistinguish
+            // 
+            this.cbDistinguish.AutoSize = true;
+            this.cbDistinguish.Checked = true;
+            this.cbDistinguish.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.cbDistinguish.Location = new System.Drawing.Point(161, 52);
+            this.cbDistinguish.Name = "cbDistinguish";
+            this.cbDistinguish.Size = new System.Drawing.Size(66, 16);
+            this.cbDistinguish.TabIndex = 1;
+            this.cbDistinguish.Text = "区分O/N";
+            this.cbDistinguish.UseVisualStyleBackColor = true;
+            this.cbDistinguish.Visible = false;
+            // 
+            // cbDistinguishOK
+            // 
+            this.cbDistinguishOK.AutoSize = true;
+            this.cbDistinguishOK.Location = new System.Drawing.Point(9, 77);
+            this.cbDistinguishOK.Name = "cbDistinguishOK";
+            this.cbDistinguishOK.Size = new System.Drawing.Size(48, 16);
+            this.cbDistinguishOK.TabIndex = 1;
+            this.cbDistinguishOK.Text = "存OK";
+            this.cbDistinguishOK.UseVisualStyleBackColor = true;
+            // 
             // cbAutoSaving
             // 
             this.cbAutoSaving.AutoSize = true;
@@ -531,36 +564,6 @@
             this.label2.Size = new System.Drawing.Size(59, 12);
             this.label2.TabIndex = 0;
             this.label2.Text = "横（X）：";
-            // 
-            // cbDistinguishOK
-            // 
-            this.cbDistinguishOK.AutoSize = true;
-            this.cbDistinguishOK.Location = new System.Drawing.Point(9, 77);
-            this.cbDistinguishOK.Name = "cbDistinguishOK";
-            this.cbDistinguishOK.Size = new System.Drawing.Size(60, 16);
-            this.cbDistinguishOK.TabIndex = 1;
-            this.cbDistinguishOK.Text = "只存OK";
-            this.cbDistinguishOK.UseVisualStyleBackColor = true;
-            // 
-            // cbDistinguishNG
-            // 
-            this.cbDistinguishNG.AutoSize = true;
-            this.cbDistinguishNG.Location = new System.Drawing.Point(83, 77);
-            this.cbDistinguishNG.Name = "cbDistinguishNG";
-            this.cbDistinguishNG.Size = new System.Drawing.Size(60, 16);
-            this.cbDistinguishNG.TabIndex = 1;
-            this.cbDistinguishNG.Text = "只存NG";
-            this.cbDistinguishNG.UseVisualStyleBackColor = true;
-            // 
-            // cbDistinguish
-            // 
-            this.cbDistinguish.AutoSize = true;
-            this.cbDistinguish.Location = new System.Drawing.Point(161, 52);
-            this.cbDistinguish.Name = "cbDistinguish";
-            this.cbDistinguish.Size = new System.Drawing.Size(66, 16);
-            this.cbDistinguish.TabIndex = 1;
-            this.cbDistinguish.Text = "区分O/N";
-            this.cbDistinguish.UseVisualStyleBackColor = true;
             // 
             // AddCamera
             // 
