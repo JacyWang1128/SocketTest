@@ -11,6 +11,7 @@ namespace OverlayPackage
     {
         static void Main(string[] args)
         {
+            Console.ForegroundColor = ConsoleColor.Yellow;
             UdpClient udp = new UdpClient(4557);
             IPEndPoint iep = null;
             while (true)

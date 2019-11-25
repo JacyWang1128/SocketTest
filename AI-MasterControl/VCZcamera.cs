@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AI_MasterControl.Element;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -66,7 +67,7 @@ namespace AI_MasterControl
         public String FilePrefix;
         //当前图像
         public Image currentImage;
-
+        public List<Element.Element> lstElement;
         //当前图像信息
         public Dictionary<String, String> VCZcameraInfo = new Dictionary<string, string>();
 
@@ -347,6 +348,8 @@ namespace AI_MasterControl
         #endregion
         #endregion
 
+        Color[] EleColors = { Color.FromArgb(255, 0, 0), Color.FromArgb(0, 255, 0), Color.FromArgb(255, 0, 255), Color.FromArgb(255, 255, 58) };
+
         public VCZcamera(MessageHandle msgh, PictureBox pl, FilePreEventHandler fpeh)
         {
             InitCameraInfo();
@@ -356,6 +359,7 @@ namespace AI_MasterControl
             bh = new BitmapHelper(uph.ImgBufferQueue, msgh, this);
             getFilePre = fpeh;
             showImagePanel = pl;
+            lstElement = new List<Element.Element>();
             //uph = new UdpPackageHelper(uh.UdpPackageBuffer);
             //bh = new BitmapHelper();
         }
@@ -399,13 +403,17 @@ namespace AI_MasterControl
             {
                 if (IsNewPhoto)
                 {
-                    NewPhotoMethod();
+                    lock (this)
+                    {
+                        NewPhotoMethod();
+                    }
                     IsNewPhoto = false;
+                    lstElement.Clear();
                 }
                 Thread.Sleep(1);
             }
         }
-        Int32 count = 1;
+
         public void NewPhotoMethod()
         {
             //msg($"{DateTime.Now}当前队列中仍有：{uph.UdpPackageBuffer.Count}包未解析！图片缓冲区有：{uph.ImgBufferQueue.Count}张图片未解析！\n相机名称:{CameraName}，相机地址：{CameraIP}，相片宽度：{ImgWidth}，相片高度：{ImgHeight}，相片取景横坐标：（{Roi_x}，{Roi_y}）,相片取景宽度：{Roi_width}，相片取景高：{Roi_height}，相片Cycle Time：{CycleTime}，相片格式：{format.ToString()}，色彩模式：{colorDepth.ToString()}");
@@ -424,7 +432,6 @@ namespace AI_MasterControl
             //VCZcameraInfo["ImgSection"] = ImgSection.ToString();
             //VCZcameraInfo["format"] = format.ToString();
 
-
             camInfo.CameraIp = CameraIP;
             camInfo.CameraName = CameraName;
             camInfo.RoiX = Roi_x.ToString();
@@ -440,8 +447,46 @@ namespace AI_MasterControl
             {
                 Bitmap showImage = new Bitmap(currentImage);
                 showImage.RotateFlip(rotate);
-                Bitmap showimg = showImage.Clone(new Rectangle(new Point(0,0),showImage.Size),showImage.PixelFormat);
-                showImagePanel.Image = showimg;
+                //Bitmap showimg = showImage.Clone(new Rectangle(new Point(0, 0), showImage.Size), showImage.PixelFormat);
+                var temp = new List<Element.Element>(lstElement);
+                using (Graphics g = Graphics.FromImage(showImage))
+                {
+                    g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                    using (Bitmap bmp = new Bitmap(showImage.Width, showImage.Height))
+                    {
+                        using (Graphics ele = Graphics.FromImage(bmp))
+                        {
+                            ele.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
+                            ele.Clear(Color.Transparent);
+                            foreach (var item in temp)
+                            {
+                                if (item != null)
+                                {
+                                    switch (item.type)
+                                    {
+                                        case 6:
+                                            ele.DrawString((item as ElementString).content,
+                                                new Font(FontFamily.Families[0], (item as ElementString).fontsize / 2, GraphicsUnit.Pixel), new SolidBrush(EleColors[(Int32)item.color]),
+                                                (item as ElementString).x,
+                                                (item as ElementString).y);
+                                            break;
+                                        default:
+                                            break;
+                                    }
+                                }
+                            }
+                        }
+                        g.DrawImage(bmp, 0, 0);
+                    }
+                }
+                try
+                {
+                    showImagePanel.Image = showImage;
+                }
+                catch (Exception)
+                {
+
+                }
                 if (IsSaveing)
                 {
                     ImageFormat saveformat;

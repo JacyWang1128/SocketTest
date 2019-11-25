@@ -51,6 +51,7 @@ namespace AI_Master
             {
                 ai.Dispose();
             }
+            Write_Config();
             treeView1.Select();
         }
 

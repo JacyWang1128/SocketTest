@@ -515,6 +515,7 @@
             this.Controls.Add(this.splitContainer3);
             this.Controls.Add(this.plRight);
             this.Controls.Add(this.plTop);
+            this.DoubleBuffered = true;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "MainForm";
             this.Text = "AI-Master";
