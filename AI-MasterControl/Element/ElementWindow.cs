@@ -6,8 +6,8 @@ namespace AI_MasterControl.Element
 {
     public class ElementWindow:Element
     {
-        Int32 dx;
-        Int32 dy;
+        public Int32 dx;
+        public Int32 dy;
         public ElementWindow(Int32 type,Int32 x,Int32 y,ElementColor color,Int32 dx,Int32 dy) : base(type, color, x, y)
         {
             this.dx = dx;

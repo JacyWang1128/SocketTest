@@ -19,7 +19,7 @@ namespace AI_MasterControl
         public Queue<Byte[]> ImgBufferQueue;
         MessageHandle msgh;
         private Boolean _isAnalysising = true;
-
+        List<Element.Element> ElementBuffer = new List<Element.Element>();
         public bool IsAnalysising
         {
             get
@@ -103,7 +103,7 @@ namespace AI_MasterControl
         {
             IsAnalysising = false;
         }
-
+        Boolean imgTransferComplete = false;
         public void UdpPackageAnalysis()
         {
             IsAnalysising = true;
@@ -125,7 +125,19 @@ namespace AI_MasterControl
                             Int16 iPackageCount = BitConverter.ToInt16(bytes, 2);
                             Int32 iImgNum = BitConverter.ToInt32(bytes, 4);
                             if (iPackageNum == 1)
-                            {
+                            {    
+                                if(ImgBuffer.Count > 0)
+                                {
+                                    if (imgTransferComplete)
+                                    {
+                                        //存入图像缓存队列
+                                        ImgBufferQueue.Enqueue(ImgBuffer.ToArray());
+                                        camera.lstElement = new List<Element.Element>(ElementBuffer);
+                                        imgTransferComplete = false;
+                                        ElementBuffer.Clear();
+                                    }
+                                }
+                                
                                 #region 解析第一个包
                                 Int32 currentPos = 28;
                                 for (int i = 1; i < 36; i++)
@@ -165,6 +177,20 @@ namespace AI_MasterControl
                                                 case 11:
                                                     //识别ImageResolution
                                                     camera.ImgResolution = Convert.ToInt32(BytesToString(GetSegmentInArray(bytes, currentPos, count)));
+                                                    switch (camera.ImgResolution)
+                                                    {
+                                                        case 1:
+                                                            camera.ComprehensionRate = 1;
+                                                            break;
+                                                        case 2:
+                                                            camera.ComprehensionRate = 2;
+                                                            break;
+                                                        case 3:
+                                                            camera.ComprehensionRate = 4;
+                                                            break;
+                                                        default:
+                                                            break;
+                                                    }
                                                     break;
                                                 case 15:
                                                     Int32 temp = Convert.ToInt32(BytesToString(GetSegmentInArray(bytes, currentPos, count)));
@@ -177,22 +203,25 @@ namespace AI_MasterControl
                                                     break;
                                                 case 23:
                                                     UInt32 tempGC = Convert.ToUInt32(BytesToString(GetSegmentInArray(bytes, currentPos, count)));
-                                                    if (tempGC != camera.GoodCount)
-                                                    {
-                                                        camera.IsOK = true;
-                                                    }
                                                     camera.GoodCount = tempGC;
                                                     break;
                                                 case 24:
                                                     UInt32 tempBC = Convert.ToUInt32(BytesToString(GetSegmentInArray(bytes, currentPos, count)));
-                                                    if (tempBC != camera.BadCount)
-                                                    {
-                                                        camera.IsOK = false;
-                                                    }
                                                     camera.BadCount = tempBC;
                                                     break;
                                                 case 25:
                                                     camera.CycleTime = Convert.ToUInt32(BytesToString(GetSegmentInArray(bytes, currentPos, count)));
+                                                    break;
+                                                case 30:
+                                                    var result = Convert.ToInt32(BytesToString(GetSegmentInArray(bytes, currentPos, count)));
+                                                    if(0 == result)
+                                                    {
+                                                        camera.IsOK = true;
+                                                    }
+                                                    else
+                                                    {
+                                                        camera.IsOK = false;
+                                                    }
                                                     break;
                                                 default:
                                                     break;
@@ -229,33 +258,34 @@ namespace AI_MasterControl
                             }
                             else if (iPackageNum > iPackageCount)
                             {
-                                //if (iPackageNum > iPackageCount + 1)
-                                //{
-                                //    camera.lstElement.AddRange(GetElements(GetSegmentInArray(bytes, 28, len - 28)));
-                                //}
-                                //else
-                                //{
+                                if (iPackageNum > iPackageCount + 1)
+                                {
+                                    ElementBuffer.AddRange(GetElements(GetSegmentInArray(bytes, 28, len - 28)));
+                                    imgTransferComplete = true;
+                                }
+                                else
+                                {
                                     //装入图形缓存list
                                     ImgBuffer.AddRange(GetSegmentInArray(bytes, 28, len - 28));
-                               // }
+                                }
                             }
                             else
                             {
                                 //if ((iPackageNum - 1) == iPackageCount)
                                 //{
                                 //    //装入图形缓存list
-                                //    ImgBuffer.AddRange(GetSegmentInArray(bytes, 28, len - 28));
+                                ImgBuffer.AddRange(GetSegmentInArray(bytes, 28, len - 28));
                                 //}
                                 //else
                                 //{
-                                    camera.lstElement.AddRange(GetElements(GetSegmentInArray(bytes, 28, len - 28)));
+                                    //camera.lstElement.AddRange(GetElements(GetSegmentInArray(bytes, 28, len - 28)));
                                 //}
                             }
-                            if ((iPackageNum - 1) == iPackageCount)
-                            {
-                                //存入图像缓存队列
-                                ImgBufferQueue.Enqueue(ImgBuffer.ToArray());
-                            }
+                            //if ((iPackageNum - 1) == iPackageCount)
+                            //{
+                            //    //存入图像缓存队列
+                            //    ImgBufferQueue.Enqueue(ImgBuffer.ToArray());
+                            //}
                         }
                     }
                     catch (Exception ex)
@@ -337,19 +367,29 @@ namespace AI_MasterControl
                         startpostion += sb.Length + 10 + 1;
                         break;
                     case 7:
+                        Int32 step = (Int32)BitConverter.ToInt16(package, startpostion + 8);
+                        startpostion += 10 + step * 2;
                         break;
                     case 8:
-                        //res.Add(new ElementPoint((Int32)type,
-                        //    (Int32)BitConverter.ToInt16(package, startpostion + 4),
-                        //    (Int32)BitConverter.ToInt16(package, startpostion + 6),
-                        //    (ElementColor)(Int32)BitConverter.ToInt16(package, startpostion + 2)));
+                        res.Add(new ElementArc((Int32)type,
+                            (Int32)BitConverter.ToInt16(package, startpostion + 4),
+                            (Int32)BitConverter.ToInt16(package, startpostion + 6),
+                            (ElementColor)(Int32)BitConverter.ToInt16(package, startpostion + 2),
+                            (Int32)BitConverter.ToInt16(package,startpostion + 8),
+                            (Int32)BitConverter.ToInt16(package,startpostion + 10),
+                            (float)BitConverter.ToSingle(package,startpostion + 12),
+                            (float)BitConverter.ToSingle(package,startpostion + 14)));
                         startpostion += 20;
                         break;
                     case 9:
-                        //res.Add(new ElementPoint((Int32)type,
-                        //    (Int32)BitConverter.ToInt16(package, startpostion + 4),
-                        //    (Int32)BitConverter.ToInt16(package, startpostion + 6),
-                        //    (ElementColor)(Int32)BitConverter.ToInt16(package, startpostion + 2)));
+                        res.Add(new ElementArrow((Int32)type,
+                            (Int32)BitConverter.ToInt16(package, startpostion + 4),
+                            (Int32)BitConverter.ToInt16(package, startpostion + 6),
+                            (ElementColor)(Int32)BitConverter.ToInt16(package, startpostion + 2),
+                            (Int32)BitConverter.ToInt16(package,startpostion + 8),
+                            (Int32)BitConverter.ToInt16(package,startpostion + 10),
+                            (Int32)BitConverter.ToInt16(package, startpostion + 12),
+                            (Int32)BitConverter.ToInt16(package, startpostion + 14)));
                         startpostion += 16;
                         break;
                     default:
