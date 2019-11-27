@@ -45,6 +45,7 @@ namespace AI_MasterControl
         private Int32 _imgSection;
         private Int32 _imgResolution;
         private Boolean _isOK;
+        private Int32 _imgStatus;//照片状态 0 Good 1 Bad 2 Warning
         private String _pathOK;
         private String _pathNG;
         public RotateFlipType rotate;
@@ -56,6 +57,7 @@ namespace AI_MasterControl
         public Boolean IsDistinguish;
         public Boolean IsSaveOK;
         public Boolean IsSaveNG;
+        public Boolean IsSaveWarning;
         public CameraInfo camInfo;
         private Int32 _cmosWidth;
         private Int32 _cmosHeight;
@@ -345,6 +347,19 @@ namespace AI_MasterControl
                 _pathNG = value;
             }
         }
+
+        public int ImgStatus
+        {
+            get
+            {
+                return _imgStatus;
+            }
+
+            set
+            {
+                _imgStatus = value;
+            }
+        }
         #endregion
         #endregion
 
@@ -582,85 +597,78 @@ namespace AI_MasterControl
                         {
                             Image img = GetSourceImg();
                             #region 原代码
-                            //是否区分OK/NG
-                            //if (IsDistinguish)
+
+                            //相片状态
+                            //if (IsOK)//OK
                             //{
-                            //    //OK的图片
-                            //    if (IsOK)
+                            //    if (IsSaveOK)
                             //    {
-                            //        if (!(IsSaveOK || IsSaveNG))
-                            //        {
-                            //            img.Save(PathOK.ToString() + "." + format, saveformat);
-                            //        }
-                            //        else
-                            //        {
-                            //            if (IsSaveOK)
-                            //                img.Save(PathOK.ToString() + "." + format, saveformat);
-                            //        }
-                            //    }
-                            //    //NG的图片
-                            //    else
-                            //    {
-                            //        if (!(IsSaveOK || IsSaveNG))
-                            //        {
-                            //            img.Save(PathNG.ToString() + "." + format, saveformat);
-                            //        }
-                            //        else
-                            //        {
-                            //            if (IsSaveNG)
-                            //                img.Save(PathNG.ToString() + "." + format, saveformat);
-                            //        }
-                            //    }
-                            //    if (false == (IsSaveOK && IsSaveNG))
-                            //    {
-                            //        img.Save(FilePrefix.ToString() + "." + format, saveformat);
+                            //        img.Save(PathOK.ToString() + "." + format, saveformat);
                             //    }
                             //    else
                             //    {
-                            //        if (IsOK)
+                            //        if (IsSaveNG)
                             //        {
-                            //            if (IsSaveOK)
-                            //                img.Save(FilePrefix.ToString() + "." + format, saveformat);
-                            //        }
-                            //        else
-                            //        {
-                            //            if (IsSaveNG)
-                            //                img.Save(FilePrefix.ToString() + "." + format, saveformat);
+                            //            img.Save(FilePrefix.ToString() + "." + format, saveformat);
                             //        }
                             //    }
                             //}
+                            //else     //NG
+                            //{
+                            //    if (IsSaveNG)
+                            //    {
+                            //        img.Save(PathNG.ToString() + "." + format, saveformat);
+                            //    }
+                            //    else
+                            //    {
+                            //        if (IsSaveOK)
+                            //        {
+                            //            img.Save(FilePrefix.ToString() + "." + format, saveformat);
+                            //        }
+                            //    }
+                            //}
+
                             #endregion
 
-                            //相片状态
-                            if (IsOK)//OK
+                            switch (ImgStatus)
                             {
-                                if (IsSaveOK)
-                                {
-                                    img.Save(PathOK.ToString() + "." + format, saveformat);
-                                }
-                                else
-                                {
+                                case -2://Warning
+                                    //TODO
+                                    //
+                                    //
+                                    //
+                                    //
+                                    break;
+                                case -1://NG
                                     if (IsSaveNG)
                                     {
-                                        img.Save(FilePrefix.ToString() + "." + format, saveformat);
+                                        img.Save(PathNG.ToString() + "." + format, saveformat);
                                     }
-                                }
-                            }
-                            else     //NG
-                            {
-                                if (IsSaveNG)
-                                {
-                                    img.Save(PathNG.ToString() + "." + format, saveformat);
-                                }
-                                else
-                                {
+                                    else
+                                    {
+                                        if (!IsSaveOK && !IsSaveWarning)
+                                        {
+                                            img.Save(FilePrefix.ToString() + "." + format, saveformat);
+                                        }
+                                    }
+                                    break;
+                                case 0://OK
                                     if (IsSaveOK)
                                     {
-                                        img.Save(FilePrefix.ToString() + "." + format, saveformat);
+                                        img.Save(PathOK.ToString() + "." + format, saveformat);
                                     }
-                                }
+                                    else
+                                    {
+                                        if (!IsSaveNG && !IsSaveWarning)
+                                        {
+                                            img.Save(FilePrefix.ToString() + "." + format, saveformat);
+                                        }
+                                    }
+                                    break;
+                                default:
+                                    break;
                             }
-
+                            
                             img.Dispose();
                         }
                         else
@@ -717,6 +725,41 @@ namespace AI_MasterControl
                             //}
 
                             #endregion
+
+                            switch (ImgStatus)
+                            {
+                                case -2:
+                                    break;
+                                case -1:
+                                    if (IsSaveNG)
+                                    {
+                                        currentImage.Save(PathNG.ToString() + "." + format, saveformat);
+                                    }
+                                    else
+                                    {
+                                        if (!IsSaveOK)
+                                        {
+                                            currentImage.Save(FilePrefix.ToString() + "." + format, saveformat);
+                                        }
+                                    }
+                                    break;
+                                case 0:
+                                    if (IsSaveOK)
+                                    {
+                                        currentImage.Save(PathOK.ToString() + "." + format, saveformat);
+                                    }
+                                    else
+                                    {
+                                        if (!IsSaveNG)
+                                        {
+                                            currentImage.Save(FilePrefix.ToString() + "." + format, saveformat);
+                                        }
+                                    }
+                                    break;
+                                default:
+                                    break;
+                            }
+
                             //相片状态
                             if (IsOK)//OK
                             {

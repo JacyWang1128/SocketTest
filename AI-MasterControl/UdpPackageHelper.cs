@@ -214,6 +214,7 @@ namespace AI_MasterControl
                                                     break;
                                                 case 30:
                                                     var result = Convert.ToInt32(BytesToString(GetSegmentInArray(bytes, currentPos, count)));
+                                                    camera.ImgStatus = result;
                                                     if(0 == result)
                                                     {
                                                         camera.IsOK = true;

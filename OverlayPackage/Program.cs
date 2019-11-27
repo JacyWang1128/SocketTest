@@ -11,6 +11,9 @@ namespace OverlayPackage
     {
         static void Main(string[] args)
         {
+            //    Int32 a = -0;
+            //    Console.WriteLine(a);
+            //    Console.ReadKey();
             Console.ForegroundColor = ConsoleColor.Yellow;
             UdpClient udp = new UdpClient(4557);
             IPEndPoint iep = null;
@@ -20,12 +23,12 @@ namespace OverlayPackage
                 var target = BitConverter.ToString(bytes, 0).Split('-');
                 for (int i = 1; i <= target.Length; i++)
                 {
-                    Console.Write(target[i-1] + " ");
-                    if(0 == i % 8)
+                    Console.Write(target[i - 1] + " ");
+                    if (0 == i % 8)
                     {
                         Console.Write(" ");
                     }
-                    if(0 == i % 16)
+                    if (0 == i % 16)
                     {
                         Console.Write("\r\n");
                     }

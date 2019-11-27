@@ -24,6 +24,7 @@ namespace AI_MasterControl
         private Boolean _isDistinguished;
         private Boolean _isSaveNG;
         private Boolean _isSaveOK;
+        private Boolean _isSaveWarning;
         private RotateFlipType _rotateType;
         private Color _infoColor;
         private String _preStringOK;
@@ -345,6 +346,19 @@ namespace AI_MasterControl
                 _isSaveOK = value;
             }
         }
+
+        public bool IsSaveWarning
+        {
+            get
+            {
+                return _isSaveWarning;
+            }
+
+            set
+            {
+                _isSaveWarning = value;
+            }
+        }
         #endregion
         /// <summary>
         /// 默认初始化函数
@@ -376,6 +390,7 @@ namespace AI_MasterControl
             PreStringOK = "";
             IsSaveNG = false;
             IsSaveOK = false;
+            IsSaveWarning = false;
         }
         /// <summary>
         /// 初始化相机设置
@@ -401,7 +416,7 @@ namespace AI_MasterControl
         /// <param name="isSaveNG">是否保存NG照片（区分OK/NG时有效）</param>
         /// <param name="rft">照片显示旋转角度</param>
         /// <param name="infoColor">照片水印信息颜色</param>
-        public CameraSettings(Int32 x, Int32 y, Int32 width, Int32 height, Int32 cmos_width, Int32 cmos_height, String ip, Int32 port, String preStr, String preStrOK,String preStrNG,Boolean isIpaddress,Boolean isCameraname,Boolean isDatetime, Boolean isRestor, Boolean isAutoSave, Boolean isDistinguished, Boolean isSaveOK,Boolean isSaveNG,RotateFlipType rft, Color infoColor)
+        public CameraSettings(Int32 x, Int32 y, Int32 width, Int32 height, Int32 cmos_width, Int32 cmos_height, String ip, Int32 port, String preStr, String preStrOK,String preStrNG,Boolean isIpaddress,Boolean isCameraname,Boolean isDatetime, Boolean isRestor, Boolean isAutoSave, Boolean isDistinguished, Boolean isSaveOK,Boolean isSaveNG,Boolean isSaveWarning,RotateFlipType rft, Color infoColor)
         {
             ControlX = x;
             ControlY = y;
