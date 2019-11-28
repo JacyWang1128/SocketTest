@@ -55,6 +55,7 @@
     <Compile Include="BitmapHelper.cs" />
     <Compile Include="CameraInfo.cs" />
     <Compile Include="CameraSettings.cs" />
+    <Compile Include="CommonHelper.cs" />
     <Compile Include="Element\ElementArc.cs" />
     <Compile Include="Element\ElementArrow.cs" />
     <Compile Include="Element\ElementCircle.cs" />

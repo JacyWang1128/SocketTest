@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -46,10 +47,13 @@ namespace AI_MasterControl
             IsAnalysising = false;
         }
 
+        Stopwatch sw = new Stopwatch();
+
         public void StartAnalysising()
         {
             IsAnalysising = true;
             //msgh("开始解析图像文件");
+            sw.Start();
             while (_isAnalysising)
             {
                 try
@@ -58,7 +62,8 @@ namespace AI_MasterControl
 
                     if (ImgBufferQueue.Count > 0)
                     {
-                        Byte[] buffer = ImgBufferQueue.Dequeue();
+                        TimeSpan ts = sw.Elapsed;
+                        Byte[] buffer = ImgBufferQueue.Dequeue();///////////////////////////////////////////////在这停顿
                         ImageFormat format = GetImgbufferFormat(buffer);
                         if (format == ImageFormat.Bmp)
                         {
@@ -67,6 +72,8 @@ namespace AI_MasterControl
                                 case ColorDepth.GrayScale:
                                     Image imgGrayBmp = Bit8To24(GetGrayscaleBitmapFromBuffer(camera.ImgWidth, camera.ImgHeight, buffer));
                                     Bitmap bmpGrayBmp = new Bitmap(imgGrayBmp);
+                                    //ts = sw.Elapsed - ts;
+                                    //Console.WriteLine(ts.ToString());
                                     camera.currentImage = bmpGrayBmp;
                                     imgGrayBmp.Dispose();
                                     camera.IsNewPhoto = true;
@@ -74,6 +81,8 @@ namespace AI_MasterControl
                                 case ColorDepth.RGB:
                                     Image imgRGBBmp = GetRGBBitmapFromBufferWithMemory(camera.ImgWidth, camera.ImgHeight, buffer);
                                     Bitmap bmpRGBBmp = new Bitmap(imgRGBBmp);
+                                    //ts = sw.Elapsed - ts;
+                                    //Console.WriteLine(ts.ToString());
                                     camera.currentImage = bmpRGBBmp;
                                     imgRGBBmp.Dispose();
                                     camera.IsNewPhoto = true;
@@ -89,6 +98,8 @@ namespace AI_MasterControl
                             //    camera.currentImage.Dispose();
                             //}
                             Image img = GetImageInBuffer(buffer);
+                            //ts = sw.Elapsed - ts;
+                            //Console.WriteLine(ts.ToString());
                             Bitmap bmp = new Bitmap(img);
                             camera.currentImage = bmp;
                             //img.Dispose();
@@ -102,6 +113,7 @@ namespace AI_MasterControl
                     //camera.IsNewPhoto = false;
                 }
                 Thread.Sleep(1);
+                //CommonHelper.Delay(1);
             }
             //msgh("结束解析图像文件");
         }

@@ -287,7 +287,7 @@ namespace AI_MasterControl
             }
             if (isAllScreen)
             {
-                if (pictureBox1.Image != null)
+                if (pictureBox1.Image != null) { }
                     e.Graphics.DrawString($"{camera.camInfo.CameraIp}  {camera.camInfo.CameraName}\r\nCycleTime:{camera.camInfo.CycleTime}ms \r\nGoodCount:{camera.camInfo.GoodCount} \r\nBadCount:{camera.camInfo.BadCount} \r\nRoi_Width:{camera.camInfo.RoiWidth}\r\nRoi_Height:{camera.camInfo.RoiHeight}\r\nRoi_X:{camera.camInfo.RoiX}\r\nRoi_Y:{camera.camInfo.RoiY}", Font, new SolidBrush(infoColor), new PointF(10, 10));
             }
         }

@@ -364,7 +364,8 @@ namespace AI_MasterControl
         #endregion
 
         Color[] EleColors = { Color.FromArgb(255, 0, 0), Color.FromArgb(0, 255, 0), Color.FromArgb(255, 0, 255), Color.FromArgb(255, 255, 58) };
-
+        private Queue<List<Element.Element>> ElementQueue;
+        private Queue<Byte[]> ElementBuffer;
         public VCZcamera(MessageHandle msgh, PictureBox pl, FilePreEventHandler fpeh)
         {
             InitCameraInfo();
@@ -375,8 +376,11 @@ namespace AI_MasterControl
             getFilePre = fpeh;
             showImagePanel = pl;
             lstElement = new List<Element.Element>();
-            //uph = new UdpPackageHelper(uh.UdpPackageBuffer);
-            //bh = new BitmapHelper();
+
+            ElementQueue = new Queue<List<Element.Element>>();
+            uph.ElementQuee = ElementQueue;
+            ElementBuffer = new Queue<byte[]>();
+            uph.ElementBufferQueue = ElementBuffer;
         }
 
         public void SetCMOS(Int32 width, Int32 height)
@@ -391,6 +395,10 @@ namespace AI_MasterControl
             Thread t2 = new Thread(uph.UdpPackageAnalysis);
             Thread t3 = new Thread(StartShowingInfo);
             Thread t4 = new Thread(bh.StartAnalysising);
+            t1.Priority = ThreadPriority.Lowest;
+            t2.Priority = ThreadPriority.Lowest;
+            t3.Priority = ThreadPriority.Lowest;
+            t4.Priority = ThreadPriority.Lowest;
             t1.IsBackground = true;
             t2.IsBackground = true;
             t3.IsBackground = true;
@@ -426,27 +434,12 @@ namespace AI_MasterControl
                     lstElement.Clear();
                 }
                 Thread.Sleep(1);
+                //CommonHelper.Delay(1);
             }
         }
 
         public void NewPhotoMethod()
         {
-            //msg($"{DateTime.Now}当前队列中仍有：{uph.UdpPackageBuffer.Count}包未解析！图片缓冲区有：{uph.ImgBufferQueue.Count}张图片未解析！\n相机名称:{CameraName}，相机地址：{CameraIP}，相片宽度：{ImgWidth}，相片高度：{ImgHeight}，相片取景横坐标：（{Roi_x}，{Roi_y}）,相片取景宽度：{Roi_width}，相片取景高：{Roi_height}，相片Cycle Time：{CycleTime}，相片格式：{format.ToString()}，色彩模式：{colorDepth.ToString()}");
-
-            //VCZcameraInfo["CameraIP"] = CameraIP;
-            //VCZcameraInfo["CameraName"] = CameraName;
-            //VCZcameraInfo["Roi_x"] = Roi_x.ToString();
-            //VCZcameraInfo["Roi_y"] = Roi_y.ToString();
-            //VCZcameraInfo["Roi_height"] = Roi_height.ToString();
-            //VCZcameraInfo["Roi_width"] = Roi_width.ToString();
-            //VCZcameraInfo["GoodCount"] = GoodCount.ToString();
-            //VCZcameraInfo["BadCount"] = BadCount.ToString();
-            //VCZcameraInfo["CycleTime"] = (Convert.ToDouble(CycleTime) / 1000).ToString();
-            //VCZcameraInfo["ImgWidth"] = ImgWidth.ToString();
-            //VCZcameraInfo["ImgHeight"] = ImgHeight.ToString();
-            //VCZcameraInfo["ImgSection"] = ImgSection.ToString();
-            //VCZcameraInfo["format"] = format.ToString();
-
             camInfo.CameraIp = CameraIP;
             camInfo.CameraName = CameraName;
             camInfo.RoiX = Roi_x.ToString();
@@ -456,105 +449,103 @@ namespace AI_MasterControl
             camInfo.GoodCount = GoodCount.ToString();
             camInfo.BadCount = BadCount.ToString();
             camInfo.CycleTime = (Convert.ToDouble(CycleTime) / 1000).ToString();
-
-            //msg(VCZcameraInfo);
+            
             if (currentImage != null)
             {
                 Bitmap showImage = new Bitmap(currentImage);
-                showImage.RotateFlip(rotate);//旋转图片
-                //Bitmap showimg = showImage.Clone(new Rectangle(new Point(0, 0), showImage.Size), showImage.PixelFormat);
+                showImage.RotateFlip(rotate);
 
                 #region 绘制Overlay元素
-                List<Element.Element> temp;
-                lock (lstElement)
-                {
-                     temp = new List<Element.Element>(lstElement);
-                }
-                using (Graphics g = Graphics.FromImage(showImage)/*showImagePanel.CreateGraphics()*/)
-                {
-                    g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-                    using (Bitmap bmp = new Bitmap(showImage.Width, showImage.Height))
-                    {
-                        using (Graphics ele = Graphics.FromImage(bmp))
-                        {
-                            ele.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
-                            ele.Clear(Color.Transparent);
-                            foreach (var item in temp)
-                            {
-                                if (item != null)
-                                {
-                                    switch (item.type)
-                                    {
-                                        case 1://点
-                                            ele.DrawEllipse(new Pen(EleColors[(Int32)item.color]), 
-                                                item.x, 
-                                                item.y, 
-                                                10, 
-                                                10);
-                                            break;
-                                        case 2://线
-                                            ele.DrawLine(new Pen(EleColors[(Int32)item.color]), 
-                                                (item as ElementLine).x, 
-                                                (item as ElementLine).y, 
-                                                (item as ElementLine).dx, 
-                                                (item as ElementLine).dy);
-                                            break;
-                                        case 3://圆
-                                            ele.DrawEllipse(new Pen(EleColors[(Int32)item.color]),
-                                                (item as ElementEllipse).x - (item as ElementEllipse).rx,
-                                                (item as ElementEllipse).y - (item as ElementEllipse).ry,
-                                                2 * (item as ElementEllipse).rx,
-                                                2 * (item as ElementEllipse).ry);
-                                            break;
-                                        case 4://椭圆
-                                            ele.DrawEllipse(new Pen(EleColors[(Int32)item.color]), 
-                                                (item as ElementEllipse).x - (item as ElementEllipse).rx, 
-                                                (item as ElementEllipse).y - (item as ElementEllipse).ry,
-                                                2*(item as ElementEllipse).rx,
-                                                2*(item as ElementEllipse).ry);
-                                            break;
-                                        case 5://矩形
-                                            ele.DrawRectangle(new Pen(EleColors[(Int32)item.color]), 
-                                                (item as ElementWindow).x, 
-                                                (item as ElementWindow).y, 
-                                                (item as ElementWindow).dx, 
-                                                (item as ElementWindow).dy);
-                                            break;
-                                        case 6://字符串
-                                            ele.DrawString((item as ElementString).content,
-                                                new Font(FontFamily.Families[0], (item as ElementString).fontsize / ComprehensionRate, GraphicsUnit.Pixel), new SolidBrush(EleColors[(Int32)item.color]),
-                                                (item as ElementString).x/ ComprehensionRate,
-                                                (item as ElementString).y/ ComprehensionRate);
-                                            break;
-                                        case 7://图案pattern
-                                            break;
-                                        case 8://圆弧
-                                            ele.DrawArc(new Pen(EleColors[(Int32)item.color]), 
-                                                (item as ElementArc).x, 
-                                                (item as ElementArc).y, 
-                                                (item as ElementArc).rx, 
-                                                (item as ElementArc).ry, 
-                                                (item as ElementArc).Start_angle, 
-                                                (item as ElementArc).End_anlge);
-                                            break;
-                                        case 9://箭头
-                                            Pen arrowPen = new Pen(EleColors[(Int32)item.color]);
-                                            arrowPen.Width = 4;
-                                            arrowPen.EndCap = System.Drawing.Drawing2D.LineCap.ArrowAnchor;
-                                            ele.DrawLine(arrowPen,
-                                                (item as ElementArrow).x,
-                                                (item as ElementArrow).y,
-                                                (item as ElementArrow).dx,
-                                                (item as ElementArrow).dy);
 
-                                            break;
-                                        default:
-                                            break;
-                                    }
-                                    ele.Flush(System.Drawing.Drawing2D.FlushIntention.Flush);
+                List<Element.Element> temp = new List<Element.Element>(ElementQueue.Dequeue());
+                
+                using (Bitmap bmp = new Bitmap(showImage.Width, showImage.Height))
+                {
+                    using (Graphics ele = Graphics.FromImage(bmp))
+                    {
+                        ele.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
+                        //ele.Clear(Color.Transparent);
+                        foreach (var item in temp)
+                        {
+                            if (item != null)
+                            {
+                                switch (item.type)
+                                {
+
+                                    case 1://点
+                                        ele.DrawEllipse(new Pen(EleColors[(Int32)item.color]),
+                                            item.x / ComprehensionRate,
+                                            item.y / ComprehensionRate,
+                                            1,
+                                            1);
+                                        break;
+                                    case 2://线
+                                        ele.DrawLine(new Pen(EleColors[(Int32)item.color]),
+                                            (item as ElementLine).x / ComprehensionRate,
+                                            (item as ElementLine).y / ComprehensionRate,
+                                            (item as ElementLine).dx / ComprehensionRate,
+                                            (item as ElementLine).dy / ComprehensionRate);
+                                        break;
+                                    case 3://圆
+                                        ele.DrawEllipse(new Pen(EleColors[(Int32)item.color]),
+                                            ((item as ElementEllipse).x - (item as ElementEllipse).rx) / ComprehensionRate,
+                                            ((item as ElementEllipse).y - (item as ElementEllipse).ry) / ComprehensionRate,
+                                            2 * (item as ElementEllipse).rx / ComprehensionRate,
+                                            2 * (item as ElementEllipse).ry / ComprehensionRate);
+                                        break;
+                                    case 4://椭圆
+                                        ele.DrawEllipse(new Pen(EleColors[(Int32)item.color]),
+                                            ((item as ElementEllipse).x - (item as ElementEllipse).rx) / ComprehensionRate,
+                                            ((item as ElementEllipse).y - (item as ElementEllipse).ry) / ComprehensionRate,
+                                            2 * (item as ElementEllipse).rx / ComprehensionRate,
+                                            2 * (item as ElementEllipse).ry / ComprehensionRate);
+                                        break;
+                                    case 5://矩形
+                                        ele.DrawRectangle(new Pen(EleColors[(Int32)item.color]),
+                                            (item as ElementWindow).x / ComprehensionRate,
+                                            (item as ElementWindow).y / ComprehensionRate,
+                                            (item as ElementWindow).dx / ComprehensionRate,
+                                            (item as ElementWindow).dy / ComprehensionRate);
+                                        break;
+                                    case 6://字符串
+                                        ele.DrawString((item as ElementString).content,
+                                            new Font("Thaoma", (item as ElementString).fontsize / ComprehensionRate, GraphicsUnit.Pixel), new SolidBrush(EleColors[(Int32)item.color]),
+                                            (item as ElementString).x / ComprehensionRate,
+                                            (item as ElementString).y / ComprehensionRate);
+                                        break;
+                                    case 7://图案pattern
+                                        break;
+                                    case 8://圆弧
+                                        ele.DrawArc(new Pen(EleColors[(Int32)item.color]),
+                                            (item as ElementArc).x / ComprehensionRate,
+                                            (item as ElementArc).y / ComprehensionRate,
+                                            (item as ElementArc).rx / ComprehensionRate,
+                                            (item as ElementArc).ry / ComprehensionRate,
+                                            (item as ElementArc).Start_angle,
+                                            (item as ElementArc).End_anlge);
+                                        break;
+                                    case 9://箭头
+                                        Pen arrowPen = new Pen(EleColors[(Int32)item.color]);
+                                        arrowPen.Width = 4;
+                                        arrowPen.EndCap = System.Drawing.Drawing2D.LineCap.ArrowAnchor;
+                                        ele.DrawLine(arrowPen,
+                                            (item as ElementArrow).x / ComprehensionRate,
+                                            (item as ElementArrow).y / ComprehensionRate,
+                                            (item as ElementArrow).dx / ComprehensionRate,
+                                            (item as ElementArrow).dy / ComprehensionRate);
+
+                                        break;
+                                    default:
+                                        break;
                                 }
+                                ele.Flush(System.Drawing.Drawing2D.FlushIntention.Flush);
                             }
                         }
+                    }
+
+                    using (Graphics g = Graphics.FromImage(showImage)/*showImagePanel.CreateGraphics()*/)
+                    {
+                        g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
                         g.DrawImage(bmp, 0, 0);
                         g.Flush(System.Drawing.Drawing2D.FlushIntention.Flush);
                     }
@@ -564,6 +555,7 @@ namespace AI_MasterControl
 
                 try
                 {
+                   
                     showImagePanel.Image = showImage;
                 }
                 catch (Exception)
@@ -668,7 +660,7 @@ namespace AI_MasterControl
                                 default:
                                     break;
                             }
-                            
+
                             img.Dispose();
                         }
                         else

@@ -17,9 +17,12 @@ namespace AI_MasterControl
         List<Byte> ImgBuffer;
         public Queue<Byte[]> UdpPackageBuffer;
         public Queue<Byte[]> ImgBufferQueue;
+        public Queue<List<Element.Element>> ElementQuee = null;
         MessageHandle msgh;
         private Boolean _isAnalysising = true;
-        List<Element.Element> ElementBuffer = new List<Element.Element>();
+        public List<Byte> ElementBuffer = new List<Byte>();
+        public Queue<Byte[]> ElementBufferQueue = new Queue<byte[]>();
+        public Dictionary<String, Int32> dicPairValue = new Dictionary<string, int>();
         public bool IsAnalysising
         {
             get
@@ -36,10 +39,12 @@ namespace AI_MasterControl
         public UdpPackageHelper(Queue<Byte[]> buffer, MessageHandle msgh, VCZcamera camera)
         {
             ImgBuffer = new List<byte>();
-            ImgBufferQueue = new Queue<byte[]>();
+            ImgBufferQueue = new Queue<byte[]>(5);
             UdpPackageBuffer = buffer;
             this.msgh = msgh;
             this.camera = camera;
+            dicPairValue["Min"] = 99999;
+            dicPairValue["Max"] = 0;
         }
 
         public Byte[] GetSegmentInArray(Byte[] source, Int32 Start, Int32 Count)
@@ -104,11 +109,15 @@ namespace AI_MasterControl
             IsAnalysising = false;
         }
         Boolean imgTransferComplete = false;
+        public Byte[] original = null;
         public void UdpPackageAnalysis()
         {
             IsAnalysising = true;
             //msgh("开始解析数据包");
             Int32 iLastPackageNum = 0;
+            Int32 overlaycount = 0;
+            Int32 currentoverlayflag = 0;
+            Int32 zeroCount = 0;
             while (IsAnalysising)
             {
                 if (UdpPackageBuffer.Count > 0)
@@ -125,19 +134,14 @@ namespace AI_MasterControl
                             Int16 iPackageCount = BitConverter.ToInt16(bytes, 2);
                             Int32 iImgNum = BitConverter.ToInt32(bytes, 4);
                             if (iPackageNum == 1)
-                            {    
-                                if(ImgBuffer.Count > 0)
-                                {
-                                    if (imgTransferComplete)
-                                    {
-                                        //存入图像缓存队列
-                                        ImgBufferQueue.Enqueue(ImgBuffer.ToArray());
-                                        camera.lstElement = new List<Element.Element>(ElementBuffer);
-                                        imgTransferComplete = false;
-                                        ElementBuffer.Clear();
-                                    }
-                                }
-                                
+                            {
+                                ElementBuffer.Clear();
+
+                                overlaycount = BitConverter.ToInt32(bytes, 8);
+                                original = bytes;
+
+                                currentoverlayflag = 0;
+
                                 #region 解析第一个包
                                 Int32 currentPos = 28;
                                 for (int i = 1; i < 36; i++)
@@ -196,10 +200,13 @@ namespace AI_MasterControl
                                                     Int32 temp = Convert.ToInt32(BytesToString(GetSegmentInArray(bytes, currentPos, count)));
                                                     break;
                                                 case 16:
-                                                    Int32 temp1 = Convert.ToInt32(BytesToString(GetSegmentInArray(bytes, currentPos, count)));
+                                                    //Int32 temp1 = Convert.ToInt32(BytesToString(GetSegmentInArray(bytes, currentPos, count)));
                                                     break;
                                                 case 18:
                                                     camera.format = (ImgFormat)Convert.ToInt32(BytesToString(GetSegmentInArray(bytes, currentPos, count)));
+                                                    break;
+                                                case 19:
+                                                    Int32 temp1 = Convert.ToInt32(BytesToString(GetSegmentInArray(bytes, currentPos, count)));
                                                     break;
                                                 case 23:
                                                     UInt32 tempGC = Convert.ToUInt32(BytesToString(GetSegmentInArray(bytes, currentPos, count)));
@@ -211,6 +218,17 @@ namespace AI_MasterControl
                                                     break;
                                                 case 25:
                                                     camera.CycleTime = Convert.ToUInt32(BytesToString(GetSegmentInArray(bytes, currentPos, count)));
+                                                    if(camera.CycleTime > 10000)
+                                                    {
+                                                        if ((Int32)camera.CycleTime < dicPairValue["Min"])
+                                                        {
+                                                            dicPairValue["Min"] = (Int32)camera.CycleTime;
+                                                        }
+                                                        if ((Int32)camera.CycleTime > dicPairValue["Max"])
+                                                        {
+                                                            dicPairValue["Max"] = (Int32)camera.CycleTime;
+                                                        }
+                                                    }
                                                     break;
                                                 case 30:
                                                     var result = Convert.ToInt32(BytesToString(GetSegmentInArray(bytes, currentPos, count)));
@@ -261,32 +279,35 @@ namespace AI_MasterControl
                             {
                                 if (iPackageNum > iPackageCount + 1)
                                 {
-                                    ElementBuffer.AddRange(GetElements(GetSegmentInArray(bytes, 28, len - 28)));
-                                    imgTransferComplete = true;
+                                    currentoverlayflag++;
+                                    List<Element.Element> temp = GetElements(bytes);
+                                    ElementQuee.Enqueue(temp);
                                 }
                                 else
                                 {
                                     //装入图形缓存list
                                     ImgBuffer.AddRange(GetSegmentInArray(bytes, 28, len - 28));
                                 }
+                                if(currentoverlayflag == overlaycount)
+                                {
+                                    imgTransferComplete = true;
+                                    ElementBufferQueue.Enqueue(ElementBuffer.ToArray());
+                                }
                             }
                             else
                             {
-                                //if ((iPackageNum - 1) == iPackageCount)
-                                //{
-                                //    //装入图形缓存list
+                                //装入图形缓存
                                 ImgBuffer.AddRange(GetSegmentInArray(bytes, 28, len - 28));
-                                //}
-                                //else
-                                //{
-                                    //camera.lstElement.AddRange(GetElements(GetSegmentInArray(bytes, 28, len - 28)));
-                                //}
                             }
-                            //if ((iPackageNum - 1) == iPackageCount)
-                            //{
-                            //    //存入图像缓存队列
-                            //    ImgBufferQueue.Enqueue(ImgBuffer.ToArray());
-                            //}
+                            if (ImgBuffer.Count > 0)
+                            {
+                                if (imgTransferComplete)
+                                {
+                                    //存入图像缓存队列
+                                    ImgBufferQueue.Enqueue(ImgBuffer.ToArray());
+                                    imgTransferComplete = false;
+                                }
+                            }
                         }
                     }
                     catch (Exception ex)
@@ -295,107 +316,121 @@ namespace AI_MasterControl
                     }
                 }
                 Thread.Sleep(1);
+                //CommonHelper.Delay(1);
             }
             //msgh("数据包解析停止");
         }
 
         public List<Element.Element> GetElements(Byte[] package)
         {
+            camera.Roi_height = 999;
+            
             List<Element.Element> res = new List<Element.Element>();
-            Int32 startpostion = 0;
-            while (startpostion < package.Length)
+            Int32 startpostion = 28;
+            while (startpostion <= package.Length-1)
             {
-                Int16 type = BitConverter.ToInt16(package, startpostion);
-                switch (type)
+                try
                 {
-                    case 1:
-                        res.Add(new ElementPoint((Int32)type, 
-                            (Int32)BitConverter.ToInt16(package, startpostion + 4), 
-                            (Int32)BitConverter.ToInt16(package, startpostion + 6), 
-                            (ElementColor)(Int32)BitConverter.ToInt16(package, startpostion + 2)));
-                        startpostion += 8;
-                        break;
-                    case 2:
-                        res.Add(new ElementLine((Int32)type,
-                            (Int32)BitConverter.ToInt16(package, startpostion + 4),
-                            (Int32)BitConverter.ToInt16(package, startpostion + 6),
-                            (ElementColor)(Int32)BitConverter.ToInt16(package, startpostion + 2),
-                            (Int32)BitConverter.ToInt16(package,startpostion + 8),
-                            (Int32)BitConverter.ToInt16(package,startpostion + 10)));
-                        startpostion += 12;
-                        break;
-                    case 3:
-                        res.Add(new ElementCircle((Int32)type,
-                            (Int32)BitConverter.ToInt16(package, startpostion + 4),
-                            (Int32)BitConverter.ToInt16(package, startpostion + 6),
-                            (ElementColor)(Int32)BitConverter.ToInt16(package, startpostion + 2),
-                            (Int32)BitConverter.ToInt16(package, startpostion + 8),
-                            (Int32)BitConverter.ToInt16(package, startpostion + 10)));
-                        startpostion += 12;
-                        break;
-                    case 4:
-                        res.Add(new ElementEllipse((Int32)type,
-                            (Int32)BitConverter.ToInt16(package, startpostion + 4),
-                            (Int32)BitConverter.ToInt16(package, startpostion + 6),
-                            (ElementColor)(Int32)BitConverter.ToInt16(package, startpostion + 2),
-                            (Int32)BitConverter.ToInt16(package, startpostion + 8),
-                            (Int32)BitConverter.ToInt16(package, startpostion + 10)));
-                        startpostion += 12;
-                        break;
-                    case 5:
-                        res.Add(new ElementWindow((Int32)type,
-                            (Int32)BitConverter.ToInt16(package, startpostion + 4),
-                            (Int32)BitConverter.ToInt16(package, startpostion + 6),
-                            (ElementColor)(Int32)BitConverter.ToInt16(package, startpostion + 2),
-                            (Int32)BitConverter.ToInt16(package, startpostion + 8),
-                            (Int32)BitConverter.ToInt16(package, startpostion + 10)));
-                        startpostion += 12;
-                        break;
-                    case 6:
-                        Int32 flag = 0;
-                        StringBuilder sb = new StringBuilder();
-                        while(package[startpostion + 10 + flag] != 0x00)
-                        {
-                            sb.Append((char)package[startpostion + 10 + flag]);
-                            flag++;
-                        }
-                        res.Add(new ElementString((Int32)type,
-                         (Int32)BitConverter.ToInt16(package, startpostion + 4),
-                         (Int32)BitConverter.ToInt16(package, startpostion + 6),
-                         (ElementColor)(Int32)BitConverter.ToInt16(package, startpostion + 2),
-                         (Int32)BitConverter.ToInt16(package,startpostion + 8),
-                         sb.ToString()));
-                        startpostion += sb.Length + 10 + 1;
-                        break;
-                    case 7:
-                        Int32 step = (Int32)BitConverter.ToInt16(package, startpostion + 8);
-                        startpostion += 10 + step * 2;
-                        break;
-                    case 8:
-                        res.Add(new ElementArc((Int32)type,
-                            (Int32)BitConverter.ToInt16(package, startpostion + 4),
-                            (Int32)BitConverter.ToInt16(package, startpostion + 6),
-                            (ElementColor)(Int32)BitConverter.ToInt16(package, startpostion + 2),
-                            (Int32)BitConverter.ToInt16(package,startpostion + 8),
-                            (Int32)BitConverter.ToInt16(package,startpostion + 10),
-                            (float)BitConverter.ToSingle(package,startpostion + 12),
-                            (float)BitConverter.ToSingle(package,startpostion + 14)));
-                        startpostion += 20;
-                        break;
-                    case 9:
-                        res.Add(new ElementArrow((Int32)type,
-                            (Int32)BitConverter.ToInt16(package, startpostion + 4),
-                            (Int32)BitConverter.ToInt16(package, startpostion + 6),
-                            (ElementColor)(Int32)BitConverter.ToInt16(package, startpostion + 2),
-                            (Int32)BitConverter.ToInt16(package,startpostion + 8),
-                            (Int32)BitConverter.ToInt16(package,startpostion + 10),
-                            (Int32)BitConverter.ToInt16(package, startpostion + 12),
-                            (Int32)BitConverter.ToInt16(package, startpostion + 14)));
-                        startpostion += 16;
-                        break;
-                    default:
-                        break;
+                    Int16 type = BitConverter.ToInt16(package, startpostion);
+                    switch (type)
+                    {
+                        case 1:
+                            res.Add(new ElementPoint((Int32)type,
+                                (Int32)BitConverter.ToInt16(package, startpostion + 4),
+                                (Int32)BitConverter.ToInt16(package, startpostion + 6),
+                                (ElementColor)(Int32)BitConverter.ToInt16(package, startpostion + 2)));
+                            startpostion += 8;
+                            break;
+                        case 2:
+                            res.Add(new ElementLine((Int32)type,
+                                (Int32)BitConverter.ToInt16(package, startpostion + 4),
+                                (Int32)BitConverter.ToInt16(package, startpostion + 6),
+                                (ElementColor)(Int32)BitConverter.ToInt16(package, startpostion + 2),
+                                (Int32)BitConverter.ToInt16(package, startpostion + 8),
+                                (Int32)BitConverter.ToInt16(package, startpostion + 10)));
+                            startpostion += 12;
+                            break;
+                        case 3:
+                            res.Add(new ElementCircle((Int32)type,
+                                (Int32)BitConverter.ToInt16(package, startpostion + 4),
+                                (Int32)BitConverter.ToInt16(package, startpostion + 6),
+                                (ElementColor)(Int32)BitConverter.ToInt16(package, startpostion + 2),
+                                (Int32)BitConverter.ToInt16(package, startpostion + 8),
+                                (Int32)BitConverter.ToInt16(package, startpostion + 10)));
+                            startpostion += 12;
+                            break;
+                        case 4:
+                            res.Add(new ElementEllipse((Int32)type,
+                                (Int32)BitConverter.ToInt16(package, startpostion + 4),
+                                (Int32)BitConverter.ToInt16(package, startpostion + 6),
+                                (ElementColor)(Int32)BitConverter.ToInt16(package, startpostion + 2),
+                                (Int32)BitConverter.ToInt16(package, startpostion + 8),
+                                (Int32)BitConverter.ToInt16(package, startpostion + 10)));
+                            startpostion += 12;
+                            break;
+                        case 5:
+                            res.Add(new ElementWindow((Int32)type,
+                                (Int32)BitConverter.ToInt16(package, startpostion + 4),
+                                (Int32)BitConverter.ToInt16(package, startpostion + 6),
+                                (ElementColor)(Int32)BitConverter.ToInt16(package, startpostion + 2),
+                                (Int32)BitConverter.ToInt16(package, startpostion + 8),
+                                (Int32)BitConverter.ToInt16(package, startpostion + 10)));
+                            startpostion += 12;
+                            break;
+                        case 6:
+                            Int32 flag = 0;
+                            StringBuilder sb = new StringBuilder();
+                            while (package[startpostion + 10 + flag] != 0x00)
+                            {
+                                sb.Append((char)package[startpostion + 10 + flag]);
+                                //sb.Append(package[startpostion + 10 + flag]);
+                                flag++;
+                            }
+                            res.Add(new ElementString((Int32)type,
+                             (Int32)BitConverter.ToInt16(package, startpostion + 4),
+                             (Int32)BitConverter.ToInt16(package, startpostion + 6),
+                             (ElementColor)(Int32)BitConverter.ToInt16(package, startpostion + 2),
+                             (Int32)BitConverter.ToInt16(package, startpostion + 8),
+                             sb.ToString()));
+                            startpostion += sb.Length + 10 + 1;
+                            break;
+                        case 7:
+                            Int32 step = (Int32)BitConverter.ToInt16(package, startpostion + 8);
+                            startpostion += 10 + step * 2;
+                            break;
+                        case 8:
+                            res.Add(new ElementArc((Int32)type,
+                                (Int32)BitConverter.ToInt16(package, startpostion + 4),
+                                (Int32)BitConverter.ToInt16(package, startpostion + 6),
+                                (ElementColor)(Int32)BitConverter.ToInt16(package, startpostion + 2),
+                                (Int32)BitConverter.ToInt16(package, startpostion + 8),
+                                (Int32)BitConverter.ToInt16(package, startpostion + 10),
+                                0f,
+                                360f));
+                            startpostion += 20;
+                            break;
+                        case 9:
+                            res.Add(new ElementArrow((Int32)type,
+                                (Int32)BitConverter.ToInt16(package, startpostion + 4),
+                                (Int32)BitConverter.ToInt16(package, startpostion + 6),
+                                (ElementColor)(Int32)BitConverter.ToInt16(package, startpostion + 2),
+                                (Int32)BitConverter.ToInt16(package, startpostion + 8),
+                                (Int32)BitConverter.ToInt16(package, startpostion + 10),
+                                (Int32)BitConverter.ToInt16(package, startpostion + 12),
+                                (Int32)BitConverter.ToInt16(package, startpostion + 14)));
+                            startpostion += 16;
+                            break;
+                        default:
+                            break;
+                    }
                 }
+                catch (Exception)
+                {
+
+                    Console.WriteLine("解析Overlay包出错！");
+
+                }
+                
             }
             return res;
         }
