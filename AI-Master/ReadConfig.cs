@@ -4,12 +4,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Windows.Forms;
 
 namespace AI_Master
 {
     public static class ReadConfig
     {
-        public static String defaultpath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\AIMaster";
+        public static String defaultpath = Application.StartupPath + @"\AIMaster";
         public static Boolean ExistConfigFile()
         {
             if (!Directory.Exists(defaultpath))

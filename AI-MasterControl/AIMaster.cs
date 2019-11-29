@@ -102,6 +102,7 @@ namespace AI_MasterControl
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             camera.Stop();
+            //camera = null;
         }
 
         private void SetRotate(object sender, EventArgs e)

@@ -393,13 +393,20 @@ namespace AI_MasterControl
             ElementQueue = new Queue<Element.Element[]>();
             uph.ElementQuee = ElementQueue;
         }
-        
+
         public void SetCMOS(Int32 width, Int32 height)
         {
             CmosWidth = width;
             CmosHeight = height;
         }
 
+
+        ~VCZcamera()
+        {
+            uh = null;
+            uph = null;
+            bh = null;
+        }
         public void Start()
         {
             Thread t1 = new Thread(uh.ListeningPort);
@@ -477,7 +484,7 @@ namespace AI_MasterControl
                     //List<Element.Element> temp = new List<Element.Element>(ElementQueue.Dequeue());
 
                     var temp = ElementQueue.Dequeue();
-                    if(ElementQueue.Count > 0)
+                    if (ElementQueue.Count > 0)
                     {
                         lock (ElementQueue)
                         {
@@ -542,10 +549,10 @@ namespace AI_MasterControl
                                             break;
                                         case 8://圆弧
                                             ele.DrawArc(new Pen(EleColors[(Int32)item.color]),
-                                                (item as ElementArc).x / ComprehensionRate,
-                                                (item as ElementArc).y / ComprehensionRate,
-                                                (item as ElementArc).rx / ComprehensionRate,
-                                                (item as ElementArc).ry / ComprehensionRate,
+                                                ((item as ElementArc).x - (item as ElementArc).rx) / ComprehensionRate,
+                                                ((item as ElementArc).y - (item as ElementArc).ry) / ComprehensionRate,
+                                                2 * ((item as ElementArc).rx) / ComprehensionRate,
+                                                2 * ((item as ElementArc).ry) / ComprehensionRate,
                                                 (item as ElementArc).Start_angle,
                                                 (item as ElementArc).End_anlge);
                                             break;
@@ -904,7 +911,7 @@ namespace AI_MasterControl
         {
             if (CmosHeight < 1 || CmosWidth < 1)
             {
-                if(img == null)
+                if (img == null)
                 {
                     return new Bitmap(currentImage);
                 }

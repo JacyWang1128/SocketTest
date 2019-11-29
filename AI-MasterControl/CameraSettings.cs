@@ -397,8 +397,8 @@ namespace AI_MasterControl
             RotateType = RotateFlipType.RotateNoneFlipNone;
             InfoColor = Color.White;
             IsIpAddress = false;
-            IsCameraName = true;
-            IsDate = false;
+            IsCameraName = false;
+            IsDate = true;
             IsDistinguished = false;
             PreStringNG = "";
             PreStringOK = "";

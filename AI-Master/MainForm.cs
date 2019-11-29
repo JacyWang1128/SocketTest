@@ -37,7 +37,7 @@ namespace AI_Master
         private void button2_Click(object sender, EventArgs e)
         {
             AIMaster ai = new AIMaster();
-            AI_MasterControl.AddCamera adc = new AI_MasterControl.AddCamera(ai.cameraSetting, ai.aceh,"添加相机");
+            AI_MasterControl.AddCamera adc = new AI_MasterControl.AddCamera(ai.cameraSetting, ai.aceh, "添加相机");
             if (DialogResult.OK == adc.ShowDialog())
             {
                 plMiddle.Controls.Add(ai);
@@ -83,7 +83,7 @@ namespace AI_Master
                 }
                 catch (Exception)
                 {
-                    
+
                 }
             }
             dataGridView1.ClearSelection();
@@ -152,6 +152,7 @@ namespace AI_Master
         {
             Write_Config();
             LoggHelper.WriteLog("配置信息保存完毕，程序正常退出！");
+            Environment.Exit(0);
         }
 
         private void MainForm_Load(object sender, EventArgs e)

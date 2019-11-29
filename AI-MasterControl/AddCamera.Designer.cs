@@ -45,6 +45,7 @@
             this.cbCameraName = new System.Windows.Forms.CheckBox();
             this.cbIPaddress = new System.Windows.Forms.CheckBox();
             this.groupBox6 = new System.Windows.Forms.GroupBox();
+            this.cbDistinguishWarning = new System.Windows.Forms.CheckBox();
             this.btSelectFolder = new System.Windows.Forms.Button();
             this.tbFolder = new System.Windows.Forms.TextBox();
             this.cbRestorSize = new System.Windows.Forms.CheckBox();
@@ -73,7 +74,6 @@
             this.label4 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
-            this.cbDistinguishWarning = new System.Windows.Forms.CheckBox();
             this.panel2.SuspendLayout();
             this.groupBox4.SuspendLayout();
             this.groupBox7.SuspendLayout();
@@ -230,6 +230,8 @@
             // cbDate
             // 
             this.cbDate.AutoSize = true;
+            this.cbDate.Checked = true;
+            this.cbDate.CheckState = System.Windows.Forms.CheckState.Checked;
             this.cbDate.Location = new System.Drawing.Point(173, 25);
             this.cbDate.Name = "cbDate";
             this.cbDate.Size = new System.Drawing.Size(48, 16);
@@ -240,8 +242,6 @@
             // cbCameraName
             // 
             this.cbCameraName.AutoSize = true;
-            this.cbCameraName.Checked = true;
-            this.cbCameraName.CheckState = System.Windows.Forms.CheckState.Checked;
             this.cbCameraName.Location = new System.Drawing.Point(83, 25);
             this.cbCameraName.Name = "cbCameraName";
             this.cbCameraName.Size = new System.Drawing.Size(72, 16);
@@ -278,6 +278,16 @@
             this.groupBox6.TabIndex = 28;
             this.groupBox6.TabStop = false;
             this.groupBox6.Text = "保存路径设置";
+            // 
+            // cbDistinguishWarning
+            // 
+            this.cbDistinguishWarning.AutoSize = true;
+            this.cbDistinguishWarning.Location = new System.Drawing.Point(161, 76);
+            this.cbDistinguishWarning.Name = "cbDistinguishWarning";
+            this.cbDistinguishWarning.Size = new System.Drawing.Size(78, 16);
+            this.cbDistinguishWarning.TabIndex = 7;
+            this.cbDistinguishWarning.Text = "存WARNING";
+            this.cbDistinguishWarning.UseVisualStyleBackColor = true;
             // 
             // btSelectFolder
             // 
@@ -566,16 +576,6 @@
             this.label2.Size = new System.Drawing.Size(59, 12);
             this.label2.TabIndex = 0;
             this.label2.Text = "横（X）：";
-            // 
-            // cbDistinguishWarning
-            // 
-            this.cbDistinguishWarning.AutoSize = true;
-            this.cbDistinguishWarning.Location = new System.Drawing.Point(161, 76);
-            this.cbDistinguishWarning.Name = "cbDistinguishWarning";
-            this.cbDistinguishWarning.Size = new System.Drawing.Size(78, 16);
-            this.cbDistinguishWarning.TabIndex = 7;
-            this.cbDistinguishWarning.Text = "存WARNING";
-            this.cbDistinguishWarning.UseVisualStyleBackColor = true;
             // 
             // AddCamera
             // 
