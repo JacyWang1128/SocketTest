@@ -15,12 +15,12 @@ namespace AI_MasterControl
         readonly Byte[] SplitStringArray = new Byte[2] { 0x0a, 0x3b };
         VCZcamera camera;
         List<Byte> ImgBuffer;
-        public Queue<Byte[]> UdpPackageBuffer;
-        public Queue<Byte[]> ImgBufferQueue;
-        public Queue<List<Element.Element>> ElementQuee = null;
+        public Queue<List<Byte[]>> UdpPackageBuffer;
+        public Queue<KeyValuePair<ImageInfo,Byte[]>> ImgBufferQueue;
+        public Queue<Element.Element[]> ElementQuee = null;
         MessageHandle msgh;
         private Boolean _isAnalysising = true;
-        public List<Byte> ElementBuffer = new List<Byte>();
+        public List<Element.Element> ElementBuffer = new List<Element.Element>();
         public Queue<Byte[]> ElementBufferQueue = new Queue<byte[]>();
         public Dictionary<String, Int32> dicPairValue = new Dictionary<string, int>();
         public bool IsAnalysising
@@ -36,10 +36,10 @@ namespace AI_MasterControl
             }
         }
 
-        public UdpPackageHelper(Queue<Byte[]> buffer, MessageHandle msgh, VCZcamera camera)
+        public UdpPackageHelper(Queue<List<Byte[]>> buffer, MessageHandle msgh, VCZcamera camera)
         {
             ImgBuffer = new List<byte>();
-            ImgBufferQueue = new Queue<byte[]>(5);
+            ImgBufferQueue = new Queue<KeyValuePair<ImageInfo, Byte[]>>(5);
             UdpPackageBuffer = buffer;
             this.msgh = msgh;
             this.camera = camera;
@@ -118,6 +118,7 @@ namespace AI_MasterControl
             Int32 overlaycount = 0;
             Int32 currentoverlayflag = 0;
             Int32 zeroCount = 0;
+            Int32 isReceive = 0;
             while (IsAnalysising)
             {
                 if (UdpPackageBuffer.Count > 0)
@@ -125,187 +126,206 @@ namespace AI_MasterControl
                     try
                     {
 
-                        Byte[] bytes = UdpPackageBuffer.Dequeue();
-                        Int32 len = bytes.Length;
-                        Int16 iPackageNum = BitConverter.ToInt16(bytes, 0);
-                        if (iPackageNum != iLastPackageNum)
+                        List<Byte[]> ImgPackageBuffer = UdpPackageBuffer.Dequeue();
+                        foreach (var bytes in ImgPackageBuffer)
                         {
-                            iLastPackageNum = iPackageNum;
-                            Int16 iPackageCount = BitConverter.ToInt16(bytes, 2);
-                            Int32 iImgNum = BitConverter.ToInt32(bytes, 4);
-                            if (iPackageNum == 1)
+
+
+                            Int32 len = bytes.Length;
+                            Int16 iPackageNum = BitConverter.ToInt16(bytes, 0);
+                            if (iPackageNum != iLastPackageNum)
                             {
-                                ElementBuffer.Clear();
-
-                                overlaycount = BitConverter.ToInt32(bytes, 8);
-                                original = bytes;
-
-                                currentoverlayflag = 0;
-
-                                #region 解析第一个包
-                                Int32 currentPos = 28;
-                                for (int i = 1; i < 36; i++)
+                                iLastPackageNum = iPackageNum;
+                                Int16 iPackageCount = BitConverter.ToInt16(bytes, 2);
+                                Int32 iImgNum = BitConverter.ToInt32(bytes, 4);
+                                if (iPackageNum == 1)
                                 {
-                                    if (i > 5)
+                                    ElementBuffer.Clear();
+
+                                    overlaycount = BitConverter.ToInt32(bytes, 8);
+                                    original = bytes;
+
+                                    currentoverlayflag = 0;
+
+                                    #region 解析第一个包
+                                    Int32 currentPos = 28;
+                                    for (int i = 1; i < 36; i++)
                                     {
-                                        Int32 count = GetCountWithSearchInArray(bytes, currentPos, 0x3b);
-                                        try
+                                        if (i > 5)
                                         {
-                                            switch (i - 5)
+                                            Int32 count = GetCountWithSearchInArray(bytes, currentPos, 0x3b);
+                                            try
                                             {
-                                                case 2:
-                                                    camera.ImgWidth = Convert.ToInt32(BytesToString(GetSegmentInArray(bytes, currentPos, count)));
-                                                    break;
-                                                case 3:
-                                                    camera.ImgHeight = Convert.ToInt32(BytesToString(GetSegmentInArray(bytes, currentPos, count)));
-                                                    break;
-                                                case 4:
-                                                    camera.colorDepth = (ColorDepth)Convert.ToInt32(BytesToString(GetSegmentInArray(bytes, currentPos, count)));
-                                                    break;
-                                                case 5:
-                                                    camera.Roi_x = Convert.ToInt32(BytesToString(GetSegmentInArray(bytes, currentPos, count)));
-                                                    break;
-                                                case 6:
-                                                    camera.Roi_y = Convert.ToInt32(BytesToString(GetSegmentInArray(bytes, currentPos, count)));
-                                                    break;
-                                                case 7:
-                                                    camera.Roi_width = Convert.ToInt32(BytesToString(GetSegmentInArray(bytes, currentPos, count)));
-                                                    break;
-                                                case 8:
-                                                    camera.Roi_height = Convert.ToInt32(BytesToString(GetSegmentInArray(bytes, currentPos, count)));
-                                                    break;
-                                                case 10:
-                                                    //识别ImageSection
-                                                    camera.ImgSection = Convert.ToInt32(BytesToString(GetSegmentInArray(bytes, currentPos, count)));
-                                                    break;
-                                                case 11:
-                                                    //识别ImageResolution
-                                                    camera.ImgResolution = Convert.ToInt32(BytesToString(GetSegmentInArray(bytes, currentPos, count)));
-                                                    switch (camera.ImgResolution)
-                                                    {
-                                                        case 1:
-                                                            camera.ComprehensionRate = 1;
-                                                            break;
-                                                        case 2:
-                                                            camera.ComprehensionRate = 2;
-                                                            break;
-                                                        case 3:
-                                                            camera.ComprehensionRate = 4;
-                                                            break;
-                                                        default:
-                                                            break;
-                                                    }
-                                                    break;
-                                                case 15:
-                                                    Int32 temp = Convert.ToInt32(BytesToString(GetSegmentInArray(bytes, currentPos, count)));
-                                                    break;
-                                                case 16:
-                                                    //Int32 temp1 = Convert.ToInt32(BytesToString(GetSegmentInArray(bytes, currentPos, count)));
-                                                    break;
-                                                case 18:
-                                                    camera.format = (ImgFormat)Convert.ToInt32(BytesToString(GetSegmentInArray(bytes, currentPos, count)));
-                                                    break;
-                                                case 19:
-                                                    Int32 temp1 = Convert.ToInt32(BytesToString(GetSegmentInArray(bytes, currentPos, count)));
-                                                    break;
-                                                case 23:
-                                                    UInt32 tempGC = Convert.ToUInt32(BytesToString(GetSegmentInArray(bytes, currentPos, count)));
-                                                    camera.GoodCount = tempGC;
-                                                    break;
-                                                case 24:
-                                                    UInt32 tempBC = Convert.ToUInt32(BytesToString(GetSegmentInArray(bytes, currentPos, count)));
-                                                    camera.BadCount = tempBC;
-                                                    break;
-                                                case 25:
-                                                    camera.CycleTime = Convert.ToUInt32(BytesToString(GetSegmentInArray(bytes, currentPos, count)));
-                                                    if(camera.CycleTime > 10000)
-                                                    {
-                                                        if ((Int32)camera.CycleTime < dicPairValue["Min"])
+                                                switch (i - 5)
+                                                {
+                                                    case 2:
+                                                        camera.ImgWidth = Convert.ToInt32(BytesToString(GetSegmentInArray(bytes, currentPos, count)));
+                                                        break;
+                                                    case 3:
+                                                        camera.ImgHeight = Convert.ToInt32(BytesToString(GetSegmentInArray(bytes, currentPos, count)));
+                                                        break;
+                                                    case 4:
+                                                        camera.colorDepth = (ColorDepth)Convert.ToInt32(BytesToString(GetSegmentInArray(bytes, currentPos, count)));
+                                                        break;
+                                                    case 5:
+                                                        camera.Roi_x = Convert.ToInt32(BytesToString(GetSegmentInArray(bytes, currentPos, count)));
+                                                        break;
+                                                    case 6:
+                                                        camera.Roi_y = Convert.ToInt32(BytesToString(GetSegmentInArray(bytes, currentPos, count)));
+                                                        break;
+                                                    case 7:
+                                                        camera.Roi_width = Convert.ToInt32(BytesToString(GetSegmentInArray(bytes, currentPos, count)));
+                                                        break;
+                                                    case 8:
+                                                        camera.Roi_height = Convert.ToInt32(BytesToString(GetSegmentInArray(bytes, currentPos, count)));
+                                                        break;
+                                                    case 10:
+                                                        //识别ImageSection
+                                                        camera.ImgSection = Convert.ToInt32(BytesToString(GetSegmentInArray(bytes, currentPos, count)));
+                                                        break;
+                                                    case 11:
+                                                        //识别ImageResolution
+                                                        camera.ImgResolution = Convert.ToInt32(BytesToString(GetSegmentInArray(bytes, currentPos, count)));
+                                                        switch (camera.ImgResolution)
                                                         {
-                                                            dicPairValue["Min"] = (Int32)camera.CycleTime;
+                                                            case 1:
+                                                                camera.ComprehensionRate = 1;
+                                                                break;
+                                                            case 2:
+                                                                camera.ComprehensionRate = 2;
+                                                                break;
+                                                            case 3:
+                                                                camera.ComprehensionRate = 4;
+                                                                break;
+                                                            default:
+                                                                break;
                                                         }
-                                                        if ((Int32)camera.CycleTime > dicPairValue["Max"])
+                                                        break;
+                                                    case 15:
+                                                        Int32 temp = Convert.ToInt32(BytesToString(GetSegmentInArray(bytes, currentPos, count)));
+                                                        break;
+                                                    case 16:
+                                                        //Int32 temp1 = Convert.ToInt32(BytesToString(GetSegmentInArray(bytes, currentPos, count)));
+                                                        break;
+                                                    case 18:
+                                                        camera.format = (ImgFormat)Convert.ToInt32(BytesToString(GetSegmentInArray(bytes, currentPos, count)));
+                                                        break;
+                                                    case 19:
+                                                        isReceive = Convert.ToInt32(BytesToString(GetSegmentInArray(bytes, currentPos, count)));
+                                                        break;
+                                                    case 23:
+                                                        UInt32 tempGC = Convert.ToUInt32(BytesToString(GetSegmentInArray(bytes, currentPos, count)));
+                                                        camera.GoodCount = tempGC;
+                                                        break;
+                                                    case 24:
+                                                        UInt32 tempBC = Convert.ToUInt32(BytesToString(GetSegmentInArray(bytes, currentPos, count)));
+                                                        camera.BadCount = tempBC;
+                                                        break;
+                                                    case 25:
+                                                        camera.CycleTime = Convert.ToUInt32(BytesToString(GetSegmentInArray(bytes, currentPos, count)));
+                                                        //if (camera.CycleTime > 10000)
+                                                        //{
+                                                        //    if ((Int32)camera.CycleTime < dicPairValue["Min"])
+                                                        //    {
+                                                        //        dicPairValue["Min"] = (Int32)camera.CycleTime;
+                                                        //    }
+                                                        //    if ((Int32)camera.CycleTime > dicPairValue["Max"])
+                                                        //    {
+                                                        //        dicPairValue["Max"] = (Int32)camera.CycleTime;
+                                                        //    }
+                                                        //}
+                                                        break;
+                                                    case 30:
+                                                        var result = Convert.ToInt32(BytesToString(GetSegmentInArray(bytes, currentPos, count)));
+                                                        camera.ImgStatus = result;
+                                                        if (0 == result)
                                                         {
-                                                            dicPairValue["Max"] = (Int32)camera.CycleTime;
+                                                            camera.IsOK = true;
                                                         }
-                                                    }
-                                                    break;
-                                                case 30:
-                                                    var result = Convert.ToInt32(BytesToString(GetSegmentInArray(bytes, currentPos, count)));
-                                                    camera.ImgStatus = result;
-                                                    if(0 == result)
-                                                    {
-                                                        camera.IsOK = true;
-                                                    }
-                                                    else
-                                                    {
-                                                        camera.IsOK = false;
-                                                    }
+                                                        else
+                                                        {
+                                                            camera.IsOK = false;
+                                                        }
+                                                        break;
+                                                    default:
+                                                        break;
+                                                }
+                                            }
+                                            catch (Exception ex)
+                                            {
+                                                //msgh(ex.Message);
+                                            }
+
+                                            currentPos += count;
+                                        }
+                                        else
+                                        {
+                                            Int32 count = GetCountWithSearchInArray(bytes, currentPos, SplitStringArray);
+                                            switch (i)
+                                            {
+                                                case 1:
+                                                    camera.CameraName = BytesToString(GetSegmentInArray(bytes, currentPos, count));
                                                     break;
                                                 default:
                                                     break;
                                             }
+                                            currentPos += count;
                                         }
-                                        catch (Exception ex)
-                                        {
-                                            //msgh(ex.Message);
-                                        }
+                                    }
 
-                                        currentPos += count;
+                                    #endregion
+
+                                    //收到第一包后清空图形缓存队列（当前图形缓存队列存放的是上一张图片的数据
+                                    ImgBuffer.Clear();
+                                    if(isReceive != 3)
+                                    {
+                                        ImgBuffer.AddRange(GetSegmentInArray(bytes, len - 28, 28));
                                     }
                                     else
                                     {
-                                        Int32 count = GetCountWithSearchInArray(bytes, currentPos, SplitStringArray);
-                                        switch (i)
-                                        {
-                                            case 1:
-                                                camera.CameraName = BytesToString(GetSegmentInArray(bytes, currentPos, count));
-                                                break;
-                                            default:
-                                                break;
-                                        }
-                                        currentPos += count;
+                                        //装入图形缓存list
+                                        ImgBuffer.AddRange(GetSegmentInArray(bytes, len - 56, 28));
                                     }
                                 }
-
-                                #endregion
-
-                                //收到第一包后清空图形缓存队列（当前图形缓存队列存放的是上一张图片的数据
-                                ImgBuffer.Clear();
-                                //装入图形缓存list
-                                ImgBuffer.AddRange(GetSegmentInArray(bytes, len - 56, 28));
-                            }
-                            else if (iPackageNum > iPackageCount)
-                            {
-                                if (iPackageNum > iPackageCount + 1)
+                                else if (iPackageNum > iPackageCount)
                                 {
-                                    currentoverlayflag++;
-                                    List<Element.Element> temp = GetElements(bytes);
-                                    ElementQuee.Enqueue(temp);
+                                    if (iPackageNum > iPackageCount + 1)
+                                    {
+                                        currentoverlayflag++;
+                                        ElementBuffer.AddRange(GetElements(bytes));
+
+                                        //ElementQuee.Enqueue(temp);
+                                    }
+                                    else
+                                    {
+                                        //装入图形缓存list
+                                        ImgBuffer.AddRange(GetSegmentInArray(bytes, 28, len - 28));
+                                    }
+                                    if (currentoverlayflag == overlaycount)
+                                    {
+                                        imgTransferComplete = true;
+                                        if(isReceive == 3)
+                                        {
+                                            var buffer = ElementBuffer.ToArray();
+                                            ElementQuee.Enqueue(buffer);
+                                        }
+                                        //ElementBufferQueue.Enqueue(ElementBuffer.ToArray());
+                                    }
                                 }
                                 else
                                 {
-                                    //装入图形缓存list
+                                    //装入图形缓存
                                     ImgBuffer.AddRange(GetSegmentInArray(bytes, 28, len - 28));
                                 }
-                                if(currentoverlayflag == overlaycount)
+                                if (ImgBuffer.Count > 0)
                                 {
-                                    imgTransferComplete = true;
-                                    ElementBufferQueue.Enqueue(ElementBuffer.ToArray());
-                                }
-                            }
-                            else
-                            {
-                                //装入图形缓存
-                                ImgBuffer.AddRange(GetSegmentInArray(bytes, 28, len - 28));
-                            }
-                            if (ImgBuffer.Count > 0)
-                            {
-                                if (imgTransferComplete)
-                                {
-                                    //存入图像缓存队列
-                                    ImgBufferQueue.Enqueue(ImgBuffer.ToArray());
-                                    imgTransferComplete = false;
+                                    if (imgTransferComplete)
+                                    {
+                                        ImageInfo ii = new ImageInfo(camera.ImgStatus,(Int32)camera.format);
+                                        //存入图像缓存队列
+                                        ImgBufferQueue.Enqueue(new KeyValuePair<ImageInfo,Byte[]>(ii,ImgBuffer.ToArray()));
+                                        imgTransferComplete = false;
+                                    }
                                 }
                             }
                         }
@@ -323,11 +343,9 @@ namespace AI_MasterControl
 
         public List<Element.Element> GetElements(Byte[] package)
         {
-            camera.Roi_height = 999;
-            
             List<Element.Element> res = new List<Element.Element>();
             Int32 startpostion = 28;
-            while (startpostion <= package.Length-1)
+            while (startpostion <= package.Length - 1)
             {
                 try
                 {
@@ -430,7 +448,7 @@ namespace AI_MasterControl
                     Console.WriteLine("解析Overlay包出错！");
 
                 }
-                
+
             }
             return res;
         }

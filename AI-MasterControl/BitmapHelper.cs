@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 
@@ -11,17 +12,38 @@ namespace AI_MasterControl
 {
     public class BitmapHelper
     {
-        Queue<Byte[]> ImgBufferQueue;
+        Queue<KeyValuePair<ImageInfo, Byte[]>> ImgBufferQueue;
         MessageHandle msgh;
         VCZcamera camera;
         private Boolean _isAnalysising = true;
+        Queue<KeyValuePair<ImageInfo, Image>> SaveImageQueue;
 
-        public BitmapHelper(Queue<Byte[]> imgbuffer, MessageHandle msgh, VCZcamera camera)
+        //static Byte[] header8;
+
+        public BitmapHelper(Queue<KeyValuePair<ImageInfo, Byte[]>> imgbuffer, MessageHandle msgh, VCZcamera camera)
         {
             this.msgh = msgh;
             this.camera = camera;
             ImgBufferQueue = imgbuffer;
+            SaveImageQueue = new Queue<KeyValuePair<ImageInfo, Image>>();
+            //测试用
+            //header8 = new byte[1078];
+            //var bytes = new FileStream(@"C: \Users\Administrator\Desktop\图像保存测试\10_2019_10_28_10_55_10_601.bmp", FileMode.Open, FileAccess.Read).Read(header8,0,1078);
         }
+
+        #region 测试用
+        /*static Byte[] header = new Byte[] { 0x42  ,0x4D  ,0x36  ,0x04  ,0x30  ,0x00  ,0x00  ,0x00   ,0x00  ,0x00  ,0x36  ,0x04  ,0x00  ,0x00  ,0x28  ,0x00,
+ 0x00  ,0x00  ,0x00  ,0x08  ,0x00  ,0x00  ,0x00  ,0x06   ,0x00  ,0x00  ,0x01  ,0x00  ,0x08  ,0x00  ,0x00  ,0x00,
+ 0x00  ,0x00  ,0x00  ,0x00  ,0x00  ,0x00  ,0x00  ,0x00   ,0x00  ,0x00  ,0x00  ,0x00  ,0x00  ,0x00  ,0x00  ,0x00,
+ 0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 };
+        static Byte[] header24 = new Byte[]{0x42 ,0x4D ,0x36 ,0x00 ,0x90 ,0x00 ,0x00 ,0x00  ,
+                                          0x00 ,0x00 ,0x36 ,0x00 ,0x00 ,0x00 ,0x28 ,0x00,
+                                          0x00 ,0x00 ,0x00 ,0x08 ,0x00 ,0x00 ,0x00 ,0x06  ,
+                                          0x00 ,0x00 ,0x01 ,0x00 ,0x18 ,0x00 ,0x00 ,0x00,
+                                          0x00 ,0x00 ,0x00 ,0x00 ,0x90 ,0x00 ,0xC4 ,0x0E  ,
+                                          0x00 ,0x00 ,0xC4 ,0x0E ,0x00 ,0x00 ,0x00 ,0x00,
+                                          0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 };*/
+        #endregion
 
         public bool IsAnalysising
         {
@@ -36,7 +58,7 @@ namespace AI_MasterControl
             }
         }
 
-        public BitmapHelper(Queue<Byte[]> imgbuffer, MessageHandle msgh)
+        public BitmapHelper(Queue<KeyValuePair<ImageInfo, Byte[]>> imgbuffer, MessageHandle msgh)
         {
             ImgBufferQueue = imgbuffer;
             this.msgh = msgh;
@@ -49,11 +71,163 @@ namespace AI_MasterControl
 
         Stopwatch sw = new Stopwatch();
 
+        public void ThreadSaveImage()
+        {
+            while (_isAnalysising)
+            {
+                if(SaveImageQueue.Count > 0)
+                {
+                    var temp = SaveImageQueue.Dequeue();
+                    #region 保存图片模块
+                    if (camera.IsSaveing)
+                    {
+                        ImageFormat saveformat;
+                        Image currentImage = temp.Value;
+                        switch (temp.Key.ImgFormat)
+                        {
+                            case 1:
+                                saveformat = ImageFormat.Bmp;
+                                break;
+                            case 2:
+                                saveformat = ImageFormat.Jpeg;
+                                break;
+                            case 3:
+                                saveformat = ImageFormat.Png;
+                                break;
+                            default:
+                                saveformat = ImageFormat.Png;
+                                break;
+                        }
+                        camera.GetFilePre();
+                        try
+                        {
+                            if (camera.IsRestore)
+                            {
+                                Image img = camera.GetSourceImg();
+                                switch (camera.ImgStatus)
+                                {
+                                    case -2:
+                                        if (camera.IsSaveWarning)
+                                        {
+                                            img.Save(camera.PathWarning.ToString() + "." + (ImgFormat)temp.Key.ImgFormat, saveformat);
+                                        }
+                                        else
+                                        {
+                                            if ((!camera.IsSaveOK) && (!camera.IsSaveNG))
+                                            {
+                                                img.Save(camera.FilePrefix.ToString() + "." + (ImgFormat)temp.Key.ImgFormat, saveformat);
+                                            }
+                                        }
+                                        break;
+                                    case -1://NG
+                                        if (camera.IsSaveNG)
+                                        {
+                                            img.Save(camera.PathNG.ToString() + "." + (ImgFormat)temp.Key.ImgFormat, saveformat);
+                                        }
+                                        else
+                                        {
+                                            if ((!camera.IsSaveOK) && (!camera.IsSaveWarning))
+                                            {
+                                                img.Save(camera.FilePrefix.ToString() + "." + (ImgFormat)temp.Key.ImgFormat, saveformat);
+                                            }
+                                        }
+                                        break;
+                                    case 0://OK
+                                        if (camera.IsSaveOK)
+                                        {
+                                            img.Save(camera.PathOK.ToString() + "." + (ImgFormat)temp.Key.ImgFormat, saveformat);
+                                        }
+                                        else
+                                        {
+                                            if ((!camera.IsSaveNG) && (!camera.IsSaveWarning))
+                                            {
+                                                img.Save(camera.FilePrefix.ToString() + "." + (ImgFormat)temp.Key.ImgFormat, saveformat);
+                                            }
+                                        }
+                                        break;
+                                    default:
+                                        break;
+                                }
+
+                                img.Dispose();
+                            }
+                            else
+                            {
+                                switch (camera.ImgStatus)
+                                {
+                                    case -2:
+                                        if (camera.IsSaveWarning)
+                                        {
+                                            currentImage.Save(camera.PathWarning.ToString() + "." + (ImgFormat)temp.Key.ImgFormat, saveformat);
+                                        }
+                                        else
+                                        {
+                                            if ((!camera.IsSaveOK) && (!camera.IsSaveNG))
+                                            {
+                                                currentImage.Save(camera.FilePrefix.ToString() + "." + (ImgFormat)temp.Key.ImgFormat, saveformat);
+                                            }
+                                        }
+                                        break;
+                                    case -1:
+                                        if (camera.IsSaveNG)
+                                        {
+                                            currentImage.Save(camera.PathNG.ToString() + "." + (ImgFormat)temp.Key.ImgFormat, saveformat);
+                                        }
+                                        else
+                                        {
+                                            if (((!camera.IsSaveOK)) && ((!camera.IsSaveWarning)))
+                                            {
+                                                currentImage.Save(camera.FilePrefix.ToString() + "." + (ImgFormat)temp.Key.ImgFormat, saveformat);
+                                            }
+                                        }
+                                        break;
+                                    case 0:
+                                        if (camera.IsSaveOK)
+                                        {
+                                            currentImage.Save(camera.PathOK.ToString() + "." + (ImgFormat)temp.Key.ImgFormat, saveformat);
+                                        }
+                                        else
+                                        {
+                                            if ((!camera.IsSaveNG) && (!camera.IsSaveWarning))
+                                            {
+                                                currentImage.Save(camera.FilePrefix.ToString() + "." + (ImgFormat)temp.Key.ImgFormat, saveformat);
+                                            }
+                                        }
+                                        break;
+                                    default:
+                                        break;
+                                }
+
+
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            LoggHelper.WriteLog("图像显示异常", ex);
+                        }
+                        if (SaveImageQueue.Count > 10)
+                        {
+                            while (SaveImageQueue.Count > 10)
+                            {
+                                SaveImageQueue.Dequeue();
+                            }
+                        }
+                    }
+
+                    #endregion
+                }
+                Thread.Sleep(1);
+            }
+        }
+
         public void StartAnalysising()
         {
             IsAnalysising = true;
             //msgh("开始解析图像文件");
             sw.Start();
+            Thread t = new Thread(ThreadSaveImage);
+            t.Priority = ThreadPriority.Lowest;
+            t.Start();
             while (_isAnalysising)
             {
                 try
@@ -63,17 +237,18 @@ namespace AI_MasterControl
                     if (ImgBufferQueue.Count > 0)
                     {
                         TimeSpan ts = sw.Elapsed;
-                        Byte[] buffer = ImgBufferQueue.Dequeue();///////////////////////////////////////////////在这停顿
+                        var temp = ImgBufferQueue.Dequeue();
+                        Byte[] buffer = temp.Value;
+                        //Byte[] buffer = ImgBufferQueue.Dequeue().Value;///////////////////////////////////////////////在这停顿
                         ImageFormat format = GetImgbufferFormat(buffer);
-                        if (format == ImageFormat.Bmp)
+                        if (camera.format == ImgFormat.bmp)//format == ImageFormat.Bmp)
                         {
                             switch (camera.colorDepth)
                             {
                                 case ColorDepth.GrayScale:
                                     Image imgGrayBmp = Bit8To24(GetGrayscaleBitmapFromBuffer(camera.ImgWidth, camera.ImgHeight, buffer));
                                     Bitmap bmpGrayBmp = new Bitmap(imgGrayBmp);
-                                    //ts = sw.Elapsed - ts;
-                                    //Console.WriteLine(ts.ToString());
+                                    SaveImageQueue.Enqueue(new KeyValuePair<ImageInfo, Image>(temp.Key, new Bitmap(bmpGrayBmp)));
                                     camera.currentImage = bmpGrayBmp;
                                     imgGrayBmp.Dispose();
                                     camera.IsNewPhoto = true;
@@ -81,8 +256,7 @@ namespace AI_MasterControl
                                 case ColorDepth.RGB:
                                     Image imgRGBBmp = GetRGBBitmapFromBufferWithMemory(camera.ImgWidth, camera.ImgHeight, buffer);
                                     Bitmap bmpRGBBmp = new Bitmap(imgRGBBmp);
-                                    //ts = sw.Elapsed - ts;
-                                    //Console.WriteLine(ts.ToString());
+                                    SaveImageQueue.Enqueue(new KeyValuePair<ImageInfo, Image>(temp.Key, new Bitmap(bmpRGBBmp)));
                                     camera.currentImage = bmpRGBBmp;
                                     imgRGBBmp.Dispose();
                                     camera.IsNewPhoto = true;
@@ -93,16 +267,10 @@ namespace AI_MasterControl
                         }
                         else
                         {
-                            //if(camera.currentImage != null)
-                            //{
-                            //    camera.currentImage.Dispose();
-                            //}
                             Image img = GetImageInBuffer(buffer);
-                            //ts = sw.Elapsed - ts;
-                            //Console.WriteLine(ts.ToString());
                             Bitmap bmp = new Bitmap(img);
                             camera.currentImage = bmp;
-                            //img.Dispose();
+                            SaveImageQueue.Enqueue(new KeyValuePair<ImageInfo, Image>(temp.Key, new Bitmap(bmp)));
                             camera.IsNewPhoto = true;
                         }
                     }
@@ -113,9 +281,7 @@ namespace AI_MasterControl
                     //camera.IsNewPhoto = false;
                 }
                 Thread.Sleep(1);
-                //CommonHelper.Delay(1);
             }
-            //msgh("结束解析图像文件");
         }
 
         private ImageFormat GetImgbufferFormat(Byte[] buffer)
@@ -152,6 +318,35 @@ namespace AI_MasterControl
             }
             return img;
         }
+
+        #region 测试用代码
+        /*
+        //临时BMP创建流
+        public static Stream GetBMPStream(Byte[] buffer)
+        {
+            List<Byte> imgbytes = new List<Byte>();
+            imgbytes.AddRange(header8);
+            imgbytes.AddRange(buffer);
+            var temp = imgbytes.ToArray();
+            MemoryStream ms = new MemoryStream();
+            ms.Seek(0, SeekOrigin.Begin);
+            ms.Write(temp, 0, temp.Length);
+            //ms.Write(buffer,0,buffer.Length);
+            return ms;
+        }
+        public Bitmap BytesToImg(Int32 Width, Int32 Height, byte[] bytes)
+        {
+
+            Bitmap bmp = new Bitmap(Width, Height, PixelFormat.Format8bppIndexed);
+            BitmapData bd = bmp.LockBits(new Rectangle(0, 0, Width, Height), ImageLockMode.ReadWrite, PixelFormat.Format8bppIndexed);
+            IntPtr ptr = bd.Scan0;
+            int bmpLen = bd.Stride * bd.Height;
+            Marshal.Copy(bytes, 0, ptr, bmpLen);
+            bmp.UnlockBits(bd);
+            return bmp;
+        }
+        */
+        #endregion
 
         //BMP RGB内存拷贝法
         public static Bitmap GetRGBBitmapFromBufferWithMemory(Int32 Width, Int32 Height, Byte[] buffer)
@@ -242,37 +437,5 @@ namespace AI_MasterControl
             bmp24.UnlockBits(data24);
             return bmp24;
         }
-
-        /// <summary>
-        /// 指针法
-        /// </summary>
-        /// <param name="curBitmap"></param>
-        //public static unsafe Bitmap GetRGBBitmapFromBuffer(Int32 width,Int32 height,Byte[] buffer)
-        //{
-        //    Bitmap bmp = new Bitmap(width, height, PixelFormat.Format24bppRgb);
-        //    Rectangle rect = new Rectangle(0, 0, width, height);
-        //    BitmapData bmpData = bmp.LockBits(rect, System.Drawing.Imaging.ImageLockMode.WriteOnly, PixelFormat.Format24bppRgb);//curBitmap.PixelFormat
-        //    byte temp = 0;
-        //    int w = bmpData.Width;
-        //    int h = bmpData.Height;
-        //    int offset = bmpData.Stride - bmpData.Width * 3;//每行读取到最后“有用”数据时，跳过未使用空间XX
-        //    byte* ptr = (byte*)(bmpData.Scan0);
-        //    for (int i = 0; i < h; i++)
-        //    {
-        //        for (int j = 0; j < w; j++)
-        //        {
-        //            ptr[0] = buffer[temp];
-        //            ptr[1] = buffer[temp + 1];
-        //            ptr[2] = buffer[temp + 2];
-        //            ptr +=3;
-        //            temp += 3;
-        //            //ptr[temp] = buffer[temp++];
-        //            //ptr[temp] = buffer[temp++];
-        //        }
-        //        ptr += offset;
-        //    }
-        //    bmp.UnlockBits(bmpData);
-        //    return bmp;
-        //}
     }
 }

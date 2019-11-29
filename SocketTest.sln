@@ -23,6 +23,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AI-MasterDevExpressVersion"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OverlayPackage", "OverlayPackage\OverlayPackage.csproj", "{B15281B6-8A74-494B-9914-B9CDEFBBA5DF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AsynTest", "AsynTest\AsynTest.csproj", "{C1830DE6-2C8A-48EB-B798-28E7E392B14D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TcpTest", "TcpTest\TcpTest.csproj", "{B08EB498-0744-4498-BEC6-0724A895148A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,6 +73,14 @@ Global
 		{B15281B6-8A74-494B-9914-B9CDEFBBA5DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B15281B6-8A74-494B-9914-B9CDEFBBA5DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B15281B6-8A74-494B-9914-B9CDEFBBA5DF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C1830DE6-2C8A-48EB-B798-28E7E392B14D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C1830DE6-2C8A-48EB-B798-28E7E392B14D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C1830DE6-2C8A-48EB-B798-28E7E392B14D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C1830DE6-2C8A-48EB-B798-28E7E392B14D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B08EB498-0744-4498-BEC6-0724A895148A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B08EB498-0744-4498-BEC6-0724A895148A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B08EB498-0744-4498-BEC6-0724A895148A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B08EB498-0744-4498-BEC6-0724A895148A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

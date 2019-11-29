@@ -55,6 +55,8 @@
     <Compile Include="BitmapHelper.cs" />
     <Compile Include="CameraInfo.cs" />
     <Compile Include="CameraSettings.cs" />
+    <Compile Include="ImageInfo.cs" />
+    <Compile Include="PCONLAN_TCP.cs" />
     <Compile Include="CommonHelper.cs" />
     <Compile Include="Element\ElementArc.cs" />
     <Compile Include="Element\ElementArrow.cs" />
@@ -75,6 +77,12 @@
     <Compile Include="UdpHelper.cs" />
     <Compile Include="UdpPackageHelper.cs" />
     <Compile Include="VCZcamera.cs" />
+    <Compile Include="WriteParameter.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="WriteParameter.Designer.cs">
+      <DependentUpon>WriteParameter.cs</DependentUpon>
+    </Compile>
     <Service Include="{94E38DFF-614B-4cbd-B67C-F211BB35CE8B}" />
   </ItemGroup>
   <ItemGroup>
@@ -87,6 +95,9 @@
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="WriteParameter.resx">
+      <DependentUpon>WriteParameter.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

@@ -46,15 +46,18 @@ namespace AI_MasterControl
                 camset.CameraIP = tbIPaddress.Text;
                 camset.PreString = tbFolder.Text + @"\" + tbPreStr.Text;
                 camset.IsDistinguished = cbDistinguish.Checked;
-                if (!(Directory.Exists(tbFolder.Text + @"\" + @"OK\") && Directory.Exists(tbFolder.Text + @"\" + @"NG\")))
+                if (!(Directory.Exists(tbFolder.Text + @"\" + @"OK\") && Directory.Exists(tbFolder.Text + @"\" + @"NG\") && Directory.Exists(tbFolder.Text + @"\WARNING\")))
                 {
                     if (cbDistinguishOK.Checked)
                         Directory.CreateDirectory(tbFolder.Text + @"\" + @"OK\");
                     if (cbDistinguishNG.Checked)
                         Directory.CreateDirectory(tbFolder.Text + @"\" + @"NG\");
+                    if (cbDistinguishWarning.Checked)
+                        Directory.CreateDirectory(tbFolder.Text + @"\" + @"WARNING\");
                 }
                 camset.PreStringOK = tbFolder.Text + @"\" + @"OK\" + tbPreStr.Text;
                 camset.PreStringNG = tbFolder.Text + @"\" + @"NG\" + tbPreStr.Text;
+                camset.PreStringWarning = tbFolder.Text + @"\" + @"WARNING\" + tbPreStr.Text;
                 try
                 {
                     camset.Cmos_Width = Convert.ToInt32(tbCmosWidth.Text);
@@ -77,6 +80,7 @@ namespace AI_MasterControl
                 camset.IsRestore = cbRestorSize.Checked;
                 camset.IsSaveNG = cbDistinguishNG.Checked;
                 camset.IsSaveOK = cbDistinguishOK.Checked;
+                camset.IsSaveWarning = cbDistinguishWarning.Checked;
                 camset.InfoColor = pictureBox1.BackColor;
                 camset.RotateType = rotate;
                 this.DialogResult = DialogResult.OK;
@@ -117,6 +121,7 @@ namespace AI_MasterControl
             cbDistinguish.Checked = camset.IsDistinguished;
             cbDistinguishNG.Checked = camset.IsSaveNG;
             cbDistinguishOK.Checked = camset.IsSaveOK;
+            cbDistinguishWarning.Checked = camset.IsSaveWarning;
             nudPort.Value = camset.Port;
             pictureBox1.BackColor = camset.InfoColor;
             switch (camset.RotateType)

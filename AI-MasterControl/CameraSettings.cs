@@ -29,6 +29,7 @@ namespace AI_MasterControl
         private Color _infoColor;
         private String _preStringOK;
         private String _preStringNG;
+        private String _preStringWarning;
 
         #region 封装字段
         /// <summary>
@@ -359,6 +360,19 @@ namespace AI_MasterControl
                 _isSaveWarning = value;
             }
         }
+
+        public string PreStringWarning
+        {
+            get
+            {
+                return _preStringWarning;
+            }
+
+            set
+            {
+                _preStringWarning = value;
+            }
+        }
         #endregion
         /// <summary>
         /// 默认初始化函数
@@ -388,6 +402,7 @@ namespace AI_MasterControl
             IsDistinguished = false;
             PreStringNG = "";
             PreStringOK = "";
+            PreStringWarning = "";
             IsSaveNG = false;
             IsSaveOK = false;
             IsSaveWarning = false;
@@ -416,7 +431,7 @@ namespace AI_MasterControl
         /// <param name="isSaveNG">是否保存NG照片（区分OK/NG时有效）</param>
         /// <param name="rft">照片显示旋转角度</param>
         /// <param name="infoColor">照片水印信息颜色</param>
-        public CameraSettings(Int32 x, Int32 y, Int32 width, Int32 height, Int32 cmos_width, Int32 cmos_height, String ip, Int32 port, String preStr, String preStrOK,String preStrNG,Boolean isIpaddress,Boolean isCameraname,Boolean isDatetime, Boolean isRestor, Boolean isAutoSave, Boolean isDistinguished, Boolean isSaveOK,Boolean isSaveNG,Boolean isSaveWarning,RotateFlipType rft, Color infoColor)
+        public CameraSettings(Int32 x, Int32 y, Int32 width, Int32 height, Int32 cmos_width, Int32 cmos_height, String ip, Int32 port, String preStr, String preStrOK,String preStrNG,String preStrWarning,Boolean isIpaddress,Boolean isCameraname,Boolean isDatetime, Boolean isRestor, Boolean isAutoSave, Boolean isDistinguished, Boolean isSaveOK,Boolean isSaveNG,Boolean isSaveWarning,RotateFlipType rft, Color infoColor)
         {
             ControlX = x;
             ControlY = y;
@@ -429,6 +444,7 @@ namespace AI_MasterControl
             PreString = preStr;
             PreStringOK = preStrOK;
             PreStringNG = preStrNG;
+            PreStringWarning = preStrWarning;
             IsRestore = isRestor;
             IsAutoSaving = isAutoSave;
             RotateType = rft;
@@ -439,6 +455,7 @@ namespace AI_MasterControl
             IsDistinguished = isDistinguished;
             IsSaveOK = isSaveOK;
             IsSaveNG = isSaveNG;
+            IsSaveWarning = isSaveWarning;
         }
     }
 }

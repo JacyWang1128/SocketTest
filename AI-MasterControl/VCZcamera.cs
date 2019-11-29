@@ -25,7 +25,7 @@ namespace AI_MasterControl
         #region 声明
         //子类声明
         private MessageHandle msg;
-        private UdpHelper uh;
+        public UdpHelper uh;
         private UdpPackageHelper uph;
         private BitmapHelper bh;
 
@@ -48,6 +48,7 @@ namespace AI_MasterControl
         private Int32 _imgStatus;//照片状态 0 Good 1 Bad 2 Warning
         private String _pathOK;
         private String _pathNG;
+        private String _pathWarning;
         public RotateFlipType rotate;
         public ImgFormat format;
         public ColorDepth colorDepth;
@@ -360,12 +361,24 @@ namespace AI_MasterControl
                 _imgStatus = value;
             }
         }
+
+        public string PathWarning
+        {
+            get
+            {
+                return _pathWarning;
+            }
+
+            set
+            {
+                _pathWarning = value;
+            }
+        }
         #endregion
         #endregion
 
         Color[] EleColors = { Color.FromArgb(255, 0, 0), Color.FromArgb(0, 255, 0), Color.FromArgb(255, 0, 255), Color.FromArgb(255, 255, 58) };
-        private Queue<List<Element.Element>> ElementQueue;
-        private Queue<Byte[]> ElementBuffer;
+        private Queue<Element.Element[]> ElementQueue;
         public VCZcamera(MessageHandle msgh, PictureBox pl, FilePreEventHandler fpeh)
         {
             InitCameraInfo();
@@ -377,12 +390,10 @@ namespace AI_MasterControl
             showImagePanel = pl;
             lstElement = new List<Element.Element>();
 
-            ElementQueue = new Queue<List<Element.Element>>();
+            ElementQueue = new Queue<Element.Element[]>();
             uph.ElementQuee = ElementQueue;
-            ElementBuffer = new Queue<byte[]>();
-            uph.ElementBufferQueue = ElementBuffer;
         }
-
+        
         public void SetCMOS(Int32 width, Int32 height)
         {
             CmosWidth = width;
@@ -449,105 +460,120 @@ namespace AI_MasterControl
             camInfo.GoodCount = GoodCount.ToString();
             camInfo.BadCount = BadCount.ToString();
             camInfo.CycleTime = (Convert.ToDouble(CycleTime) / 1000).ToString();
-            
+
             if (currentImage != null)
             {
-                Bitmap showImage = new Bitmap(currentImage);
+                Bitmap showImage;
+                lock (currentImage)
+                {
+                    showImage = new Bitmap(currentImage);
+                }
                 showImage.RotateFlip(rotate);
 
                 #region 绘制Overlay元素
 
-                List<Element.Element> temp = new List<Element.Element>(ElementQueue.Dequeue());
-                
-                using (Bitmap bmp = new Bitmap(showImage.Width, showImage.Height))
+                if (ElementQueue.Count > 0)
                 {
-                    using (Graphics ele = Graphics.FromImage(bmp))
+                    //List<Element.Element> temp = new List<Element.Element>(ElementQueue.Dequeue());
+
+                    var temp = ElementQueue.Dequeue();
+                    if(ElementQueue.Count > 0)
                     {
-                        ele.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
-                        //ele.Clear(Color.Transparent);
-                        foreach (var item in temp)
+                        lock (ElementQueue)
                         {
-                            if (item != null)
-                            {
-                                switch (item.type)
-                                {
-
-                                    case 1://点
-                                        ele.DrawEllipse(new Pen(EleColors[(Int32)item.color]),
-                                            item.x / ComprehensionRate,
-                                            item.y / ComprehensionRate,
-                                            1,
-                                            1);
-                                        break;
-                                    case 2://线
-                                        ele.DrawLine(new Pen(EleColors[(Int32)item.color]),
-                                            (item as ElementLine).x / ComprehensionRate,
-                                            (item as ElementLine).y / ComprehensionRate,
-                                            (item as ElementLine).dx / ComprehensionRate,
-                                            (item as ElementLine).dy / ComprehensionRate);
-                                        break;
-                                    case 3://圆
-                                        ele.DrawEllipse(new Pen(EleColors[(Int32)item.color]),
-                                            ((item as ElementEllipse).x - (item as ElementEllipse).rx) / ComprehensionRate,
-                                            ((item as ElementEllipse).y - (item as ElementEllipse).ry) / ComprehensionRate,
-                                            2 * (item as ElementEllipse).rx / ComprehensionRate,
-                                            2 * (item as ElementEllipse).ry / ComprehensionRate);
-                                        break;
-                                    case 4://椭圆
-                                        ele.DrawEllipse(new Pen(EleColors[(Int32)item.color]),
-                                            ((item as ElementEllipse).x - (item as ElementEllipse).rx) / ComprehensionRate,
-                                            ((item as ElementEllipse).y - (item as ElementEllipse).ry) / ComprehensionRate,
-                                            2 * (item as ElementEllipse).rx / ComprehensionRate,
-                                            2 * (item as ElementEllipse).ry / ComprehensionRate);
-                                        break;
-                                    case 5://矩形
-                                        ele.DrawRectangle(new Pen(EleColors[(Int32)item.color]),
-                                            (item as ElementWindow).x / ComprehensionRate,
-                                            (item as ElementWindow).y / ComprehensionRate,
-                                            (item as ElementWindow).dx / ComprehensionRate,
-                                            (item as ElementWindow).dy / ComprehensionRate);
-                                        break;
-                                    case 6://字符串
-                                        ele.DrawString((item as ElementString).content,
-                                            new Font("Thaoma", (item as ElementString).fontsize / ComprehensionRate, GraphicsUnit.Pixel), new SolidBrush(EleColors[(Int32)item.color]),
-                                            (item as ElementString).x / ComprehensionRate,
-                                            (item as ElementString).y / ComprehensionRate);
-                                        break;
-                                    case 7://图案pattern
-                                        break;
-                                    case 8://圆弧
-                                        ele.DrawArc(new Pen(EleColors[(Int32)item.color]),
-                                            (item as ElementArc).x / ComprehensionRate,
-                                            (item as ElementArc).y / ComprehensionRate,
-                                            (item as ElementArc).rx / ComprehensionRate,
-                                            (item as ElementArc).ry / ComprehensionRate,
-                                            (item as ElementArc).Start_angle,
-                                            (item as ElementArc).End_anlge);
-                                        break;
-                                    case 9://箭头
-                                        Pen arrowPen = new Pen(EleColors[(Int32)item.color]);
-                                        arrowPen.Width = 4;
-                                        arrowPen.EndCap = System.Drawing.Drawing2D.LineCap.ArrowAnchor;
-                                        ele.DrawLine(arrowPen,
-                                            (item as ElementArrow).x / ComprehensionRate,
-                                            (item as ElementArrow).y / ComprehensionRate,
-                                            (item as ElementArrow).dx / ComprehensionRate,
-                                            (item as ElementArrow).dy / ComprehensionRate);
-
-                                        break;
-                                    default:
-                                        break;
-                                }
-                                ele.Flush(System.Drawing.Drawing2D.FlushIntention.Flush);
-                            }
+                            ElementQueue.Clear();
                         }
                     }
-
-                    using (Graphics g = Graphics.FromImage(showImage)/*showImagePanel.CreateGraphics()*/)
+                    using (Bitmap bmp = new Bitmap(showImage.Width, showImage.Height))
                     {
-                        g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-                        g.DrawImage(bmp, 0, 0);
-                        g.Flush(System.Drawing.Drawing2D.FlushIntention.Flush);
+                        using (Graphics ele = Graphics.FromImage(bmp))
+                        {
+                            ele.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
+                            //ele.Clear(Color.Transparent);
+                            foreach (var item in temp)
+                            {
+                                if (item != null)
+                                {
+                                    switch (item.type)
+                                    {
+
+                                        case 1://点
+                                            ele.DrawEllipse(new Pen(EleColors[(Int32)item.color]),
+                                                item.x / ComprehensionRate,
+                                                item.y / ComprehensionRate,
+                                                1,
+                                                1);
+                                            break;
+                                        case 2://线
+                                            ele.DrawLine(new Pen(EleColors[(Int32)item.color]),
+                                                (item as ElementLine).x / ComprehensionRate,
+                                                (item as ElementLine).y / ComprehensionRate,
+                                                (item as ElementLine).dx / ComprehensionRate,
+                                                (item as ElementLine).dy / ComprehensionRate);
+                                            break;
+                                        case 3://圆
+                                            ele.DrawEllipse(new Pen(EleColors[(Int32)item.color]),
+                                                ((item as ElementEllipse).x - (item as ElementEllipse).rx) / ComprehensionRate,
+                                                ((item as ElementEllipse).y - (item as ElementEllipse).ry) / ComprehensionRate,
+                                                2 * (item as ElementEllipse).rx / ComprehensionRate,
+                                                2 * (item as ElementEllipse).ry / ComprehensionRate);
+                                            break;
+                                        case 4://椭圆
+                                            ele.DrawEllipse(new Pen(EleColors[(Int32)item.color]),
+                                                ((item as ElementEllipse).x - (item as ElementEllipse).rx) / ComprehensionRate,
+                                                ((item as ElementEllipse).y - (item as ElementEllipse).ry) / ComprehensionRate,
+                                                2 * (item as ElementEllipse).rx / ComprehensionRate,
+                                                2 * (item as ElementEllipse).ry / ComprehensionRate);
+                                            break;
+                                        case 5://矩形
+                                            ele.DrawRectangle(new Pen(EleColors[(Int32)item.color]),
+                                                (item as ElementWindow).x / ComprehensionRate,
+                                                (item as ElementWindow).y / ComprehensionRate,
+                                                (item as ElementWindow).dx / ComprehensionRate,
+                                                (item as ElementWindow).dy / ComprehensionRate);
+                                            break;
+                                        case 6://字符串
+                                            ele.DrawString((item as ElementString).content,
+                                                new Font("Thaoma", (item as ElementString).fontsize / ComprehensionRate, GraphicsUnit.Pixel), new SolidBrush(EleColors[(Int32)item.color]),
+                                                (item as ElementString).x / ComprehensionRate,
+                                                (item as ElementString).y / ComprehensionRate);
+                                            break;
+                                        case 7://图案pattern
+                                            break;
+                                        case 8://圆弧
+                                            ele.DrawArc(new Pen(EleColors[(Int32)item.color]),
+                                                (item as ElementArc).x / ComprehensionRate,
+                                                (item as ElementArc).y / ComprehensionRate,
+                                                (item as ElementArc).rx / ComprehensionRate,
+                                                (item as ElementArc).ry / ComprehensionRate,
+                                                (item as ElementArc).Start_angle,
+                                                (item as ElementArc).End_anlge);
+                                            break;
+                                        case 9://箭头
+                                            Pen arrowPen = new Pen(EleColors[(Int32)item.color]);
+                                            arrowPen.Width = 4;
+                                            arrowPen.EndCap = System.Drawing.Drawing2D.LineCap.ArrowAnchor;
+                                            ele.DrawLine(arrowPen,
+                                                (item as ElementArrow).x / ComprehensionRate,
+                                                (item as ElementArrow).y / ComprehensionRate,
+                                                (item as ElementArrow).dx / ComprehensionRate,
+                                                (item as ElementArrow).dy / ComprehensionRate);
+
+                                            break;
+                                        default:
+                                            break;
+                                    }
+                                    ele.Flush(System.Drawing.Drawing2D.FlushIntention.Flush);
+                                }
+                            }
+                        }
+
+                        using (Graphics g = Graphics.FromImage(showImage)/*showImagePanel.CreateGraphics()*/)
+                        {
+                            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                            g.DrawImage(bmp, 0, 0);
+                            g.Flush(System.Drawing.Drawing2D.FlushIntention.Flush);
+                        }
                     }
                 }
 
@@ -555,7 +581,7 @@ namespace AI_MasterControl
 
                 try
                 {
-                   
+
                     showImagePanel.Image = showImage;
                 }
                 catch (Exception)
@@ -563,6 +589,8 @@ namespace AI_MasterControl
 
                 }
 
+                /*
+                 * 
                 #region 保存图片模块
                 if (IsSaveing)
                 {
@@ -588,6 +616,7 @@ namespace AI_MasterControl
                         if (IsRestore)
                         {
                             Image img = GetSourceImg();
+
                             #region 原代码
 
                             //相片状态
@@ -624,12 +653,18 @@ namespace AI_MasterControl
 
                             switch (ImgStatus)
                             {
-                                case -2://Warning
-                                    //TODO
-                                    //
-                                    //
-                                    //
-                                    //
+                                case -2:
+                                    if (IsSaveWarning)
+                                    {
+                                        img.Save(PathWarning.ToString() + "." + format, saveformat);
+                                    }
+                                    else
+                                    {
+                                        if ((!IsSaveOK) && (!IsSaveNG))
+                                        {
+                                            img.Save(FilePrefix.ToString() + "." + format, saveformat);
+                                        }
+                                    }
                                     break;
                                 case -1://NG
                                     if (IsSaveNG)
@@ -638,7 +673,7 @@ namespace AI_MasterControl
                                     }
                                     else
                                     {
-                                        if (!IsSaveOK && !IsSaveWarning)
+                                        if ((!IsSaveOK) && (!IsSaveWarning))
                                         {
                                             img.Save(FilePrefix.ToString() + "." + format, saveformat);
                                         }
@@ -651,7 +686,7 @@ namespace AI_MasterControl
                                     }
                                     else
                                     {
-                                        if (!IsSaveNG && !IsSaveWarning)
+                                        if ((!IsSaveNG) && (!IsSaveWarning))
                                         {
                                             img.Save(FilePrefix.ToString() + "." + format, saveformat);
                                         }
@@ -715,12 +750,51 @@ namespace AI_MasterControl
                             //        }
                             //    }
                             //}
-
+                            //相片状态
+                            //if (IsOK)//OK
+                            //{
+                            //    if (IsSaveOK)
+                            //    {
+                            //        currentImage.Save(PathOK.ToString() + "." + format, saveformat);
+                            //    }
+                            //    else
+                            //    {
+                            //        if (!IsSaveNG)
+                            //        {
+                            //            currentImage.Save(FilePrefix.ToString() + "." + format, saveformat);
+                            //        }
+                            //    }
+                            //}
+                            //else     //NG
+                            //{
+                            //    if (IsSaveNG)
+                            //    {
+                            //        currentImage.Save(PathNG.ToString() + "." + format, saveformat);
+                            //    }
+                            //    else
+                            //    {
+                            //        if (!IsSaveOK)
+                            //        {
+                            //            currentImage.Save(FilePrefix.ToString() + "." + format, saveformat);
+                            //        }
+                            //    }
+                            //}
                             #endregion
 
                             switch (ImgStatus)
                             {
                                 case -2:
+                                    if (IsSaveWarning)
+                                    {
+                                        currentImage.Save(PathWarning.ToString() + "." + format, saveformat);
+                                    }
+                                    else
+                                    {
+                                        if ((!IsSaveOK) && (!IsSaveNG))
+                                        {
+                                            currentImage.Save(FilePrefix.ToString() + "." + format, saveformat);
+                                        }
+                                    }
                                     break;
                                 case -1:
                                     if (IsSaveNG)
@@ -729,7 +803,7 @@ namespace AI_MasterControl
                                     }
                                     else
                                     {
-                                        if (!IsSaveOK)
+                                        if (((!IsSaveOK)) && ((!IsSaveWarning)))
                                         {
                                             currentImage.Save(FilePrefix.ToString() + "." + format, saveformat);
                                         }
@@ -742,7 +816,7 @@ namespace AI_MasterControl
                                     }
                                     else
                                     {
-                                        if (!IsSaveNG)
+                                        if ((!IsSaveNG) && (!IsSaveWarning))
                                         {
                                             currentImage.Save(FilePrefix.ToString() + "." + format, saveformat);
                                         }
@@ -752,35 +826,7 @@ namespace AI_MasterControl
                                     break;
                             }
 
-                            //相片状态
-                            if (IsOK)//OK
-                            {
-                                if (IsSaveOK)
-                                {
-                                    currentImage.Save(PathOK.ToString() + "." + format, saveformat);
-                                }
-                                else
-                                {
-                                    if (!IsSaveNG)
-                                    {
-                                        currentImage.Save(FilePrefix.ToString() + "." + format, saveformat);
-                                    }
-                                }
-                            }
-                            else     //NG
-                            {
-                                if (IsSaveNG)
-                                {
-                                    currentImage.Save(PathNG.ToString() + "." + format, saveformat);
-                                }
-                                else
-                                {
-                                    if (!IsSaveOK)
-                                    {
-                                        currentImage.Save(FilePrefix.ToString() + "." + format, saveformat);
-                                    }
-                                }
-                            }
+                            
                             //currentImage.Save(FilePrefix + "_" + count++.ToString() + "." + format, saveformat);
                             //bmp.Dispose();
                         }
@@ -789,10 +835,20 @@ namespace AI_MasterControl
                     {
                         LoggHelper.WriteLog("图像显示异常", ex);
                     }
-                    #endregion
+                    
+                
+                    
                 }
+                #endregion
+                
+                */
                 //showImagePanel.Image = GetSourceImg();
             }
+        }
+
+        public void GetFilePre()
+        {
+            getFilePre();
         }
 
         public void InitCameraInfo()
@@ -844,14 +900,29 @@ namespace AI_MasterControl
             VCZcameraInfo["format"] = format.ToString();
         }
 
-        public Image GetSourceImg()
+        public Image GetSourceImg(Image img = null)
         {
             if (CmosHeight < 1 || CmosWidth < 1)
             {
-                return new Bitmap(currentImage);
+                if(img == null)
+                {
+                    return new Bitmap(currentImage);
+                }
+                else
+                {
+                    return new Bitmap(img);
+                }
             }
             Bitmap bmp;
-            Bitmap now = new Bitmap(currentImage);
+            Bitmap now;
+            if (img == null)
+            {
+                now = new Bitmap(currentImage);
+            }
+            else
+            {
+                now = new Bitmap(img);
+            }
             switch (ImgResolution)
             {
                 case 1:

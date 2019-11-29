@@ -73,6 +73,7 @@
             this.label4 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
+            this.cbDistinguishWarning = new System.Windows.Forms.CheckBox();
             this.panel2.SuspendLayout();
             this.groupBox4.SuspendLayout();
             this.groupBox7.SuspendLayout();
@@ -262,6 +263,7 @@
             // 
             this.groupBox6.AutoSize = true;
             this.groupBox6.BackColor = System.Drawing.Color.Transparent;
+            this.groupBox6.Controls.Add(this.cbDistinguishWarning);
             this.groupBox6.Controls.Add(this.btSelectFolder);
             this.groupBox6.Controls.Add(this.tbFolder);
             this.groupBox6.Controls.Add(this.cbRestorSize);
@@ -565,6 +567,16 @@
             this.label2.TabIndex = 0;
             this.label2.Text = "横（X）：";
             // 
+            // cbDistinguishWarning
+            // 
+            this.cbDistinguishWarning.AutoSize = true;
+            this.cbDistinguishWarning.Location = new System.Drawing.Point(161, 76);
+            this.cbDistinguishWarning.Name = "cbDistinguishWarning";
+            this.cbDistinguishWarning.Size = new System.Drawing.Size(78, 16);
+            this.cbDistinguishWarning.TabIndex = 7;
+            this.cbDistinguishWarning.Text = "存WARNING";
+            this.cbDistinguishWarning.UseVisualStyleBackColor = true;
+            // 
             // AddCamera
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -651,5 +663,6 @@
         private System.Windows.Forms.CheckBox cbDistinguishOK;
         private System.Windows.Forms.CheckBox cbDistinguishNG;
         private System.Windows.Forms.CheckBox cbDistinguish;
+        private System.Windows.Forms.CheckBox cbDistinguishWarning;
     }
 }

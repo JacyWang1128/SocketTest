@@ -141,6 +141,7 @@ namespace AI_MasterControl
         {
             camera.PathNG = GetFilePreString(cameraSetting.PreStringNG);
             camera.PathOK = GetFilePreString(cameraSetting.PreStringOK);
+            camera.PathWarning = GetFilePreString(cameraSetting.PreStringWarning);
             camera.FilePrefix = GetFilePreString(cameraSetting.PreString);
         }
 
@@ -255,6 +256,7 @@ namespace AI_MasterControl
             this.camera.IsDistinguish = setting.IsDistinguished;
             this.camera.IsSaveNG = setting.IsSaveNG;
             this.camera.IsSaveOK = setting.IsSaveOK;
+            this.camera.IsSaveWarning = setting.IsSaveWarning;
             if (!camera.isReceiving)
                 camera.Start();
         }
@@ -348,6 +350,7 @@ namespace AI_MasterControl
             if (camera.isReceiving)
             {
                 camera.Stop();
+                //camera.uh.test();
             }
             else
             {
