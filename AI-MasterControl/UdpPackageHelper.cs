@@ -417,14 +417,20 @@ namespace AI_MasterControl
                             startpostion += 10 + step * 2;
                             break;
                         case 8:
+                            Int32 x = (Int32)BitConverter.ToInt16(package, startpostion + 4);
+                            Int32 y = (Int32)BitConverter.ToInt16(package, startpostion + 6);
+                            Int32 startx = (Int32)BitConverter.ToInt16(package, startpostion + 12);
+                            Int32 starty = (Int32)BitConverter.ToInt16(package, startpostion + 14);
+                            Int32 endx = (Int32)BitConverter.ToInt16(package, startpostion + 16);
+                            Int32 endy = (Int32)BitConverter.ToInt16(package, startpostion + 18);
                             res.Add(new ElementArc((Int32)type,
-                                (Int32)BitConverter.ToInt16(package, startpostion + 4),
-                                (Int32)BitConverter.ToInt16(package, startpostion + 6),
+                                x,
+                                y,
                                 (ElementColor)(Int32)BitConverter.ToInt16(package, startpostion + 2),
                                 (Int32)BitConverter.ToInt16(package, startpostion + 8),
                                 (Int32)BitConverter.ToInt16(package, startpostion + 10),
-                                0f,
-                                360f));
+                                GetAngleInDegree(startx - x,starty - y),
+                                GetAngleInDegree(endx - x,endy - y)));
                             startpostion += 20;
                             break;
                         case 9:
@@ -451,6 +457,53 @@ namespace AI_MasterControl
 
             }
             return res;
+        }
+
+        private double GetAngleInDegree(Int32 x, Int32 y)
+        {
+            double temp;
+            double degree = 0;
+            double PI = 3.1415926;
+            if (0 == y && 0 < x)
+            {
+                degree = 0;
+            }
+            else if (0 > y && 0 < x)
+            {
+                temp = Math.Abs((double)((double)y / (double)x));
+                degree = Math.Atan(temp);
+                degree = 2 * PI - degree;
+            }
+            else if (0 < y && 0 == x)
+            {
+                degree = PI/2;
+            }
+            else if (0 > y && 0 > x)
+            {
+                temp = Math.Abs((double)((double)y / (double)x));
+                degree = Math.Atan(temp);
+                degree += PI;
+            }
+            else if (0 == y && 0 > x)
+            {
+                degree = PI;
+            }
+            else if (0 < y && 0 > x) //y+x-
+            {
+                temp = Math.Abs((double)((double)y / (double)x));
+                degree = Math.Atan(temp);
+                degree = PI - degree;
+            }
+            else if (0 < y && 0 == x)
+            {
+                degree = PI/2;
+            }
+            else if (0 < y && 0 < x)
+            {
+                temp = Math.Abs(((double)((double)y / (double)x)));
+                degree = Math.Atan(temp);
+            }
+            return degree *180 / PI;
         }
     }
 }

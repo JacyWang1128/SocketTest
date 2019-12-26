@@ -13,20 +13,25 @@ namespace AI_MasterControl
 
         public bool connect()
         {
-            const int EYEVISION_PCONLAN_TCP_PORT = 5953;
-            const string EYEVISION_IP = "127.0.0.1";
-            return connect(EYEVISION_IP, EYEVISION_PCONLAN_TCP_PORT);
+            const int AIMASTER_PCONLAN_TCP_PORT = 5953;
+            const string AIMASTER_IP = "127.0.0.1";
+            return connect(AIMASTER_IP, AIMASTER_PCONLAN_TCP_PORT);
         }
 
-        public bool connect(string eyeVisionIP, int eyeVisionPort)
+        /// <summary>
+        /// 连接Tcp服务器
+        /// </summary>
+        /// <param name="AIMasterIP">服务器IP地址</param>
+        /// <param name="AIMasterPort">服务器端口号</param>
+        /// <returns>true：连接成功；false：连接失败</returns>
+        public bool connect(string AIMasterIP, int AIMasterPort)
         {
             try
             {
-                m_client = new TcpClient(eyeVisionIP, eyeVisionPort);
+                m_client = new TcpClient(AIMasterIP, AIMasterPort);
                 m_nwStream = m_client.GetStream();
                 m_nwStream.ReadTimeout = 2000;
             }
-
             catch (Exception e)
             {
                 m_lastError = e.ToString();
@@ -35,6 +40,10 @@ namespace AI_MasterControl
             return true;
         }
 
+        /// <summary>
+        /// 断开连接
+        /// </summary>
+        /// <returns>true：断开连接；false：断开出错</returns>
         public bool disconnect()
         {
             try
@@ -50,57 +59,80 @@ namespace AI_MasterControl
             }
         }
 
-        //public bool start()
-        //{
-        //    string message = "#002#";
-        //    return communicate_extended_ack(message);
-        //}
+        /// <summary>
+        /// 获得Tcp连接状态
+        /// </summary>
+        /// <returns>true：已连接；false：未连接</returns>
+        public Boolean ConnectStatus()
+        {
+            try
+            {
+                return m_client.Connected;
+            }
+            catch (Exception)
+            {
 
-        //public bool execute_cycles(int i)
-        //{
-        //    string message = "#028" + i + "#";
-        //    return communicate_extended_ack(message);
-        //}
+                return false;
+            }
+        }
 
-        //public bool stop()
-        //{
-        //    string message = "#003#";
-        //    return communicate_extended_ack(message);
-        //}
+        public String start()
+        {
+            string message = "#002#";
+            return communicate_extended_ack(message);
+        }
 
-        //public bool stop_immediately()
-        //{
-        //    string message = "#004#";
-        //    return communicate_extended_ack(message);
-        //}
-        //public bool ping()
-        //{
-        //    string message = "#008#";
-        //    return communicate_extended_ack(message);
-        //}
+        public String execute_cycles(int i)
+        {
+            string message = "#028" + i + "#";
+            return communicate_extended_ack(message);
+        }
 
-        //public bool load_image(string imagepath)
-        //{
-        //    string message = "#031" + imagepath + "#";
-        //    return communicate_extended_ack(message);
-        //}
+        public String stop()
+        {
+            string message = "#003#";
+            return communicate_extended_ack(message);
+        }
 
-        //public bool exit_eyevision()
-        //{
-        //    string message = "#999#";
-        //    return communicate_normal_ack(message);
-        //}
+        public String stop_immediately()
+        {
+            string message = "#004#";
+            return communicate_extended_ack(message);
+        }
+        public String ping()
+        {
+            string message = "#008#";
+            return communicate_extended_ack(message);
+        }
 
-        //public bool switchProgram(string programname)
-        //{
-        //    string message = "#001" + programname + "#";
-        //    return communicate_extended_ack(message);
-        //}
+        public String load_image(string imagepath)
+        {
+            string message = "#031" + imagepath + "#";
+            return communicate_extended_ack(message);
+        }
+
+        public String exit_eyevision()
+        {
+            string message = "#999#";
+            return communicate_extended_ack(message);
+        }
+
+        public String switchProgram(string programname)
+        {
+            string message = "#001" + programname + "#";
+            return communicate_extended_ack(message);
+        }
 
         public string getLastError()
         {
             return m_lastError;
         }
+
+        /// <summary>
+        /// 发送指令
+        /// </summary>
+        /// <param name="message">指令内容</param>
+        /// <returns>服务器返回（若报错，返回报错内容）</returns>
         public String communicate_extended_ack(string message)
         {
             try
@@ -115,7 +147,7 @@ namespace AI_MasterControl
             catch (Exception e)
             {
                 m_lastError = e.ToString();
-                return "";
+                return m_lastError;
             }
 
             //---read back the text---
@@ -130,101 +162,14 @@ namespace AI_MasterControl
                     received += Encoding.ASCII.GetString(bytesToRead, 0, bytesRead);
                 }
                 Console.WriteLine("Received : " + received);
-                if (received == "OKcompleted")
-                {
-                    return received;
-                }
-                else
-                {
-                    m_lastError = received;
-                    return received;
-                }
-
-            }
-            catch (Exception e)
-            {
-                m_lastError = e.ToString();
-                return "";
-            }
-        }
-
-        public String communicate_withreturn_ack(string message)
-        {
-            try
-            {
-                m_lastError = "";
-
-                byte[] bytesToSend = ASCIIEncoding.ASCII.GetBytes(message);
-
-                //---send the text---
-                Console.WriteLine("Sending : " + message);
-                m_nwStream.Write(bytesToSend, 0, bytesToSend.Length);
-            }
-            catch (Exception e)
-            {
-                m_lastError = e.ToString();
-                return "Error!";
-            }
-
-            //---read back the text---
-            try
-            {
-                int bytesRead;
-                byte[] bytesToRead = new byte[m_client.ReceiveBufferSize];
-                bytesRead = m_nwStream.Read(bytesToRead, 0, m_client.ReceiveBufferSize);
-                Console.WriteLine("Received : " + Encoding.ASCII.GetString(bytesToRead, 0, bytesRead));
-                string received = Encoding.ASCII.GetString(bytesToRead, 0, bytesRead);
                 return received;
+
             }
             catch (Exception e)
             {
                 m_lastError = e.ToString();
-                return "";
+                return m_lastError;
             }
         }
-
-        public bool communicate_normal_ack(string message)
-        {
-            try
-            {
-                m_lastError = "";
-
-                byte[] bytesToSend = ASCIIEncoding.ASCII.GetBytes(message);
-
-                //---send the text---
-                Console.WriteLine("Sending : " + message);
-                m_nwStream.Write(bytesToSend, 0, bytesToSend.Length);
-            }
-            catch (Exception e)
-            {
-                m_lastError = e.ToString();
-                return false;
-            }
-
-            //---read back the text---
-            try
-            {
-                byte[] bytesToRead = new byte[m_client.ReceiveBufferSize];
-                int bytesRead = m_nwStream.Read(bytesToRead, 0, m_client.ReceiveBufferSize);
-                Console.WriteLine("Received : " + Encoding.ASCII.GetString(bytesToRead, 0, bytesRead));
-
-                string received = Encoding.ASCII.GetString(bytesToRead, 0, bytesRead);
-                if (received != "OK")
-                {
-                    m_lastError = "received token (" + received + ") was not OK";
-                    return false;
-                }
-                else
-                {
-                    return true;
-                }
-            }
-            catch (Exception e)
-            {
-                m_lastError = e.ToString();
-                return false;
-            }
-        }
-
     }
 }

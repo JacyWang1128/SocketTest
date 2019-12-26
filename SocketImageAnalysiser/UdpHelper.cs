@@ -65,8 +65,8 @@ namespace SocketImageAnalysiser
                             {
                                 Int32 iImgNum = BitConverter.ToInt32(bytes, 4);
                                 Int16 iPackageNum = BitConverter.ToInt16(bytes, 0);
-                                var content = System.Text.Encoding.Default.GetBytes($"{iImgNum}_{iPackageNum}OK");
-                                udpClient.Send(content, content.Length, remote.Address.ToString(), remote.Port);
+                                //var content = System.Text.Encoding.Default.GetBytes($"{iImgNum}_{iPackageNum}OK");
+                                //udpClient.Send(content, content.Length, remote.Address.ToString(), remote.Port);
                                 UdpPackageBuffer.Enqueue(bytes);
                             }
                             //msgh($"收到：{iImgNum}_{iPackageNum},已回复");

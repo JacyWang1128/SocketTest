@@ -25,6 +25,7 @@ namespace AI_MasterControl
         Control originControl;
         Panel p;
         Color infoColor = Color.White;
+        public PictureBox prePb;
         public CameraSettings cameraSetting;
         public AddControlEventHandler aceh;
         public AIMaster()
@@ -80,6 +81,7 @@ namespace AI_MasterControl
             if (camera.isReceiving)
             {
                 camera.Stop();
+                camera.isReceiving = false;
                 btStartListening.Text = "开始监听";
             }
             else
@@ -291,7 +293,7 @@ namespace AI_MasterControl
             if (isAllScreen)
             {
                 if (pictureBox1.Image != null) { }
-                    e.Graphics.DrawString($"{camera.camInfo.CameraIp}  {camera.camInfo.CameraName}\r\nCycleTime:{camera.camInfo.CycleTime}ms \r\nGoodCount:{camera.camInfo.GoodCount} \r\nBadCount:{camera.camInfo.BadCount} \r\nRoi_Width:{camera.camInfo.RoiWidth}\r\nRoi_Height:{camera.camInfo.RoiHeight}\r\nRoi_X:{camera.camInfo.RoiX}\r\nRoi_Y:{camera.camInfo.RoiY}", Font, new SolidBrush(infoColor), new PointF(10, 10));
+                    e.Graphics.DrawString(camera.camInfo.CameraIp+"  "+camera.camInfo.CameraName+"\r\nCycleTime :" + camera.camInfo.CycleTime +"ms \r\nGoodCount:"+camera.camInfo.GoodCount+" \r\nBadCount:"+camera.camInfo.BadCount+" \r\nRoi_Width:"+camera.camInfo.RoiWidth+"\r\nRoi_Height:"+camera.camInfo.RoiHeight+"\r\nRoi_X:"+camera.camInfo.RoiX+"\r\nRoi_Y:"+camera.camInfo.RoiY, Font, new SolidBrush(infoColor), new PointF(10, 10));
             }
         }
 
@@ -348,13 +350,17 @@ namespace AI_MasterControl
 
         private void 开始监听ToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            Console.WriteLine("进入点击函数");
             if (camera.isReceiving)
             {
+                Console.WriteLine("正在接收，即将结束接收！");
                 camera.Stop();
+                camera.isReceiving = false;
                 //camera.uh.test();
             }
             else
             {
+                Console.WriteLine("尚未接收，即将开始接收！");
                 camera.Start();
             }
         }

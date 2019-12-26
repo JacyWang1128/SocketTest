@@ -290,7 +290,7 @@ namespace OxTo10
             Boolean isReceiving = true;
             while (isReceiving)
             {
-                Console.WriteLine($"正在监听端口：{port}");
+                //Console.WriteLine($"正在监听端口：{port}");
                 try
                 {
 
@@ -303,8 +303,8 @@ namespace OxTo10
                         Int16 iPackageNum = BitConverter.ToInt16(bytes, 0);
                         uph.UdpPackageAnalysis(bytes);
                         //Console.WriteLine($"iImgNum:{iImgNum}\tiPackageCount:{iPackageCount}\tiPackageNum:{iPackageNum}***************{iImgNum}_{iPackageNum}OK");
-                        var content = System.Text.Encoding.Default.GetBytes($"{iImgNum}_{iPackageNum}OK");
-                        udpClient.Send(content, content.Length, "192.168.3.15", 7778);
+                       // var content = System.Text.Encoding.Default.GetBytes($"{iImgNum}_{iPackageNum}OK");
+                        //udpClient.Send(content, content.Length, "192.168.3.15", 7778);
                     }
 
                     //string str = Encoding.UTF8.GetString(bytes, 0, bytes.Length);

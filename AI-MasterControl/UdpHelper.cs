@@ -65,8 +65,8 @@ namespace AI_MasterControl
 
         public void StopListening()
         {
-            s = null;
             IsReceive = false;
+            s = null;
             if (udpClient != null)
             {
                 udpClient.Close();
@@ -107,7 +107,7 @@ namespace AI_MasterControl
                             Console.WriteLine((sw.Elapsed - ts).ToString());
                             ts = sw.Elapsed;
                         }
-                        var content = System.Text.Encoding.Default.GetBytes($"{iImgNum}_{iPackageNum}OK");
+                        var content = System.Text.Encoding.Default.GetBytes(iImgNum + "_" + iPackageNum + "OK");
                         udpClient.Send(content, content.Length, remote.Address.ToString(), remote.Port);
                         tempUdpBuffer.Add(package);
                     }
@@ -121,6 +121,7 @@ namespace AI_MasterControl
         Int32 packagecount = 0;
         Int32 packageTotal = 0;
         Int32 lastPackagenum = 0;
+
         public void Receive(IAsyncResult ar)
         {
             UdpState s = ar.AsyncState as UdpState;
@@ -135,7 +136,7 @@ namespace AI_MasterControl
                     {
                         Int32 iImgNum = BitConverter.ToInt32(package, 4);
                         Int16 iPackageNum = BitConverter.ToInt16(package, 0);
-                        var content = System.Text.Encoding.Default.GetBytes($"{iImgNum}_{iPackageNum}OK");
+                        var content = System.Text.Encoding.Default.GetBytes(iImgNum+"_"+iPackageNum+"OK");
                         udpClient.Send(content, content.Length, ip.Address.ToString(), ip.Port);
                         //if (UdpPackageBuffer.Count > 10)
                         //{
@@ -176,7 +177,10 @@ namespace AI_MasterControl
 
                 camera.Stop();
                 Thread.Sleep(10);
-                camera.Start();
+                if (camera.isReceiving)
+                {
+                    camera.Start();
+                }
             }
         }
 
@@ -187,7 +191,7 @@ namespace AI_MasterControl
             while (true)
             {
                 if (udpClient != null)
-                    Console.WriteLine($"UDP状态：{udpClient.Client.Connected}");
+                    Console.WriteLine("UDP状态："+udpClient.Client.Connected);
                 Thread.Sleep(500);
             }
         }

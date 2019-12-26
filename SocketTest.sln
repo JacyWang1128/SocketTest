@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 2013
+VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocketTest", "SocketTest\SocketTest.csproj", "{025997F4-4A3B-4D4F-95C3-8BDEB2E9E9FC}"
 EndProject
@@ -17,15 +17,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AI-Master", "AI-Master\AI-M
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SkinTest", "SkinTest\SkinTest.csproj", "{01A949ED-A746-4708-B264-D85814070BB2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AI-MasterMetroVersion", "AI-MasterMetroVersion\AI-MasterMetroVersion.csproj", "{46EDE8BB-DE80-4F0F-94C3-39F0ACC81224}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AI-MasterDevExpressVersion", "AI-MasterDevExpressVersion\AI-MasterDevExpressVersion.csproj", "{C3635AB1-4007-4D46-A6A2-70D88ED31752}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OverlayPackage", "OverlayPackage\OverlayPackage.csproj", "{B15281B6-8A74-494B-9914-B9CDEFBBA5DF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AsynTest", "AsynTest\AsynTest.csproj", "{C1830DE6-2C8A-48EB-B798-28E7E392B14D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TcpTest", "TcpTest\TcpTest.csproj", "{B08EB498-0744-4498-BEC6-0724A895148A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AI-Master_SharedMemory", "AI-Master_SharedMemory\AI-Master_SharedMemory.csproj", "{4AB05421-1A20-4D48-A57F-C7B0CE8CB702}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -61,14 +59,6 @@ Global
 		{01A949ED-A746-4708-B264-D85814070BB2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{01A949ED-A746-4708-B264-D85814070BB2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{01A949ED-A746-4708-B264-D85814070BB2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{46EDE8BB-DE80-4F0F-94C3-39F0ACC81224}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{46EDE8BB-DE80-4F0F-94C3-39F0ACC81224}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{46EDE8BB-DE80-4F0F-94C3-39F0ACC81224}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{46EDE8BB-DE80-4F0F-94C3-39F0ACC81224}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C3635AB1-4007-4D46-A6A2-70D88ED31752}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C3635AB1-4007-4D46-A6A2-70D88ED31752}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C3635AB1-4007-4D46-A6A2-70D88ED31752}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C3635AB1-4007-4D46-A6A2-70D88ED31752}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B15281B6-8A74-494B-9914-B9CDEFBBA5DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B15281B6-8A74-494B-9914-B9CDEFBBA5DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B15281B6-8A74-494B-9914-B9CDEFBBA5DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -81,6 +71,10 @@ Global
 		{B08EB498-0744-4498-BEC6-0724A895148A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B08EB498-0744-4498-BEC6-0724A895148A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B08EB498-0744-4498-BEC6-0724A895148A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4AB05421-1A20-4D48-A57F-C7B0CE8CB702}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4AB05421-1A20-4D48-A57F-C7B0CE8CB702}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4AB05421-1A20-4D48-A57F-C7B0CE8CB702}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4AB05421-1A20-4D48-A57F-C7B0CE8CB702}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

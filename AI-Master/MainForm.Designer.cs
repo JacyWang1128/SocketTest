@@ -318,6 +318,7 @@
             this.treeView1.Font = new System.Drawing.Font("微软雅黑", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.treeView1.Location = new System.Drawing.Point(0, 0);
             this.treeView1.Name = "treeView1";
+            this.treeView1.ShowPlusMinus = false;
             this.treeView1.Size = new System.Drawing.Size(207, 443);
             this.treeView1.TabIndex = 1;
             // 
@@ -464,6 +465,7 @@
             this.ilTreeViewIconList.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("ilTreeViewIconList.ImageStream")));
             this.ilTreeViewIconList.TransparentColor = System.Drawing.Color.Transparent;
             this.ilTreeViewIconList.Images.SetKeyName(0, "Camera");
+            this.ilTreeViewIconList.Images.SetKeyName(1, "CameraRoot");
             // 
             // timer1
             // 

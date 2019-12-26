@@ -430,11 +430,42 @@ namespace AI_MasterControl
 
         public void Stop()
         {
-            uh.StopListening();
-            uph.StopAnalysising();
-            IsShowing = false;
-            bh.StopAnalysising();
-            isReceiving = false;
+            try
+            {
+                Console.WriteLine("即将结束UDP接收");
+                uh.StopListening();
+            }
+            catch (Exception)
+            {
+
+            }
+            Thread.Sleep(1);
+            Console.WriteLine("即将结束UDP数据包解析");
+            try
+            {
+                uph.StopAnalysising();
+            }
+            catch (Exception)
+            {
+
+            }
+            Thread.Sleep(1);
+            try
+            {
+                Console.WriteLine("即将结束图片显示");
+                IsShowing = false;
+                Thread.Sleep(1);
+                Console.WriteLine("即将结束图片分析");
+                bh.StopAnalysising();
+            }
+            catch (Exception)
+            {
+
+            }
+            Thread.Sleep(1);
+            Console.WriteLine("图片接收结束");
+            //isReceiving = false;
+            Thread.Sleep(1);
         }
 
         public void StartShowingInfo()
@@ -470,124 +501,125 @@ namespace AI_MasterControl
 
             if (currentImage != null)
             {
-                Bitmap showImage;
-                lock (currentImage)
-                {
-                    showImage = new Bitmap(currentImage);
-                }
-                showImage.RotateFlip(rotate);
-
-                #region 绘制Overlay元素
-
-                if (ElementQueue.Count > 0)
-                {
-                    //List<Element.Element> temp = new List<Element.Element>(ElementQueue.Dequeue());
-
-                    var temp = ElementQueue.Dequeue();
-                    if (ElementQueue.Count > 0)
-                    {
-                        lock (ElementQueue)
-                        {
-                            ElementQueue.Clear();
-                        }
-                    }
-                    using (Bitmap bmp = new Bitmap(showImage.Width, showImage.Height))
-                    {
-                        using (Graphics ele = Graphics.FromImage(bmp))
-                        {
-                            ele.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
-                            //ele.Clear(Color.Transparent);
-                            foreach (var item in temp)
-                            {
-                                if (item != null)
-                                {
-                                    switch (item.type)
-                                    {
-
-                                        case 1://点
-                                            ele.DrawEllipse(new Pen(EleColors[(Int32)item.color]),
-                                                item.x / ComprehensionRate,
-                                                item.y / ComprehensionRate,
-                                                1,
-                                                1);
-                                            break;
-                                        case 2://线
-                                            ele.DrawLine(new Pen(EleColors[(Int32)item.color]),
-                                                (item as ElementLine).x / ComprehensionRate,
-                                                (item as ElementLine).y / ComprehensionRate,
-                                                (item as ElementLine).dx / ComprehensionRate,
-                                                (item as ElementLine).dy / ComprehensionRate);
-                                            break;
-                                        case 3://圆
-                                            ele.DrawEllipse(new Pen(EleColors[(Int32)item.color]),
-                                                ((item as ElementEllipse).x - (item as ElementEllipse).rx) / ComprehensionRate,
-                                                ((item as ElementEllipse).y - (item as ElementEllipse).ry) / ComprehensionRate,
-                                                2 * (item as ElementEllipse).rx / ComprehensionRate,
-                                                2 * (item as ElementEllipse).ry / ComprehensionRate);
-                                            break;
-                                        case 4://椭圆
-                                            ele.DrawEllipse(new Pen(EleColors[(Int32)item.color]),
-                                                ((item as ElementEllipse).x - (item as ElementEllipse).rx) / ComprehensionRate,
-                                                ((item as ElementEllipse).y - (item as ElementEllipse).ry) / ComprehensionRate,
-                                                2 * (item as ElementEllipse).rx / ComprehensionRate,
-                                                2 * (item as ElementEllipse).ry / ComprehensionRate);
-                                            break;
-                                        case 5://矩形
-                                            ele.DrawRectangle(new Pen(EleColors[(Int32)item.color]),
-                                                (item as ElementWindow).x / ComprehensionRate,
-                                                (item as ElementWindow).y / ComprehensionRate,
-                                                (item as ElementWindow).dx / ComprehensionRate,
-                                                (item as ElementWindow).dy / ComprehensionRate);
-                                            break;
-                                        case 6://字符串
-                                            ele.DrawString((item as ElementString).content,
-                                                new Font("Thaoma", (item as ElementString).fontsize / ComprehensionRate, GraphicsUnit.Pixel), new SolidBrush(EleColors[(Int32)item.color]),
-                                                (item as ElementString).x / ComprehensionRate,
-                                                (item as ElementString).y / ComprehensionRate);
-                                            break;
-                                        case 7://图案pattern
-                                            break;
-                                        case 8://圆弧
-                                            ele.DrawArc(new Pen(EleColors[(Int32)item.color]),
-                                                ((item as ElementArc).x - (item as ElementArc).rx) / ComprehensionRate,
-                                                ((item as ElementArc).y - (item as ElementArc).ry) / ComprehensionRate,
-                                                2 * ((item as ElementArc).rx) / ComprehensionRate,
-                                                2 * ((item as ElementArc).ry) / ComprehensionRate,
-                                                (item as ElementArc).Start_angle,
-                                                (item as ElementArc).End_anlge);
-                                            break;
-                                        case 9://箭头
-                                            Pen arrowPen = new Pen(EleColors[(Int32)item.color]);
-                                            arrowPen.Width = 4;
-                                            arrowPen.EndCap = System.Drawing.Drawing2D.LineCap.ArrowAnchor;
-                                            ele.DrawLine(arrowPen,
-                                                (item as ElementArrow).x / ComprehensionRate,
-                                                (item as ElementArrow).y / ComprehensionRate,
-                                                (item as ElementArrow).dx / ComprehensionRate,
-                                                (item as ElementArrow).dy / ComprehensionRate);
-
-                                            break;
-                                        default:
-                                            break;
-                                    }
-                                    ele.Flush(System.Drawing.Drawing2D.FlushIntention.Flush);
-                                }
-                            }
-                        }
-
-                        using (Graphics g = Graphics.FromImage(showImage)/*showImagePanel.CreateGraphics()*/)
-                        {
-                            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-                            g.DrawImage(bmp, 0, 0);
-                            g.Flush(System.Drawing.Drawing2D.FlushIntention.Flush);
-                        }
-                    }
-                }
-
-                #endregion
-
                 try
                 {
+                    Bitmap showImage;
+                    lock (currentImage)
+                    {
+                        showImage = new Bitmap(currentImage);
+                    }
+                    showImage.RotateFlip(rotate);
+
+                    #region 绘制Overlay元素
+
+                    if (ElementQueue.Count > 0)
+                    {
+                        //List<Element.Element> temp = new List<Element.Element>(ElementQueue.Dequeue());
+
+                        var temp = ElementQueue.Dequeue();
+                        if (ElementQueue.Count > 0)
+                        {
+                            lock (ElementQueue)
+                            {
+                                ElementQueue.Clear();
+                            }
+                        }
+                        using (Bitmap bmp = new Bitmap(showImage.Width, showImage.Height))
+                        {
+                            using (Graphics ele = Graphics.FromImage(bmp))
+                            {
+                                ele.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
+                                //ele.Clear(Color.Transparent);
+                                foreach (var item in temp)
+                                {
+                                    if (item != null)
+                                    {
+                                        switch (item.type)
+                                        {
+
+                                            case 1://点
+                                                ele.DrawEllipse(new Pen(EleColors[(Int32)item.color]),
+                                                    item.x / ComprehensionRate,
+                                                    item.y / ComprehensionRate,
+                                                    1,
+                                                    1);
+                                                break;
+                                            case 2://线
+                                                ele.DrawLine(new Pen(EleColors[(Int32)item.color]),
+                                                    (item as ElementLine).x / ComprehensionRate,
+                                                    (item as ElementLine).y / ComprehensionRate,
+                                                    (item as ElementLine).dx / ComprehensionRate,
+                                                    (item as ElementLine).dy / ComprehensionRate);
+                                                break;
+                                            case 3://圆
+                                                ele.DrawEllipse(new Pen(EleColors[(Int32)item.color]),
+                                                    ((item as ElementEllipse).x - (item as ElementEllipse).rx) / ComprehensionRate,
+                                                    ((item as ElementEllipse).y - (item as ElementEllipse).ry) / ComprehensionRate,
+                                                    2 * (item as ElementEllipse).rx / ComprehensionRate,
+                                                    2 * (item as ElementEllipse).ry / ComprehensionRate);
+                                                break;
+                                            case 4://椭圆
+                                                ele.DrawEllipse(new Pen(EleColors[(Int32)item.color]),
+                                                    ((item as ElementEllipse).x - (item as ElementEllipse).rx) / ComprehensionRate,
+                                                    ((item as ElementEllipse).y - (item as ElementEllipse).ry) / ComprehensionRate,
+                                                    2 * (item as ElementEllipse).rx / ComprehensionRate,
+                                                    2 * (item as ElementEllipse).ry / ComprehensionRate);
+                                                break;
+                                            case 5://矩形
+                                                ele.DrawRectangle(new Pen(EleColors[(Int32)item.color]),
+                                                    (item as ElementWindow).x / ComprehensionRate,
+                                                    (item as ElementWindow).y / ComprehensionRate,
+                                                    (item as ElementWindow).dx / ComprehensionRate,
+                                                    (item as ElementWindow).dy / ComprehensionRate);
+                                                break;
+                                            case 6://字符串
+                                                ele.DrawString((item as ElementString).content,
+                                                    new Font("Thaoma", (item as ElementString).fontsize / ComprehensionRate, GraphicsUnit.Pixel), new SolidBrush(EleColors[(Int32)item.color]),
+                                                    (item as ElementString).x / ComprehensionRate,
+                                                    (item as ElementString).y / ComprehensionRate);
+                                                break;
+                                            case 7://图案pattern
+                                                break;
+                                            case 8://圆弧
+                                                ele.DrawArc(new Pen(EleColors[(Int32)item.color]),
+                                                    ((item as ElementArc).x - (item as ElementArc).rx) / ComprehensionRate,
+                                                    ((item as ElementArc).y - (item as ElementArc).ry) / ComprehensionRate,
+                                                    2 * ((item as ElementArc).rx) / ComprehensionRate,
+                                                    2 * ((item as ElementArc).ry) / ComprehensionRate,
+                                                    (float)(item as ElementArc).Start_angle,
+                                                    (float)((item as ElementArc).End_anlge - (item as ElementArc).Start_angle));
+                                                break;
+                                            case 9://箭头
+                                                Pen arrowPen = new Pen(EleColors[(Int32)item.color]);
+                                                arrowPen.Width = 4;
+                                                arrowPen.EndCap = System.Drawing.Drawing2D.LineCap.ArrowAnchor;
+                                                ele.DrawLine(arrowPen,
+                                                    (item as ElementArrow).x / ComprehensionRate,
+                                                    (item as ElementArrow).y / ComprehensionRate,
+                                                    (item as ElementArrow).dx / ComprehensionRate,
+                                                    (item as ElementArrow).dy / ComprehensionRate);
+
+                                                break;
+                                            default:
+                                                break;
+                                        }
+                                        ele.Flush(System.Drawing.Drawing2D.FlushIntention.Flush);
+                                    }
+                                }
+                            }
+
+                            using (Graphics g = Graphics.FromImage(showImage)/*showImagePanel.CreateGraphics()*/)
+                            {
+                                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                                g.DrawImage(bmp, 0, 0);
+                                g.Flush(System.Drawing.Drawing2D.FlushIntention.Flush);
+                            }
+                        }
+                    }
+
+                    #endregion
+
+
 
                     showImagePanel.Image = showImage;
                 }

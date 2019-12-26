@@ -34,6 +34,18 @@ namespace AI_Master
             }
         }
 
+        public Int32 GEtIndexIntreeview(TreeNodeCollection tnc, String text)
+        {
+            for (int i = 0; i < tnc.Count; i++)
+            {
+                if (tnc[i].Text == text)
+                {
+                    return i;
+                }
+            }
+            return -1;
+        }
+
         private void button2_Click(object sender, EventArgs e)
         {
             AIMaster ai = new AIMaster();
@@ -41,10 +53,17 @@ namespace AI_Master
             if (DialogResult.OK == adc.ShowDialog())
             {
                 plMiddle.Controls.Add(ai);
-                TreeNode tn = new TreeNode(ai.camera.CameraIP, 0, 0);
-                //treeView1.Nodes[ai.camera.CameraIP]
-                treeView1.Nodes.Add(tn);
-                dicTreeNode[tn] = ai;
+                TreeNode ctn = new TreeNode("Port:" + ai.camera.Port, 0, 0);
+                Int32 flag = GEtIndexIntreeview(treeView1.Nodes, ai.camera.CameraIP);
+                if (flag < 0)
+                {
+                    TreeNode tn = new TreeNode(ai.camera.CameraIP, 1, 1);
+                    treeView1.Nodes.Add(tn);
+                }
+                Int32 Index = GEtIndexIntreeview(treeView1.Nodes, ai.camera.CameraIP);
+                treeView1.Nodes[Index].Nodes.Add(ctn);
+                dicTreeNode[ctn] = ai;
+                treeView1.ExpandAll();
                 treeView1.SelectedNode = treeView1.Nodes[treeView1.Nodes.Count - 1];
             }
             else
@@ -59,10 +78,22 @@ namespace AI_Master
         {
             if (treeView1.SelectedNode != null)
             {
-                dicTreeNode[treeView1.SelectedNode].Dispose();
-                dicTreeNode.Remove(treeView1.SelectedNode);
+                if (treeView1.SelectedNode.Level != 0)
+                {
+                    dicTreeNode[treeView1.SelectedNode].Dispose();
+                    dicTreeNode.Remove(treeView1.SelectedNode);
+                }
+                else
+                {
+                    foreach (TreeNode item in treeView1.SelectedNode.Nodes)
+                    {
+                        dicTreeNode[item].Dispose();
+                        dicTreeNode.Remove(item);
+                    }
+                }
                 treeView1.SelectedNode.Remove();
                 treeView1.Select();
+                Write_Config();
             }
         }
 
@@ -73,7 +104,7 @@ namespace AI_Master
             foreach (var item in dicTreeNode)
             {
                 SetCameraInfo(item.Value.camera.camInfo);
-                item.Key.Text = String.IsNullOrEmpty(item.Value.camera.CameraName) ? item.Value.camera.CameraIP : item.Value.camera.CameraName + "  " + item.Value.camera.CameraIP;
+                item.Key.Text = String.IsNullOrEmpty(item.Value.camera.CameraName) ? "Port:" + item.Value.camera.Port : item.Value.camera.CameraName + " port:" + item.Value.camera.Port;
             }
             for (int i = 0; i < rowsCount - 1; i++)
             {
@@ -130,11 +161,49 @@ namespace AI_Master
         {
             if (treeView1.SelectedNode != null)
             {
-                dicTreeNode[treeView1.SelectedNode].SetCamera();
-                //treeView1.SelectedNode.Text = dicTreeNode[treeView1.SelectedNode].camera.CameraIP;
-                treeView1.SelectedNode = treeView1.SelectedNode;
-                treeView1.Select();
-                Write_Config();
+                if (treeView1.SelectedNode.Level > 0)
+                {
+                    dicTreeNode[treeView1.SelectedNode].SetCamera();
+                    //treeView1.SelectedNode.Text = dicTreeNode[treeView1.SelectedNode].camera.CameraIP;
+                    treeView1.SelectedNode = treeView1.SelectedNode;
+                    treeView1.Select();
+                    if (treeView1.SelectedNode.Parent.Text != dicTreeNode[treeView1.SelectedNode].camera.CameraIP)
+                    {
+                        TreeNode currentTreeNode = treeView1.SelectedNode;
+                        Int32 Index = GEtIndexIntreeview(treeView1.Nodes, dicTreeNode[treeView1.SelectedNode].camera.CameraIP);
+                        var OriginalTreeNode = treeView1.SelectedNode.Parent;
+                        OriginalTreeNode.Nodes.Remove(currentTreeNode);
+                        if (Index < 0)
+                        {
+                            TreeNode tn = new TreeNode(dicTreeNode[currentTreeNode].camera.CameraIP, 1, 1);
+                            treeView1.Nodes.Add(tn);
+                            tn.Nodes.Add(currentTreeNode);
+                        }
+                        else
+                        {
+                            treeView1.Nodes[Index].Nodes.Add(currentTreeNode);
+                        }
+                        if (OriginalTreeNode.Nodes.Count == 1)
+                        {
+                            treeView1.Nodes.Remove(OriginalTreeNode);
+                        }
+                    }
+                    Write_Config();
+                    treeView1.ExpandAll();
+                }
+                else
+                {
+                    if (treeView1.SelectedNode.Nodes.Count > 0)
+                    {
+                        List<AIMaster> aimasters = new List<AIMaster>();
+                        foreach (TreeNode item in treeView1.SelectedNode.Nodes)
+                        {
+                            aimasters.Add(dicTreeNode[item]);
+                        }
+                        WriteParameter wp = new WriteParameter(aimasters.ToArray());
+                        this.Controls.Add(wp);
+                    }
+                }
             }
         }
 
@@ -150,8 +219,16 @@ namespace AI_Master
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            Write_Config();
-            LoggHelper.WriteLog("配置信息保存完毕，程序正常退出！");
+            foreach (var item in dicTreeNode)
+            {
+                if (item.Value.camera.isReceiving)
+                {
+                    item.Value.camera.Stop();
+                    item.Value.camera.isReceiving = false;
+                }
+            }
+            //Write_Config();
+            LoggHelper.WriteLog("程序正常退出！");
             Environment.Exit(0);
         }
 
@@ -180,9 +257,21 @@ namespace AI_Master
                             Directory.CreateDirectory(item.PreStringNG.Substring(0, item.PreStringNG.LastIndexOf(@"\") + 1));
                         if (item.PreStringOK != null)
                             Directory.CreateDirectory(item.PreStringOK.Substring(0, item.PreStringOK.LastIndexOf(@"\") + 1));
-                        TreeNode tn = new TreeNode(ai.camera.CameraIP, 0, 0);
-                        treeView1.Nodes.Add(tn);
-                        dicTreeNode[tn] = ai;
+                        if (item.PreStringWarning != null)
+                            Directory.CreateDirectory(item.PreStringWarning.Substring(0, item.PreStringWarning.LastIndexOf(@"\") + 1));
+                        Int32 Index = GEtIndexIntreeview(treeView1.Nodes, ai.camera.CameraIP);
+                        TreeNode ctn = new TreeNode("Port:" + ai.camera.Port, 0, 0);
+                        if (Index < 0)
+                        {
+                            TreeNode tn = new TreeNode(ai.camera.CameraIP, 1, 1);
+                            tn.Nodes.Add(ctn);
+                            treeView1.Nodes.Add(tn);
+                        }
+                        else
+                        {
+                            treeView1.Nodes[Index].Nodes.Add(ctn);
+                        }
+                        dicTreeNode[ctn] = ai;
                         plMiddle.Controls.Add(ai);
                     }
                 }
@@ -191,6 +280,7 @@ namespace AI_Master
                     MessageBox.Show("读取配置文件失败");
                 }
             }
+            treeView1.ExpandAll();
         }
 
         private void button4_Click(object sender, EventArgs e)

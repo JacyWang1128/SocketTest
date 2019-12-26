@@ -126,6 +126,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="icon.ico" />
+    <None Include="Resources\CameraRoot.ico" />
+    <None Include="Resources\照相机.png" />
     <Content Include="上海昂敏智能技术有限公司.ico" />
     <None Include="Resources\上海昂敏智能技术有限公司.ico" />
     <None Include="Resources\修改.png" />

@@ -49,7 +49,7 @@ namespace OxTo10
             else if(iPackageCount < iPackageNum)
             {
                 ImgBuffer.AddRange(GetSegmentInArray(bytes, 28, len - 28));
-                BitmapHelper.SaveBitmap($@"C:\Users\Administrator\Desktop\CAMERA\RGB{iImgNum}.bmp", 320, 256, ImgBuffer.ToArray());
+                //BitmapHelper.SaveBitmap($@"C:\Users\Administrator\Desktop\CAMERA\RGB{iImgNum}.bmp", 320, 256, ImgBuffer.ToArray());
             }
             else
             {

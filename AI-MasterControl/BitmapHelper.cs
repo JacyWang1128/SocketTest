@@ -75,135 +75,145 @@ namespace AI_MasterControl
         {
             while (_isAnalysising)
             {
-                if(SaveImageQueue.Count > 0)
+                if (SaveImageQueue.Count > 0)
                 {
                     var temp = SaveImageQueue.Dequeue();
                     #region 保存图片模块
                     if (camera.IsSaveing)
                     {
                         ImageFormat saveformat;
-                        Image currentImage = temp.Value;
-                        switch (temp.Key.ImgFormat)
+                        Image currentImage;
+                        if (temp.Value != null)
                         {
-                            case 1:
-                                saveformat = ImageFormat.Bmp;
-                                break;
-                            case 2:
-                                saveformat = ImageFormat.Jpeg;
-                                break;
-                            case 3:
-                                saveformat = ImageFormat.Png;
-                                break;
-                            default:
-                                saveformat = ImageFormat.Png;
-                                break;
-                        }
-                        camera.GetFilePre();
-                        try
-                        {
-                            if (camera.IsRestore)
+
+
+                            lock (temp.Value)
                             {
-                                Image img = camera.GetSourceImg();
-                                switch (camera.ImgStatus)
-                                {
-                                    case -2:
-                                        if (camera.IsSaveWarning)
-                                        {
-                                            img.Save(camera.PathWarning.ToString() + "." + (ImgFormat)temp.Key.ImgFormat, saveformat);
-                                        }
-                                        else
-                                        {
-                                            if ((!camera.IsSaveOK) && (!camera.IsSaveNG))
-                                            {
-                                                img.Save(camera.FilePrefix.ToString() + "." + (ImgFormat)temp.Key.ImgFormat, saveformat);
-                                            }
-                                        }
-                                        break;
-                                    case -1://NG
-                                        if (camera.IsSaveNG)
-                                        {
-                                            img.Save(camera.PathNG.ToString() + "." + (ImgFormat)temp.Key.ImgFormat, saveformat);
-                                        }
-                                        else
-                                        {
-                                            if ((!camera.IsSaveOK) && (!camera.IsSaveWarning))
-                                            {
-                                                img.Save(camera.FilePrefix.ToString() + "." + (ImgFormat)temp.Key.ImgFormat, saveformat);
-                                            }
-                                        }
-                                        break;
-                                    case 0://OK
-                                        if (camera.IsSaveOK)
-                                        {
-                                            img.Save(camera.PathOK.ToString() + "." + (ImgFormat)temp.Key.ImgFormat, saveformat);
-                                        }
-                                        else
-                                        {
-                                            if ((!camera.IsSaveNG) && (!camera.IsSaveWarning))
-                                            {
-                                                img.Save(camera.FilePrefix.ToString() + "." + (ImgFormat)temp.Key.ImgFormat, saveformat);
-                                            }
-                                        }
-                                        break;
-                                    default:
-                                        break;
-                                }
-
-                                img.Dispose();
+                                currentImage = (Image)temp.Value.Clone();
                             }
-                            else
+
+                            switch (temp.Key.ImgFormat)
                             {
-                                switch (camera.ImgStatus)
-                                {
-                                    case -2:
-                                        if (camera.IsSaveWarning)
-                                        {
-                                            currentImage.Save(camera.PathWarning.ToString() + "." + (ImgFormat)temp.Key.ImgFormat, saveformat);
-                                        }
-                                        else
-                                        {
-                                            if ((!camera.IsSaveOK) && (!camera.IsSaveNG))
-                                            {
-                                                currentImage.Save(camera.FilePrefix.ToString() + "." + (ImgFormat)temp.Key.ImgFormat, saveformat);
-                                            }
-                                        }
-                                        break;
-                                    case -1:
-                                        if (camera.IsSaveNG)
-                                        {
-                                            currentImage.Save(camera.PathNG.ToString() + "." + (ImgFormat)temp.Key.ImgFormat, saveformat);
-                                        }
-                                        else
-                                        {
-                                            if (((!camera.IsSaveOK)) && ((!camera.IsSaveWarning)))
-                                            {
-                                                currentImage.Save(camera.FilePrefix.ToString() + "." + (ImgFormat)temp.Key.ImgFormat, saveformat);
-                                            }
-                                        }
-                                        break;
-                                    case 0:
-                                        if (camera.IsSaveOK)
-                                        {
-                                            currentImage.Save(camera.PathOK.ToString() + "." + (ImgFormat)temp.Key.ImgFormat, saveformat);
-                                        }
-                                        else
-                                        {
-                                            if ((!camera.IsSaveNG) && (!camera.IsSaveWarning))
-                                            {
-                                                currentImage.Save(camera.FilePrefix.ToString() + "." + (ImgFormat)temp.Key.ImgFormat, saveformat);
-                                            }
-                                        }
-                                        break;
-                                    default:
-                                        break;
-                                }
-
-
+                                case 1:
+                                    saveformat = ImageFormat.Bmp;
+                                    break;
+                                case 2:
+                                    saveformat = ImageFormat.Jpeg;
+                                    break;
+                                case 3:
+                                    saveformat = ImageFormat.Png;
+                                    break;
+                                default:
+                                    saveformat = ImageFormat.Png;
+                                    break;
                             }
-                        }
-                        catch (Exception ex)
-                        {
-                            LoggHelper.WriteLog("图像显示异常", ex);
+                            camera.GetFilePre();
+                            try
+                            {
+                                if (camera.IsRestore)
+                                {
+                                    Image img = camera.GetSourceImg();
+                                    switch (camera.ImgStatus)
+                                    {
+                                        case -2:
+                                            if (camera.IsSaveWarning)
+                                            {
+                                                img.Save(camera.PathWarning.ToString() + "." + (ImgFormat)temp.Key.ImgFormat, saveformat);
+                                            }
+                                            else
+                                            {
+                                                if ((!camera.IsSaveOK) && (!camera.IsSaveNG))
+                                                {
+                                                    img.Save(camera.FilePrefix.ToString() + "." + (ImgFormat)temp.Key.ImgFormat, saveformat);
+                                                }
+                                            }
+                                            break;
+                                        case -1://NG
+                                            if (camera.IsSaveNG)
+                                            {
+                                                img.Save(camera.PathNG.ToString() + "." + (ImgFormat)temp.Key.ImgFormat, saveformat);
+                                            }
+                                            else
+                                            {
+                                                if ((!camera.IsSaveOK) && (!camera.IsSaveWarning))
+                                                {
+                                                    img.Save(camera.FilePrefix.ToString() + "." + (ImgFormat)temp.Key.ImgFormat, saveformat);
+                                                }
+                                            }
+                                            break;
+                                        case 0://OK
+                                            if (camera.IsSaveOK)
+                                            {
+                                                img.Save(camera.PathOK.ToString() + "." + (ImgFormat)temp.Key.ImgFormat, saveformat);
+                                            }
+                                            else
+                                            {
+                                                if ((!camera.IsSaveNG) && (!camera.IsSaveWarning))
+                                                {
+                                                    img.Save(camera.FilePrefix.ToString() + "." + (ImgFormat)temp.Key.ImgFormat, saveformat);
+                                                }
+                                            }
+                                            break;
+                                        default:
+                                            break;
+                                    }
+
+                                    img.Dispose();
+                                }
+                                else
+                                {
+                                    switch (camera.ImgStatus)
+                                    {
+                                        case -2:
+                                            if (camera.IsSaveWarning)
+                                            {
+                                                currentImage.Save(camera.PathWarning.ToString() + "." + (ImgFormat)temp.Key.ImgFormat, saveformat);
+                                            }
+                                            else
+                                            {
+                                                if ((!camera.IsSaveOK) && (!camera.IsSaveNG))
+                                                {
+                                                    currentImage.Save(camera.FilePrefix.ToString() + "." + (ImgFormat)temp.Key.ImgFormat, saveformat);
+                                                }
+                                            }
+                                            break;
+                                        case -1:
+                                            if (camera.IsSaveNG)
+                                            {
+                                                currentImage.Save(camera.PathNG.ToString() + "." + (ImgFormat)temp.Key.ImgFormat, saveformat);
+                                            }
+                                            else
+                                            {
+                                                if (((!camera.IsSaveOK)) && ((!camera.IsSaveWarning)))
+                                                {
+                                                    currentImage.Save(camera.FilePrefix.ToString() + "." + (ImgFormat)temp.Key.ImgFormat, saveformat);
+                                                }
+                                            }
+                                            break;
+                                        case 0:
+                                            if (camera.IsSaveOK)
+                                            {
+                                                currentImage.Save(camera.PathOK.ToString() + "." + (ImgFormat)temp.Key.ImgFormat, saveformat);
+                                            }
+                                            else
+                                            {
+                                                if ((!camera.IsSaveNG) && (!camera.IsSaveWarning))
+                                                {
+                                                    currentImage.Save(camera.FilePrefix.ToString() + "." + (ImgFormat)temp.Key.ImgFormat, saveformat);
+                                                }
+                                            }
+                                            break;
+                                        default:
+                                            break;
+                                    }
+
+                                }
+                            }
+
+                            catch (Exception ex)
+                            {
+                                LoggHelper.WriteLog("图像显示异常", ex);
+                            }
                         }
                         if (SaveImageQueue.Count > 10)
                         {
@@ -233,7 +243,6 @@ namespace AI_MasterControl
                 try
                 {
 
-
                     if (ImgBufferQueue.Count > 0)
                     {
                         TimeSpan ts = sw.Elapsed;
@@ -249,7 +258,7 @@ namespace AI_MasterControl
                                     Image imgGrayBmp = Bit8To24(GetGrayscaleBitmapFromBuffer(camera.ImgWidth, camera.ImgHeight, buffer));
                                     Bitmap bmpGrayBmp = new Bitmap(imgGrayBmp);
                                     SaveImageQueue.Enqueue(new KeyValuePair<ImageInfo, Image>(temp.Key, new Bitmap(bmpGrayBmp)));
-                                    camera.currentImage = bmpGrayBmp;
+                                    camera.currentImage = new Bitmap(bmpGrayBmp);
                                     imgGrayBmp.Dispose();
                                     camera.IsNewPhoto = true;
                                     break;
@@ -257,7 +266,7 @@ namespace AI_MasterControl
                                     Image imgRGBBmp = GetRGBBitmapFromBufferWithMemory(camera.ImgWidth, camera.ImgHeight, buffer);
                                     Bitmap bmpRGBBmp = new Bitmap(imgRGBBmp);
                                     SaveImageQueue.Enqueue(new KeyValuePair<ImageInfo, Image>(temp.Key, new Bitmap(bmpRGBBmp)));
-                                    camera.currentImage = bmpRGBBmp;
+                                    camera.currentImage = new Bitmap(bmpRGBBmp);
                                     imgRGBBmp.Dispose();
                                     camera.IsNewPhoto = true;
                                     break;
