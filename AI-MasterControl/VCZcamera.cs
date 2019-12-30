@@ -20,6 +20,7 @@ namespace AI_MasterControl
         GrayScale = 1,
         RGB = 3
     }
+
     public class VCZcamera
     {
         #region 声明
@@ -30,38 +31,38 @@ namespace AI_MasterControl
         private BitmapHelper bh;
 
         //属性声明
-        private String _cameraName;
-        private String _cameraIP;
-        private Int32 _port;
-        private Int32 _imgWidth;
-        private Int32 _imgHeight;
-        private Int32 _roi_x;
-        private Int32 _roi_y;
-        private Int32 _roi_width;
-        private Int32 _roi_height;
-        private UInt32 _goodCount;
-        private UInt32 _badCount;
-        private UInt32 _cycleTime;
-        private Int32 _imgSection;
-        private Int32 _imgResolution;
-        private Boolean _isOK;
-        private Int32 _imgStatus;//照片状态 0 Good 1 Bad 2 Warning
-        private String _pathOK;
-        private String _pathNG;
-        private String _pathWarning;
-        public RotateFlipType rotate;
-        public ImgFormat format;
-        public ColorDepth colorDepth;
-        public ImageFormat SaveImageFormat;
-        public Boolean IsSaveing;
-        public Boolean IsRestore;
-        public Boolean IsDistinguish;
-        public Boolean IsSaveOK;
-        public Boolean IsSaveNG;
-        public Boolean IsSaveWarning;
-        public CameraInfo camInfo;
-        private Int32 _cmosWidth;
-        private Int32 _cmosHeight;
+        private String _cameraName;              //相机名称
+        private String _cameraIP;                //相机IP
+        private Int32 _port;                     //相机接口
+        private Int32 _imgWidth;                 //图片宽度
+        private Int32 _imgHeight;                //图片高度
+        private Int32 _roi_x;                    //roi_x
+        private Int32 _roi_y;                    //roi_y
+        private Int32 _roi_width;                //roi_width
+        private Int32 _roi_height;               //roi_height
+        private UInt32 _goodCount;               //good计数
+        private UInt32 _badCount;                //bad计数
+        private UInt32 _cycleTime;               //循环时间
+        private Int32 _imgSection;               //图片传输方式（全部/部份）
+        private Int32 _imgResolution;          
+        private Boolean _isOK;                   //图片状态OK
+        private Int32 _imgStatus;                //照片状态 0 Good 1 Bad 2 Warning
+        private String _pathOK;                  //OK的保存路径
+        private String _pathNG;                  //NG的保存路径
+        private String _pathWarning;             //WARNING的保存路径
+        public RotateFlipType rotate;            //图片旋转方式
+        public ImgFormat format;                 //图片格式
+        public ColorDepth colorDepth;            //色彩模式
+        public ImageFormat SaveImageFormat;      //图片格式
+        public Boolean IsSaveing;                //是否保存
+        public Boolean IsRestore;                //是否还原
+        public Boolean IsDistinguish;            //是否区分OK NG WARNING
+        public Boolean IsSaveOK;                 //是否保存OK
+        public Boolean IsSaveNG;                 //是否保存NG
+        public Boolean IsSaveWarning;            //是否保存WARNING
+        public CameraInfo camInfo;               //相机信息POCO
+        private Int32 _cmosWidth;                //相机分辨率宽度
+        private Int32 _cmosHeight;               //相机分辨率高度
 
         private Boolean _isShowing = true;
         private Boolean _isNewPhoto = false;
@@ -377,8 +378,13 @@ namespace AI_MasterControl
         #endregion
         #endregion
 
+        //在此处修改预定义颜色
         Color[] EleColors = { Color.FromArgb(255, 0, 0), Color.FromArgb(0, 255, 0), Color.FromArgb(255, 0, 255), Color.FromArgb(255, 255, 58) };
+
+        //元素队列
         private Queue<Element.Element[]> ElementQueue;
+        
+        //初始化函数
         public VCZcamera(MessageHandle msgh, PictureBox pl, FilePreEventHandler fpeh)
         {
             InitCameraInfo();
@@ -407,6 +413,7 @@ namespace AI_MasterControl
             uph = null;
             bh = null;
         }
+
         public void Start()
         {
             Thread t1 = new Thread(uh.ListeningPort);
@@ -534,39 +541,51 @@ namespace AI_MasterControl
                                 {
                                     if (item != null)
                                     {
+                                        //画笔颜色定义（EleColors为颜色定义数组EleColors双击按F12即可跳转定义，若修改颜色请把箭头颜色同样修改
+                                        //方法说明：Pen(颜色,粗细);
+                                        Pen p;
+                                        if((Int32)item.color >= EleColors.Length)
+                                        {
+                                            p = new Pen(EleColors[EleColors.Length - 1], 8);
+                                        }
+                                        else
+                                        {
+                                            p = new Pen(EleColors[(Int32)item.color], 8);
+                                        }
+
                                         switch (item.type)
                                         {
 
                                             case 1://点
-                                                ele.DrawEllipse(new Pen(EleColors[(Int32)item.color]),
+                                                ele.DrawEllipse(p,
                                                     item.x / ComprehensionRate,
                                                     item.y / ComprehensionRate,
                                                     1,
                                                     1);
                                                 break;
                                             case 2://线
-                                                ele.DrawLine(new Pen(EleColors[(Int32)item.color]),
+                                                ele.DrawLine(p,
                                                     (item as ElementLine).x / ComprehensionRate,
                                                     (item as ElementLine).y / ComprehensionRate,
                                                     (item as ElementLine).dx / ComprehensionRate,
                                                     (item as ElementLine).dy / ComprehensionRate);
                                                 break;
                                             case 3://圆
-                                                ele.DrawEllipse(new Pen(EleColors[(Int32)item.color]),
+                                                ele.DrawEllipse(p,
                                                     ((item as ElementEllipse).x - (item as ElementEllipse).rx) / ComprehensionRate,
                                                     ((item as ElementEllipse).y - (item as ElementEllipse).ry) / ComprehensionRate,
                                                     2 * (item as ElementEllipse).rx / ComprehensionRate,
                                                     2 * (item as ElementEllipse).ry / ComprehensionRate);
                                                 break;
                                             case 4://椭圆
-                                                ele.DrawEllipse(new Pen(EleColors[(Int32)item.color]),
+                                                ele.DrawEllipse(p,
                                                     ((item as ElementEllipse).x - (item as ElementEllipse).rx) / ComprehensionRate,
                                                     ((item as ElementEllipse).y - (item as ElementEllipse).ry) / ComprehensionRate,
                                                     2 * (item as ElementEllipse).rx / ComprehensionRate,
                                                     2 * (item as ElementEllipse).ry / ComprehensionRate);
                                                 break;
                                             case 5://矩形
-                                                ele.DrawRectangle(new Pen(EleColors[(Int32)item.color]),
+                                                ele.DrawRectangle(p,
                                                     (item as ElementWindow).x / ComprehensionRate,
                                                     (item as ElementWindow).y / ComprehensionRate,
                                                     (item as ElementWindow).dx / ComprehensionRate,
@@ -581,7 +600,7 @@ namespace AI_MasterControl
                                             case 7://图案pattern
                                                 break;
                                             case 8://圆弧
-                                                ele.DrawArc(new Pen(EleColors[(Int32)item.color]),
+                                                ele.DrawArc(p,
                                                     ((item as ElementArc).x - (item as ElementArc).rx) / ComprehensionRate,
                                                     ((item as ElementArc).y - (item as ElementArc).ry) / ComprehensionRate,
                                                     2 * ((item as ElementArc).rx) / ComprehensionRate,
@@ -590,14 +609,29 @@ namespace AI_MasterControl
                                                     (float)((item as ElementArc).End_anlge - (item as ElementArc).Start_angle));
                                                 break;
                                             case 9://箭头
-                                                Pen arrowPen = new Pen(EleColors[(Int32)item.color]);
-                                                arrowPen.Width = 4;
-                                                arrowPen.EndCap = System.Drawing.Drawing2D.LineCap.ArrowAnchor;
+                                                Pen arrowPen;
+                                                if ((Int32)item.color >= EleColors.Length)
+                                                {
+                                                    arrowPen = new Pen(EleColors[EleColors.Length - 1], 16);
+                                                }
+                                                else
+                                                {
+                                                    arrowPen = new Pen(EleColors[(Int32)item.color], 16);
+                                                }
+                                                if ((item as ElementArrow).ad > 0)
+                                                {
+                                                    arrowPen.StartCap = System.Drawing.Drawing2D.LineCap.ArrowAnchor;
+                                                }
+                                                if((item as ElementArrow).ap > 0)
+                                                {
+                                                    arrowPen.EndCap = System.Drawing.Drawing2D.LineCap.ArrowAnchor;
+                                                }
                                                 ele.DrawLine(arrowPen,
                                                     (item as ElementArrow).x / ComprehensionRate,
                                                     (item as ElementArrow).y / ComprehensionRate,
                                                     (item as ElementArrow).dx / ComprehensionRate,
                                                     (item as ElementArrow).dy / ComprehensionRate);
+                                                
 
                                                 break;
                                             default:

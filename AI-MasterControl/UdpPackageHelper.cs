@@ -16,7 +16,7 @@ namespace AI_MasterControl
         VCZcamera camera;
         List<Byte> ImgBuffer;
         public Queue<List<Byte[]>> UdpPackageBuffer;
-        public Queue<KeyValuePair<ImageInfo,Byte[]>> ImgBufferQueue;
+        public Queue<KeyValuePair<ImageInfo, Byte[]>> ImgBufferQueue;
         public Queue<Element.Element[]> ElementQuee = null;
         MessageHandle msgh;
         private Boolean _isAnalysising = true;
@@ -277,7 +277,7 @@ namespace AI_MasterControl
 
                                     //收到第一包后清空图形缓存队列（当前图形缓存队列存放的是上一张图片的数据
                                     ImgBuffer.Clear();
-                                    if(isReceive != 3)
+                                    if (isReceive != 3)
                                     {
                                         ImgBuffer.AddRange(GetSegmentInArray(bytes, len - 28, 28));
                                     }
@@ -304,7 +304,7 @@ namespace AI_MasterControl
                                     if (currentoverlayflag == overlaycount)
                                     {
                                         imgTransferComplete = true;
-                                        if(isReceive == 3)
+                                        if (isReceive == 3)
                                         {
                                             var buffer = ElementBuffer.ToArray();
                                             ElementQuee.Enqueue(buffer);
@@ -321,9 +321,9 @@ namespace AI_MasterControl
                                 {
                                     if (imgTransferComplete)
                                     {
-                                        ImageInfo ii = new ImageInfo(camera.ImgStatus,(Int32)camera.format);
+                                        ImageInfo ii = new ImageInfo(camera.ImgStatus, (Int32)camera.format);
                                         //存入图像缓存队列
-                                        ImgBufferQueue.Enqueue(new KeyValuePair<ImageInfo,Byte[]>(ii,ImgBuffer.ToArray()));
+                                        ImgBufferQueue.Enqueue(new KeyValuePair<ImageInfo, Byte[]>(ii, ImgBuffer.ToArray()));
                                         imgTransferComplete = false;
                                     }
                                 }
@@ -350,103 +350,257 @@ namespace AI_MasterControl
                 try
                 {
                     Int16 type = BitConverter.ToInt16(package, startpostion);
-                    switch (type)
+                    if (camera.ImgSection == 0)
                     {
-                        case 1:
-                            res.Add(new ElementPoint((Int32)type,
-                                (Int32)BitConverter.ToInt16(package, startpostion + 4),
-                                (Int32)BitConverter.ToInt16(package, startpostion + 6),
-                                (ElementColor)(Int32)BitConverter.ToInt16(package, startpostion + 2)));
-                            startpostion += 8;
-                            break;
-                        case 2:
-                            res.Add(new ElementLine((Int32)type,
-                                (Int32)BitConverter.ToInt16(package, startpostion + 4),
-                                (Int32)BitConverter.ToInt16(package, startpostion + 6),
-                                (ElementColor)(Int32)BitConverter.ToInt16(package, startpostion + 2),
-                                (Int32)BitConverter.ToInt16(package, startpostion + 8),
-                                (Int32)BitConverter.ToInt16(package, startpostion + 10)));
-                            startpostion += 12;
-                            break;
-                        case 3:
-                            res.Add(new ElementCircle((Int32)type,
-                                (Int32)BitConverter.ToInt16(package, startpostion + 4),
-                                (Int32)BitConverter.ToInt16(package, startpostion + 6),
-                                (ElementColor)(Int32)BitConverter.ToInt16(package, startpostion + 2),
-                                (Int32)BitConverter.ToInt16(package, startpostion + 8),
-                                (Int32)BitConverter.ToInt16(package, startpostion + 10)));
-                            startpostion += 12;
-                            break;
-                        case 4:
-                            res.Add(new ElementEllipse((Int32)type,
-                                (Int32)BitConverter.ToInt16(package, startpostion + 4),
-                                (Int32)BitConverter.ToInt16(package, startpostion + 6),
-                                (ElementColor)(Int32)BitConverter.ToInt16(package, startpostion + 2),
-                                (Int32)BitConverter.ToInt16(package, startpostion + 8),
-                                (Int32)BitConverter.ToInt16(package, startpostion + 10)));
-                            startpostion += 12;
-                            break;
-                        case 5:
-                            res.Add(new ElementWindow((Int32)type,
-                                (Int32)BitConverter.ToInt16(package, startpostion + 4),
-                                (Int32)BitConverter.ToInt16(package, startpostion + 6),
-                                (ElementColor)(Int32)BitConverter.ToInt16(package, startpostion + 2),
-                                (Int32)BitConverter.ToInt16(package, startpostion + 8),
-                                (Int32)BitConverter.ToInt16(package, startpostion + 10)));
-                            startpostion += 12;
-                            break;
-                        case 6:
-                            Int32 flag = 0;
-                            StringBuilder sb = new StringBuilder();
-                            while (package[startpostion + 10 + flag] != 0x00)
-                            {
-                                sb.Append((char)package[startpostion + 10 + flag]);
-                                //sb.Append(package[startpostion + 10 + flag]);
-                                flag++;
-                            }
-                            res.Add(new ElementString((Int32)type,
-                             (Int32)BitConverter.ToInt16(package, startpostion + 4),
-                             (Int32)BitConverter.ToInt16(package, startpostion + 6),
-                             (ElementColor)(Int32)BitConverter.ToInt16(package, startpostion + 2),
-                             (Int32)BitConverter.ToInt16(package, startpostion + 8),
-                             sb.ToString()));
-                            startpostion += sb.Length + 10 + 1;
-                            break;
-                        case 7:
-                            Int32 step = (Int32)BitConverter.ToInt16(package, startpostion + 8);
-                            startpostion += 10 + step * 2;
-                            break;
-                        case 8:
-                            Int32 x = (Int32)BitConverter.ToInt16(package, startpostion + 4);
-                            Int32 y = (Int32)BitConverter.ToInt16(package, startpostion + 6);
-                            Int32 startx = (Int32)BitConverter.ToInt16(package, startpostion + 12);
-                            Int32 starty = (Int32)BitConverter.ToInt16(package, startpostion + 14);
-                            Int32 endx = (Int32)BitConverter.ToInt16(package, startpostion + 16);
-                            Int32 endy = (Int32)BitConverter.ToInt16(package, startpostion + 18);
-                            res.Add(new ElementArc((Int32)type,
-                                x,
-                                y,
-                                (ElementColor)(Int32)BitConverter.ToInt16(package, startpostion + 2),
-                                (Int32)BitConverter.ToInt16(package, startpostion + 8),
-                                (Int32)BitConverter.ToInt16(package, startpostion + 10),
-                                GetAngleInDegree(startx - x,starty - y),
-                                GetAngleInDegree(endx - x,endy - y)));
-                            startpostion += 20;
-                            break;
-                        case 9:
-                            res.Add(new ElementArrow((Int32)type,
-                                (Int32)BitConverter.ToInt16(package, startpostion + 4),
-                                (Int32)BitConverter.ToInt16(package, startpostion + 6),
-                                (ElementColor)(Int32)BitConverter.ToInt16(package, startpostion + 2),
-                                (Int32)BitConverter.ToInt16(package, startpostion + 8),
-                                (Int32)BitConverter.ToInt16(package, startpostion + 10),
-                                (Int32)BitConverter.ToInt16(package, startpostion + 12),
-                                (Int32)BitConverter.ToInt16(package, startpostion + 14)));
-                            startpostion += 16;
-                            break;
-                        default:
-                            break;
+                        switch (type)
+                        {
+                            case 1:
+                                res.Add(new ElementPoint((Int32)type,
+                                    (Int32)BitConverter.ToInt16(package, startpostion + 4),
+                                    (Int32)BitConverter.ToInt16(package, startpostion + 6),
+                                    (ElementColor)(Int32)BitConverter.ToInt16(package, startpostion + 2)));
+                                startpostion += 8;
+                                break;
+                            case 2:
+                                res.Add(new ElementLine((Int32)type,
+                                    (Int32)BitConverter.ToInt16(package, startpostion + 4),
+                                    (Int32)BitConverter.ToInt16(package, startpostion + 6),
+                                    (ElementColor)(Int32)BitConverter.ToInt16(package, startpostion + 2),
+                                    (Int32)BitConverter.ToInt16(package, startpostion + 8),
+                                    (Int32)BitConverter.ToInt16(package, startpostion + 10)));
+                                startpostion += 12;
+                                break;
+                            case 3:
+                                res.Add(new ElementCircle((Int32)type,
+                                    (Int32)BitConverter.ToInt16(package, startpostion + 4),
+                                    (Int32)BitConverter.ToInt16(package, startpostion + 6),
+                                    (ElementColor)(Int32)BitConverter.ToInt16(package, startpostion + 2),
+                                    (Int32)BitConverter.ToInt16(package, startpostion + 8),
+                                    (Int32)BitConverter.ToInt16(package, startpostion + 10)));
+                                startpostion += 12;
+                                break;
+                            case 4:
+                                res.Add(new ElementEllipse((Int32)type,
+                                    (Int32)BitConverter.ToInt16(package, startpostion + 4),
+                                    (Int32)BitConverter.ToInt16(package, startpostion + 6),
+                                    (ElementColor)(Int32)BitConverter.ToInt16(package, startpostion + 2),
+                                    (Int32)BitConverter.ToInt16(package, startpostion + 8),
+                                    (Int32)BitConverter.ToInt16(package, startpostion + 10)));
+                                startpostion += 12;
+                                break;
+                            case 5:
+                                res.Add(new ElementWindow((Int32)type,
+                                    (Int32)BitConverter.ToInt16(package, startpostion + 4),
+                                    (Int32)BitConverter.ToInt16(package, startpostion + 6),
+                                    (ElementColor)(Int32)BitConverter.ToInt16(package, startpostion + 2),
+                                    (Int32)BitConverter.ToInt16(package, startpostion + 8),
+                                    (Int32)BitConverter.ToInt16(package, startpostion + 10)));
+                                startpostion += 12;
+                                break;
+                            case 6:
+                                Int32 flag = 0;
+                                StringBuilder sb = new StringBuilder();
+                                while (package[startpostion + 10 + flag] != 0x00)
+                                {
+                                    sb.Append((char)package[startpostion + 10 + flag]);
+                                    //sb.Append(package[startpostion + 10 + flag]);
+                                    flag++;
+                                }
+                                res.Add(new ElementString((Int32)type,
+                                 (Int32)BitConverter.ToInt16(package, startpostion + 4),
+                                 (Int32)BitConverter.ToInt16(package, startpostion + 6),
+                                 (ElementColor)(Int32)BitConverter.ToInt16(package, startpostion + 2),
+                                 (Int32)BitConverter.ToInt16(package, startpostion + 8),
+                                 sb.ToString()));
+                                startpostion += sb.Length + 10 + 1;
+                                break;
+                            case 7:
+                                Int32 step = (Int32)BitConverter.ToInt16(package, startpostion + 8);
+                                startpostion += 10 + step * 2;
+                                break;
+                            case 8:
+                                Int32 x = (Int32)BitConverter.ToInt16(package, startpostion + 4);
+                                Int32 y = (Int32)BitConverter.ToInt16(package, startpostion + 6);
+                                Int32 startx = (Int32)BitConverter.ToInt16(package, startpostion + 12);
+                                Int32 starty = (Int32)BitConverter.ToInt16(package, startpostion + 14);
+                                Int32 endx = (Int32)BitConverter.ToInt16(package, startpostion + 16);
+                                Int32 endy = (Int32)BitConverter.ToInt16(package, startpostion + 18);
+                                res.Add(new ElementArc((Int32)type,
+                                    x,
+                                    y,
+                                    (ElementColor)(Int32)BitConverter.ToInt16(package, startpostion + 2),
+                                    (Int32)BitConverter.ToInt16(package, startpostion + 8),
+                                    (Int32)BitConverter.ToInt16(package, startpostion + 10),
+                                    GetAngleInDegree(startx - x, starty - y),
+                                    GetAngleInDegree(endx - x, endy - y)));
+                                startpostion += 20;
+                                break;
+                            case 9:
+                                res.Add(new ElementArrow((Int32)type,
+                                    (Int32)BitConverter.ToInt16(package, startpostion + 4),
+                                    (Int32)BitConverter.ToInt16(package, startpostion + 6),
+                                    (ElementColor)(Int32)BitConverter.ToInt16(package, startpostion + 2),
+                                    (Int32)BitConverter.ToInt16(package, startpostion + 8),
+                                    (Int32)BitConverter.ToInt16(package, startpostion + 10),
+                                    (Int32)BitConverter.ToInt16(package, startpostion + 12),
+                                    (Int32)BitConverter.ToInt16(package, startpostion + 14)));
+                                startpostion += 16;
+                                break;
+                            default:
+                                break;
+                        }
                     }
+                    else
+                    {
+                        Int32 x = (Int32)BitConverter.ToInt16(package, startpostion + 4) - camera.Roi_x;
+                        Int32 y = (Int32)BitConverter.ToInt16(package, startpostion + 6) - camera.Roi_y;
+                        switch (type)
+                        {
+                            case 1:
+                                if (0 > x || 0 > y)
+                                {
+
+                                }
+                                else
+                                {
+                                    res.Add(new ElementPoint((Int32)type,
+                                        x, y,
+                                        (ElementColor)(Int32)BitConverter.ToInt16(package, startpostion + 2)));
+                                }
+                                startpostion += 8;
+                                break;
+                            case 2:
+                                if (0 > x || 0 > y)
+                                {
+
+                                }
+                                else
+                                {
+                                    res.Add(new ElementLine((Int32)type,
+                                    x, y,
+                                    (ElementColor)(Int32)BitConverter.ToInt16(package, startpostion + 2),
+                                    (Int32)BitConverter.ToInt16(package, startpostion + 8) - camera.Roi_x,
+                                    (Int32)BitConverter.ToInt16(package, startpostion + 10) - camera.Roi_y));
+                                }
+                                startpostion += 12;
+                                break;
+                            case 3:
+                                if (0 > x || 0 > y)
+                                {
+
+                                }
+                                else
+                                {
+                                    res.Add(new ElementCircle((Int32)type,
+                                    x, y,
+                                    (ElementColor)(Int32)BitConverter.ToInt16(package, startpostion + 2),
+                                    (Int32)BitConverter.ToInt16(package, startpostion + 8),
+                                    (Int32)BitConverter.ToInt16(package, startpostion + 10)));
+                                }
+                                startpostion += 12;
+                                break;
+                            case 4:
+                                if (0 > x || 0 > y)
+                                {
+
+                                }
+                                else
+                                {
+                                    res.Add(new ElementEllipse((Int32)type,
+                                    x, y,
+                                    (ElementColor)(Int32)BitConverter.ToInt16(package, startpostion + 2),
+                                    (Int32)BitConverter.ToInt16(package, startpostion + 8),
+                                    (Int32)BitConverter.ToInt16(package, startpostion + 10)));
+                                }
+                                startpostion += 12;
+                                break;
+                            case 5:
+                                if (0 > x || 0 > y)
+                                {
+
+                                }
+                                else
+                                {
+                                    res.Add(new ElementWindow((Int32)type,
+                                    x, y,
+                                    (ElementColor)(Int32)BitConverter.ToInt16(package, startpostion + 2),
+                                    (Int32)BitConverter.ToInt16(package, startpostion + 8),
+                                    (Int32)BitConverter.ToInt16(package, startpostion + 10)));
+                                }
+                                startpostion += 12;
+                                break;
+                            case 6:
+                                Int32 flag = 0;
+                                StringBuilder sb = new StringBuilder();
+                                while (package[startpostion + 10 + flag] != 0x00)
+                                {
+                                    sb.Append((char)package[startpostion + 10 + flag]);
+                                    //sb.Append(package[startpostion + 10 + flag]);
+                                    flag++;
+                                }
+                                if (0 > x || 0 > y)
+                                {
+
+                                }
+                                else
+                                {
+                                    res.Add(new ElementString((Int32)type,
+                                    x, y,
+                                 (ElementColor)(Int32)BitConverter.ToInt16(package, startpostion + 2),
+                                 (Int32)BitConverter.ToInt16(package, startpostion + 8),
+                                 sb.ToString()));
+                                }
+                                startpostion += sb.Length + 10 + 1;
+                                break;
+                            case 7:
+                                Int32 step = (Int32)BitConverter.ToInt16(package, startpostion + 8);
+                                startpostion += 10 + step * 2;
+                                break;
+                            case 8:
+                                Int32 startx = (Int32)BitConverter.ToInt16(package, startpostion + 12);
+                                Int32 starty = (Int32)BitConverter.ToInt16(package, startpostion + 14);
+                                Int32 endx = (Int32)BitConverter.ToInt16(package, startpostion + 16);
+                                Int32 endy = (Int32)BitConverter.ToInt16(package, startpostion + 18);
+                                if (0 > x || 0 > y)
+                                {
+
+                                }
+                                else
+                                {
+                                    res.Add(new ElementArc((Int32)type,
+                                    x,
+                                    y,
+                                    (ElementColor)(Int32)BitConverter.ToInt16(package, startpostion + 2),
+                                    (Int32)BitConverter.ToInt16(package, startpostion + 8),
+                                    (Int32)BitConverter.ToInt16(package, startpostion + 10),
+                                    GetAngleInDegree(startx - x, starty - y),
+                                    GetAngleInDegree(endx - x, endy - y)));
+                                }
+                                startpostion += 20;
+                                break;
+                            case 9:
+                                if (0 > x || 0 > y)
+                                {
+
+                                }
+                                else
+                                {
+                                    res.Add(new ElementArrow((Int32)type,
+                                    x, y,
+                                    (ElementColor)(Int32)BitConverter.ToInt16(package, startpostion + 2),
+                                    (Int32)BitConverter.ToInt16(package, startpostion + 8) - camera.Roi_x,
+                                    (Int32)BitConverter.ToInt16(package, startpostion + 10) - camera.Roi_y,
+                                    (Int32)BitConverter.ToInt16(package, startpostion + 12),
+                                    (Int32)BitConverter.ToInt16(package, startpostion + 14)));
+                                }
+                                startpostion += 16;
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+
+
                 }
                 catch (Exception)
                 {
@@ -476,7 +630,7 @@ namespace AI_MasterControl
             }
             else if (0 < y && 0 == x)
             {
-                degree = PI/2;
+                degree = PI / 2;
             }
             else if (0 > y && 0 > x)
             {
@@ -496,14 +650,14 @@ namespace AI_MasterControl
             }
             else if (0 < y && 0 == x)
             {
-                degree = PI/2;
+                degree = PI / 2;
             }
             else if (0 < y && 0 < x)
             {
                 temp = Math.Abs(((double)((double)y / (double)x)));
                 degree = Math.Atan(temp);
             }
-            return degree *180 / PI;
+            return degree * 180 / PI;
         }
     }
 }
