@@ -154,13 +154,15 @@ namespace AI_MasterControl
                             Int32 iPackageCount = (Int32)BitConverter.ToInt16(package, 2);
                             Int32 overlaycount = BitConverter.ToInt32(package, 8);
                             packageTotal = 1 + iPackageCount + overlaycount;
+                            Console.WriteLine($"Overlay:{overlaycount} PackageCount:{iPackageCount} PackageTotal:{packageTotal}");
                         }
                         if (lastPackagenum != iPackageNum)
                         {
                             packagecount++;
                         }
                         tempUdpBuffer.Add(package);
-                        lastPackagenum = iImgNum;
+                        lastPackagenum = iPackageNum;
+                        Console.WriteLine($"当前PackageNum:{iPackageNum},LastPackageNum:{lastPackagenum}");
                         if (packagecount == packageTotal)
                         {
                             UdpPackageBuffer.Enqueue(new List<Byte[]>(tempUdpBuffer));
